@@ -1,0 +1,14 @@
+LICENSE
+pyproject.toml
+src/sdcc/__init__.py
+src/sdcc/barriers.py
+src/sdcc/energy.py
+src/sdcc/materials.py
+src/sdcc/plotting.py
+src/sdcc/simulation.py
+src/sdcc/treatment.py
+src/sdcc_bcych.egg-info/PKG-INFO
+src/sdcc_bcych.egg-info/SOURCES.txt
+src/sdcc_bcych.egg-info/dependency_links.txt
+src/sdcc_bcych.egg-info/requires.txt
+src/sdcc_bcych.egg-info/top_level.txt

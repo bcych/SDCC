@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: sdcc_bcych
+Version: 0.0.1
+Summary: Single Domain Comprehensive Calculator
+Author-email: Brendan Cych <bcych@liverpool.ac.uk>
+Project-URL: Homepage, https://github.com/bcych/sdcc
+Project-URL: Issues, https://github.com/bcych/sdcc/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: scipy
+Requires-Dist: scikit-image
+Requires-Dist: mpmath

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdcc_bcych"
+version = "0.0.1"
+authors = [
+  { name="Brendan Cych", email="bcych@liverpool.ac.uk" },
+]
+description = "Single Domain Comprehensive Calculator"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "scikit-image",
+    "mpmath"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/bcych/sdcc"
+Issues = "https://github.com/bcych/sdcc/issues"
