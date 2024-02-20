@@ -470,6 +470,7 @@ def get_min_regions(energies,markers=None):
     #If using markers, tile those.
     if type(markers)!=type(None):
         tiled_markers=np.tile(markers,2) #tile markers
+        tiled_markers=tiled_markers.astype('int')
 
     else:
         tiled_markers=None
@@ -495,6 +496,8 @@ def get_min_regions(energies,markers=None):
         if 1000 in minimum[1]:
             minindex= np.where(minimum[1]==1000)
             j = labels[minimum[0][minindex],0]
+            if type(j) != int:
+            	j = j[0]
             labels[labels==j]=i
 
     #Change things on the left edge to have the same label as things on right
@@ -507,6 +510,8 @@ def get_min_regions(energies,markers=None):
         if 0 in minimum[1]:
             minindex= np.where(minimum[1]==0)
             j = labels[minimum[0][minindex],-1]
+            if type(j) != int:
+            	j = j[0]
             labels[labels==j]=i
 
     #align labels with energies
