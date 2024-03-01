@@ -4,7 +4,8 @@ import pickle
 import multiprocessing as mpc
 from sdcc.barriers import GrainEnergyLandscape,GEL,find_all_barriers
 from sdcc.energy import angle2xyz,xyz2angle,dir_to_rot_mat,get_material_parms
-mp.prec=100
+mp.prec = 100
+mp.mp.prec = 100
 from sdcc.treatment import relaxation_time
 
 def change_minima(p_old,old_theta_list,old_phi_list,new_theta_list,

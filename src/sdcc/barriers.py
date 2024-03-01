@@ -387,7 +387,7 @@ def dijkstras(i,j,barriers):
     visited[i]=True
     while visited[j] is False:
         temp_distances=np.copy(distances)
-        temp_distances[visited==True]=np.inf
+        temp_distances[visited]=np.inf
 
         k = np.where((temp_distances==np.min(temp_distances)))[0]
         if isinstance(k,float):
@@ -661,9 +661,9 @@ def fix_minima(min_coords,energies,max_minima):
         i+=1
         new_markers[new_coord[0],new_coord[1]]=i
         if new_coord[1]==0:
-            new_markers[minimum[0],1000]=i
+            new_markers[new_coord[0],1000]=i
         if new_coord[1]==1000:
-            new_markers[minimum[0],0]=i
+            new_markers[new_coord[0],0]=i
     return(new_markers)
 
 def merge_similar_minima(min_coords,thetas,phis,energies,tol):
@@ -842,7 +842,8 @@ prune=True,trim=True,tol=2.):
     else:
         raise ValueError('Something wrong with anisotropy field')
     #Get the energy surface
-    thetas,phis,energies=energy_surface(k1,k2,rot_mat,Ms,LMN,ext_field,n_points=1001)
+    thetas,phis,energies=energy_surface(k1,k2,rot_mat,Ms,LMN,ext_field,
+                                        n_points=1001)
 
     #Get the drainage divides of the LEM states
     theta_list=[]
@@ -851,7 +852,8 @@ prune=True,trim=True,tol=2.):
     min_coords,labels=get_min_regions(energies)
 
     #Run a second pass to eliminate similar minima
-    min_coords_new,markers_new=merge_similar_minima(min_coords,thetas,phis,energies,tol)
+    min_coords_new,markers_new=merge_similar_minima(min_coords,thetas,phis,
+                                                    energies,tol)
     n_markers_old = len(np.unique(labels))
     n_markers_new = len(np.unique(markers_new)) - 1
 
@@ -873,7 +875,8 @@ prune=True,trim=True,tol=2.):
         min_energy_list.append(energy)
 
     #Get energy barriers associated with minimum regions.
-    theta_mat,phi_mat,barriers=construct_energy_mat_fast(thetas,phis,energies,labels)
+    theta_mat,phi_mat,barriers=construct_energy_mat_fast(thetas,phis,energies,
+                                                         labels)
 
     #Prune states where it's easier to reach from another state always.
     if prune:
@@ -887,7 +890,8 @@ prune=True,trim=True,tol=2.):
     #Check for weird erroneous states with entirely infinite barriers
     #to/from and remove.
     #This is yet another weird edge case that we have to catch
-    bad_filter=(np.all(np.isinf(barriers),axis=1)|np.all(np.isinf(barriers),axis=0))
+    bad_filter=(np.all(np.isinf(barriers),axis=1)|np.all(np.isinf(barriers),
+                                                         axis=0))
 
     theta_list=theta_list[~bad_filter]
     phi_list=phi_list[~bad_filter]
@@ -1296,12 +1300,15 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
         pmats[i]=temp_phis
     
     #Remake everything
-    tlists=np.array([tlist for tlist in tlists])
-    plists=np.array([plist for plist in plists])
-    mlists=np.array([mlist for mlist in mlists])
-    tmats=np.array([tmat for tmat in tmats])
-    pmats=np.array([pmat for pmat in pmats])
-    barriers=np.array([barrier for barrier in barriers])
+    try:
+        tlists=np.array([tlist for tlist in tlists])
+        plists=np.array([plist for plist in plists])
+        mlists=np.array([mlist for mlist in mlists])
+        tmats=np.array([tmat for tmat in tmats])
+        pmats=np.array([pmat for pmat in pmats])
+        barriers=np.array([barrier for barrier in barriers])
+    except ValueError:
+        pass
     return(tlists,plists,mlists,tmats,pmats,barriers)
 
 
@@ -1483,13 +1490,15 @@ def test_merge(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
         temp_phis[:,:old_len]=nnew_phis[:,:old_len]
         pmats[i]=temp_phis
     
-    
-    tlists=np.array([tlist for tlist in tlists])
-    plists=np.array([plist for plist in plists])
-    mlists=np.array([mlist for mlist in mlists])
-    tmats=np.array([tmat for tmat in tmats])
-    pmats=np.array([pmat for pmat in pmats])
-    barriers=np.array([barrier for barrier in barriers])
+    try:
+        tlists=np.array([tlist for tlist in tlists])
+        plists=np.array([plist for plist in plists])
+        mlists=np.array([mlist for mlist in mlists])
+        tmats=np.array([tmat for tmat in tmats])
+        pmats=np.array([pmat for pmat in pmats])
+        barriers=np.array([barrier for barrier in barriers])
+    except ValueError:
+        pass
     return(tlists,plists,mlists,tmats,pmats,barriers)
 
 def reorder(old_theta_list,old_phi_list,new_theta_list,new_phi_list,new_m_list,
@@ -1547,7 +1556,10 @@ def reorder(old_theta_list,old_phi_list,new_theta_list,new_phi_list,new_m_list,
 
         new_indices[j]=np.where(cos_dist[j,:]==np.amax(cos_dist[j,:]))[0]
     new_indices=new_indices.astype(int)
-    return(new_theta_list[new_indices],new_phi_list[new_indices],new_m_list[new_indices],new_theta_mat[:,new_indices][new_indices],new_phi_mat[:,new_indices][new_indices],new_barriers[:,new_indices][new_indices])
+    return(new_theta_list[new_indices],new_phi_list[new_indices],
+           new_m_list[new_indices],new_theta_mat[:,new_indices][new_indices],
+           new_phi_mat[:,new_indices][new_indices],
+           new_barriers[:,new_indices][new_indices])
 
 def energy_spline(x,y):
     """
@@ -1732,32 +1744,43 @@ class GEL:
     def __init__(self,TMx,alignment,PRO,OBL,T_spacing=1):
         theta_lists,phi_lists,min_energies,theta_mats,phi_mats,energy_mats,\
             Ts=find_T_barriers(TMx,alignment,PRO,OBL,T_spacing=T_spacing)
+
         arrlens=np.array([len(thetas) for thetas in theta_lists])
+
         #Check for times where number of minima changes
         diffno=np.where(np.diff(arrlens)!=0)[0]
-        
-        #Go through each of these segments and reorder so everything is in a consistent order
-        if len(diffno)>0:
-            for i in range(0,int(diffno[0])):
-                theta_lists[i+1],phi_lists[i+1],min_energies[i+1],theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
-                =reorder(theta_lists[i],phi_lists[i],
-                         theta_lists[i+1],phi_lists[i+1],min_energies[i+1],theta_mats[i+1],phi_mats[i+1],energy_mats[i+1])
+        diffno=np.append(diffno,len(theta_lists)-1)
+        diffno=np.append(-1,diffno)
 
-            for i in range(diffno[0]+1,len(theta_lists)-1):
-                theta_lists[i+1],phi_lists[i+1],min_energies[i+1],theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
-                =reorder(theta_lists[i],phi_lists[i],
-                         theta_lists[i+1],phi_lists[i+1],min_energies[i+1],theta_mats[i+1],phi_mats[i+1],energy_mats[i+1])
+        #Go through each of these segments and reorder so everything is in a 
+        #consistent order
+        if len(diffno)>2:
+            for j in range(len(diffno)-1):
+                for i in range(diffno[j]+1,diffno[j+1]):
+                    theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
+                    theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
+                    =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
+                            phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
+                            phi_mats[i+1],energy_mats[i+1])
             
-            
-            #Now merge barriers that are 
-            appended_diffno=np.append(diffno,len(theta_lists))
-            for i in range(len(appended_diffno[:-1])):
-                n=appended_diffno[i]
-                maxstep=appended_diffno[i+1]
-                theta_lists,phi_lists,min_energies,theta_mats,phi_mats,energy_mats\
-                =merge_barriers(theta_lists,phi_lists,min_energies,theta_mats,phi_mats,energy_mats,n,0,maxstep)
-
+            diffno[-1] += 1
+            #Now make everything the same length.
+            for i,diff in enumerate(diffno[1:-1]):
+                minstep = 0
+                n = diff
+                maxstep = diffno[i+2]
+                theta_lists,phi_lists,min_energies,theta_mats,phi_mats,\
+                energy_mats=merge_barriers(theta_lists,phi_lists,min_energies,
+                                        theta_mats,phi_mats,energy_mats,n,
+                                        0,maxstep)
+        #If everything's already the same length, no need to merge.
         else:
+            for i in range(0,len(theta_lists)-1):
+                theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
+                theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
+                =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
+                        phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
+                        phi_mats[i+1],energy_mats[i+1])
             theta_lists=np.array(theta_lists)
             phi_lists=np.array(phi_lists)
             min_energies=np.array(min_energies)
@@ -1768,8 +1791,11 @@ class GEL:
         min_dir=np.empty(theta_lists.shape[1],dtype='object')
         min_energy=np.empty(theta_lists.shape[1],dtype='object')
         
-        bar_dir=np.empty((theta_lists.shape[1],theta_lists.shape[1]),dtype='object')
-        bar_energies=np.empty((theta_lists.shape[1],theta_lists.shape[1]),dtype='object')
+        bar_dir=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+                         dtype='object')
+        bar_energies=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+                              dtype='object')
+        
         for i in range(theta_lists.shape[1]):
             dirs=np.array([theta_lists[:,i],phi_lists[:,i]]).T
             tck=direction_spline(Ts,dirs)
@@ -1836,17 +1862,20 @@ class GEL:
         min_dir=[]
         min_e=[]
 
-        if type(T)==float or  type(T)==int or type(T)==np.float64 or type(T)==np.int64:
+        if isinstance(T,(float,int,np.float64,np.int64)):
             assert (T<=self.T_max)&(T>=self.T_min),\
             'T must be between '+str(self.T_min)+' and '+str(self.T_max)
             bar_e=np.full(self.bar_energy.shape,np.inf)
-            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2),np.inf)
+            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2),
+                            np.inf)
 
-        elif type(T)==np.ndarray:
+        elif isinstance(T,np.ndarray):
             assert (np.amax(T)<=self.T_max)&(np.amin(T)>=self.T_min),\
             'T must be between '+str(self.T_min)+' and '+str(self.T_max)
-            bar_e=np.full(len(self.min_energy),len(self.min_energy),2,T.shape,np.inf)
-            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2,T.shape),np.inf)
+            bar_e=np.full(len(self.min_energy),len(self.min_energy),2,T.shape,
+                          np.inf)
+            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2,
+                             T.shape),np.inf)
         
         else:
             print(T)
