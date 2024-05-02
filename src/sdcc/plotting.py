@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sdcc.energy import demag_factors,get_material_parms,energy_surface,\
     angle2xyz,energy_xyz,xyz2angle
-from sdcc.treatment import ThermalStep
+from sdcc.treatment import TreatmentStep
 from jax import jit,grad
 import jax.numpy as jnp
-from jax.config import config
+from jax import config
 config.update("jax_enable_x64", True)
 
 def dimap(D, I):
@@ -580,7 +580,7 @@ def plot_routine(steps):
 
     Inputs
     ------
-    steps: list of treatment.ThermalStep objects
+    steps: list of treatment.TreatmentStep objects
 
     Returns
     -------
@@ -588,7 +588,7 @@ def plot_routine(steps):
     """
     fig,ax=plt.subplots(figsize=(12,4))
     plt.xlabel('t (hrs)')
-    plt.ylabel('T ($^\circ$C)')
+    plt.ylabel(r'T ($^\circ$C)')
     for step in steps:
         if step.step_type=='cooling':
             c='b'

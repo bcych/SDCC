@@ -7,7 +7,7 @@ from jax import jit
 import jax.numpy as jnp
 from sdcc.energy import demag_factors,get_material_parms,energy_surface,\
     calculate_anisotropies,angle2xyz,xyz2angle
-from jax.config import config
+from jax import config
 config.update("jax_enable_x64", True)
 from skimage import measure
 from itertools import combinations
@@ -428,6 +428,7 @@ def prune_energies(barriers,thetas,phis):
     phis: numpy array
     "Pruned" phi array
     """
+    temp_barriers = barriers
     for i in range(barriers.shape[0]):
         for j in range(barriers.shape[1]):
             if not np.isinf(barriers[i,j]) and j!=i:
@@ -1553,8 +1554,10 @@ def reorder(old_theta_list,old_phi_list,new_theta_list,new_phi_list,new_m_list,
             cos_dist[i,j]=np.dot(xyz_old,xyz_new)
             #cos_dist[j,i]=np.dot(xyz_old,xyz_new)
     for j in range(old_len):
-
-        new_indices[j]=np.where(cos_dist[j,:]==np.amax(cos_dist[j,:]))[0]
+        n_neighbor = np.where(cos_dist[j,:]==np.amax(cos_dist[j,:]))[0]
+        if type(n_neighbor)==np.ndarray:
+            n_neighbor = n_neighbor[0]
+        new_indices[j] = n_neighbor
     new_indices=new_indices.astype(int)
     return(new_theta_list[new_indices],new_phi_list[new_indices],
            new_m_list[new_indices],new_theta_mat[:,new_indices][new_indices],

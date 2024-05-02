@@ -424,9 +424,9 @@ energy_landscape:GEL,grain_dir,field_strs,field_dirs,eq=False):
     time step in a thermal treatment for a single direction in a 
     mono-dispersion of grains. This calculation is performed for a 
     single treatment step - i.e. a single heating or cooling.
-    See treatment.ThermalStep for a full description of this.
+    See treatment.TreatmentStep for a full description of this.
 
-    Inputs
+        Inputs
     ------
     start_t: float
     Time at which this experiment step starts
@@ -495,7 +495,7 @@ energy_landscape:GEL,eq=False):
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a 
     mono-dispersion of grains. This calculation is performed for a 
-    set of treatment steps - see treatment.ThermalStep for more details.
+    set of treatment steps - see treatment.TreatmentStep for more details.
 
     Inputs
     ------
@@ -508,7 +508,7 @@ energy_landscape:GEL,eq=False):
     d: float
     Equivalent volume spherical diameter of grain (nm).
     
-    steps: list of treatment.ThermalStep objects
+    steps: list of treatment.TreatmentStep objects
     Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
@@ -565,7 +565,7 @@ n_dirs=50,eq=False):
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for all directions in a 
     mono-dispersion of grains. This calculation is performed for a 
-    set of treatment steps - see treatment.ThermalStep for more details.
+    set of treatment steps - see treatment.TreatmentStep for more details.
     N.B. - Recommend using parallelized_mono_dispersion instead of this,
     it's a lot faster.
 
@@ -577,7 +577,7 @@ n_dirs=50,eq=False):
     d: float
     Equivalent volume spherical diameter of grain (nm).
     
-    steps: list of treatment.ThermalStep objects
+    steps: list of treatment.TreatmentStep objects
     Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
@@ -636,7 +636,7 @@ energy_landscape:GEL,n_dirs=50,eq=False):
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for all directions in a 
     mono-dispersion of grains. This calculation is performed for a 
-    set of treatment steps - see treatment.ThermalStep for more details.
+    set of treatment steps - see treatment.TreatmentStep for more details.
 
     Inputs
     ------
@@ -646,7 +646,7 @@ energy_landscape:GEL,n_dirs=50,eq=False):
     d: float
     Equivalent volume spherical diameter of grain (nm).
     
-    steps: list of treatment.ThermalStep objects
+    steps: list of treatment.TreatmentStep objects
     Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
@@ -799,7 +799,7 @@ def calc_relax_time(start_p,d,relax_routine,energy_landscape,ts):
     start_p: numpy array
     Starting state vector
 
-    relax_routine: list of treatment.ThermalStep objects.
+    relax_routine: list of treatment.TreatmentStep objects.
     Steps describing a relaxation time treatment (cooling infield,
     followed by hold at room temperature infield).
 
@@ -833,7 +833,7 @@ size_incr=150):
 
     Inputs
     ------
-    relax_routine: list of treatment.ThermalStep objects.
+    relax_routine: list of treatment.TreatmentStep objects.
     Steps describing a relaxation time treatment (cooling infield,
     followed by hold at room temperature infield).
 
