@@ -8,7 +8,6 @@ import jax.numpy as jnp
 from sdcc.energy import demag_factors,get_material_parms,energy_surface,\
     calculate_anisotropies,angle2xyz,xyz2angle
 from jax import config
-config.update("jax_enable_x64", True)
 from skimage import measure
 from itertools import combinations
 from skimage.segmentation import watershed
@@ -16,6 +15,7 @@ from skimage.feature import peak_local_max
 import pickle
 from scipy.interpolate import splprep,splrep,BSpline
 
+config.update("jax_enable_x64", True)
 ### GENERIC FUNCTIONS ###
 ### These functions are used by multiple energy barrier calculation
 ### methods. They are handy for calculating the minimum energy barriers
@@ -773,7 +773,7 @@ prune=True,trim=True,tol=2.):
     """
     Finds all the minimum energy states in an SD grains and the
     barriers between them.
-
+``
     Inputs
     ------
     TMx: float
@@ -1047,7 +1047,7 @@ class GrainEnergyLandscape():
         TMx=self.TMx,PRO=self.PRO,OBL=self.OBL,alignment=self.alignment)
         return(retstr)
     
-def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
+def merge_barriers_old(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep,merges=True):
     """
     This function is disgusting. There must be a better way to write this
     surely? Tracks energy barriers across different temperatures and
@@ -1155,25 +1155,51 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
         #Clostest minima to new index becomes j
         new_indices[j] = new_index
     old_indices = old_indices.astype(np.int64)
-    #Trim out new indices that are in the old array
-    #i.e. closest to an index in the old array
-    nnew_indices = np.setdiff1d(np.array(range(new_len)),old_indices)
-    #Add new indices that in old_array multiple times
-    #(i.e. we have a merge going on)
-    unique,counts = np.unique(old_indices,return_counts=True)
-    mergers = unique[counts>1]
+    if merges:
+        #Trim out new indices that are in the old array
+        #i.e. closest to an index in the old array
+        #Anything left is a new state (usually nothing)
+        new_states = np.setdiff1d(np.array(range(new_len)),old_indices)
+
+        #The opposite logic shows states that were lost from the old set.
+        lost_states = np.setdiff1d(np.array(range(old_len)),new_indices)
+
+        #Add new indices that in old_array multiple times
+        #(i.e. we have a merge going on)
+        unique,counts = np.unique(old_indices,return_counts=True)
+        mergers = unique[counts>1]
+        stable_states = unique[counts == 1]
+        #Everything that merges or was originally defined as a new state 
+        #Is lumped together as a new state
+        new_states = np.append(new_states,mergers)
+        really_new = []
+        
+        #sometimes, multiple states merge into a state that already
+        #existed! If this is the case, move to stable_states.
+        #We do this by checking whether it's in the exact same place
+        #Which doesn't always work if it's moved.
+        for i in range(len(new_states)):
+            new_state = new_indices[new_states[i]]
+            old_state = new_states[i]
+            if cos_dist[old_state,new_state] == 1.:
+                stable_states = np.append(stable_states,new_state)
+            else:
+                really_new.append(i)
+        
+        #remove anything that already existed from new_states.
+        really_new = np.array(really_new)
+        new_states = new_states[really_new]
+
+        #Combine everything together
+        new_len = len(new_states)
+        new_indices = new_indices[new_states]
+
+        #Get the new sets of thetas and phis
+        new_theta_list = new_theta_list[new_indices]
+        new_phi_list = new_phi_list[new_indices]
     
-    #Get a new set of indices
-    nnew_indices = np.append(nnew_indices,mergers)
-    
-    #Combine everything together
-    new_len = len(nnew_indices)
-    new_indices = new_indices[nnew_indices]
-    
-    #Get the new sets of thetas and phis
-    new_theta_list = new_theta_list[nnew_indices]
-    new_phi_list = new_phi_list[nnew_indices]
-    
+
+            
     #Make the old arrays (thetas, phis and energies for barriers and for
     #minima) the same length.
     old_theta_list=np.append(old_theta_list,new_theta_list)
@@ -1232,8 +1258,12 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
                 #basically this is enforcing that the states are
                 #immediately jumped out of at temperatures where
                 #they don't exist.
+
+                #Then we rerun the function but ignoring merges. Hopefully this fixes it!
+                
                 nold_barriers[j,int(new_indices[j-old_len])]=0
                 nnew_barriers[i,int(old_indices[i]+old_len)]=0
+                return(merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep,merges=False))
 
     
     #Remake all the input variables with correct length arrays
@@ -1299,6 +1329,460 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
         temp_phis[:old_len]=nnew_phis[:old_len]
         temp_phis[:,:old_len]=nnew_phis[:,:old_len]
         pmats[i]=temp_phis
+    
+    #Remake everything
+    try:
+        tlists=np.array([tlist for tlist in tlists])
+        plists=np.array([plist for plist in plists])
+        mlists=np.array([mlist for mlist in mlists])
+        tmats=np.array([tmat for tmat in tmats])
+        pmats=np.array([pmat for pmat in pmats])
+        barriers=np.array([barrier for barrier in barriers])
+    except ValueError:
+        pass
+    return(tlists,plists,mlists,tmats,pmats,barriers)
+
+def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
+    """
+    This function is disgusting. There must be a better way to write this
+    surely? Tracks energy barriers across different temperatures and
+    determines which barriers are the same when the number of barriers
+    changes. I would like this to be less than 170 lines ideally.
+
+    Inputs
+    ------
+    tlists, plists: numpy arrays
+    Arrays of the minimum energy directions in the SD energy surface
+
+    mlists: numpy array
+    Minimum energy at these directions
+
+    tmats,pmats: numpy arrays
+    Arrays of the directions associated with the energy barriers.
+
+    barriers: numpy array
+    Matrices of energy barriers between state i and state j.
+
+    n: int
+    Index corresponding to temperature at which barriers change
+
+    minstep: int
+    Index correspondng to starting temperature (i.e. last
+    dimension change)
+
+    maxstep: int
+    Index corresponding to final temperature (i.e. next
+    dimension change)
+    
+    Returns
+    -------
+    tlists, plists: numpy arrays
+    Consistemt length arrays of minimum energy directions in SD
+    energy surface
+
+    mlists: numpy array
+    Consistent length arrays of minimum energies in SD energy
+    surface
+
+    tmats,pmats: numpy arrays
+    Consistent size matrix of the directions associated with the
+    energy barriers
+
+    barriers: numpy array
+    Consistent size matrix of energy barriers between states i and
+    j.
+    """
+    
+    #Make copies of tlists
+    old_theta_list=tlists[n]
+    new_theta_list=tlists[n+1]
+    old_theta_list_orig=np.copy(tlists[n])
+    new_theta_list_orig=np.copy(tlists[n+1])
+    
+    #same with plists
+    old_phi_list=plists[n]
+    new_phi_list=plists[n+1]
+    old_phi_list_orig=np.copy(plists[n])
+    new_phi_list_orig=np.copy(plists[n+1])
+    
+    old_m_list=mlists[n]
+    new_m_list=mlists[n+1]
+    
+    old_barriers=barriers[n]
+    new_barriers=barriers[n+1]
+    
+    old_theta_mat=tmats[n]
+    new_theta_mat=tmats[n+1]
+    old_phi_mat=pmats[n]
+    new_phi_mat=pmats[n+1]
+    
+    #Get lengths of old and new barrier numbers
+    old_len=len(old_theta_list)
+    new_len=len(new_theta_list)
+
+    #Get lengths of 
+    cos_dist=np.empty((old_len,new_len))
+    new_indices=np.empty((new_len))
+    old_indices=np.empty((old_len))
+    
+    #Create an i  by j matrix of cosine distances
+    #Between minima in the old and new array.
+    for i in range(old_len):
+        for j in range(new_len):
+            xyz_old=angle2xyz(old_theta_list[i],old_phi_list[i])
+            xyz_new=angle2xyz(new_theta_list[j],new_phi_list[j])
+            cos_dist[i,j]=np.dot(xyz_old,xyz_new)
+    
+    cos_dist = np.nan_to_num(cos_dist,nan=0)
+    #Correspondence between old and new indices using the cosine distance
+    for i in range(old_len):
+        old_index=np.where(cos_dist[i]==np.amax(cos_dist[i]))[0]
+        if type(old_index)==np.ndarray:
+            old_index=old_index[0]
+        old_indices[i]=old_index
+        
+
+    for j in range(new_len):
+        #Assign index to closest variable
+        new_index=np.where(cos_dist[:,j]==np.amax(cos_dist[:,j]))[0]
+        if type(new_index)==np.ndarray:
+            new_index=new_index[0]
+        #Clostest minima to new index becomes j
+        new_indices[j] = new_index
+        
+    old_indices = old_indices.astype(np.int64)
+    new_indices = new_indices.astype(np.int64)
+
+    #Trim out new indices that are in the old array
+    #i.e. closest to an index in the old array
+    #Anything left is a new state (usually nothing)
+    new_states = np.setdiff1d(np.array(range(new_len)),old_indices)
+
+    #The opposite logic shows states that were lost from the old set.
+    lost_states = np.setdiff1d(np.array(range(old_len)),new_indices)
+
+    #Add new indices that in old_array multiple times
+    #(i.e. we have a merge going on)
+    unique,counts = np.unique(old_indices,return_counts=True)
+    mergers = unique[counts>1]
+    stable_states = unique[counts == 1]
+    #Everything that merges or was originally defined as a new state 
+    #Is lumped together as a new state
+    new_states = np.append(new_states,mergers)
+    
+    really_new = []
+    
+    #sometimes, multiple states merge into a state that already
+    #existed! If this is the case, move to stable_states.
+    #We do this by checking whether it's in the exact same place
+    #Which doesn't always work if it's moved.
+    for i in range(len(mergers)):
+        new_state = new_indices[new_states[i]]
+        old_state = new_states[i]
+        
+        if cos_dist[new_state,old_state] == 1.:
+            stable_states = np.append(stable_states,old_state)
+        else:
+            really_new.append(i)
+    
+    #remove anything that already existed from new_states.
+    really_new = np.array(really_new).astype(np.int64)
+    new_states = new_states[really_new]
+
+    #Check whether everything in old_states is "Stable" or "Lost"
+    old_stable = np.empty(old_len)
+    for i in range(old_len):
+        if i in lost_states:
+            old_stable[i] = False
+        elif i in new_indices[new_states]:
+            old_stable[i] = False
+        else:
+            old_stable[i] = True
+
+
+    #Combine everything together
+    new_len = len(new_states)
+    nnew_indices = new_indices[new_states]
+    #Get the new sets of thetas and phis
+    #new_theta_list = new_theta_list[new_states]
+    #new_phi_list = new_phi_list[new_states]
+    
+            
+    #Make the old arrays (thetas, phis and energies for barriers and for
+    #minima) the same length.
+    old_theta_list=np.append(old_theta_list,new_theta_list[new_states])
+    temp_tlist=np.full(old_len+new_len,np.inf)
+    
+    old_phi_list=np.append(old_phi_list,new_phi_list[new_states])
+    temp_plist=np.full(old_len+new_len,np.inf)
+    
+    old_m_list=np.append(old_m_list,np.full(new_len,np.inf))
+    temp_mlist=np.full(old_len+new_len,np.inf)
+    
+    #Create a set of "new old" and "new new" barriers and minima
+    nold_barriers=np.full((old_len+new_len,old_len+new_len),np.inf)
+    nnew_barriers=np.full((old_len+new_len,old_len+new_len),np.inf)
+    nold_thetas=np.full((old_len+new_len,old_len+new_len),-np.inf)
+    nnew_thetas=np.full((old_len+new_len,old_len+new_len),-np.inf)
+    nold_phis=np.full((old_len+new_len,old_len+new_len),-np.inf)
+    nnew_phis=np.full((old_len+new_len,old_len+new_len),-np.inf)
+    
+    #Loop through the old set of barriers
+    for i in range(old_len):
+        if old_stable[i]:
+            l = old_indices[i]
+            temp_tlist[i] = new_theta_list[l]
+            temp_plist[i] = new_phi_list[l]
+            temp_mlist[i] = new_m_list[l]
+        else:
+            temp_tlist[i] = old_theta_list[i]
+            temp_plist[i] = old_phi_list[i]
+            
+        for j in range(old_len):
+            #Everything gets copied over from the old arrays
+            nold_barriers[i,j]=np.copy(old_barriers[i,j])
+            nold_thetas[i,j]=np.copy(old_theta_mat[i,j])
+            nold_phis[i,j]=np.copy(old_phi_mat[i,j])
+
+            #If these are states that are now lost
+            #Propagate the old barriers into the new state
+            #(so stuff doesn't get stuck)
+            if not old_stable[i] and not old_stable[j]:
+                nnew_barriers[i,j]=np.copy(old_barriers[i,j])
+                nnew_thetas[i,j]=np.copy(old_theta_mat[i,j])
+                nnew_phis[i,j]=np.copy(old_phi_mat[i,j])
+            #If they're stable, then just take the values from the new
+            #set of barriers
+            elif old_stable[i] and old_stable[j]:
+                k = old_indices[i]
+                l = old_indices[j]
+                nnew_barriers[i,j] = np.copy(new_barriers[k,l])
+                nnew_thetas[i,j] = np.copy(new_theta_mat[k,l])
+                nnew_phis[i,j] = np.copy(new_phi_mat[k,l])
+            #If state j is unstable, then make the barrier between
+            #state i and j is zero. 
+            elif not old_stable[i] and old_stable[j]:
+                #Check to see whether there's a barrier here
+                if not np.isinf(old_barriers[i,j]):
+                    nnew_barriers[i,j] = 0
+                    nnew_thetas[i,j] = np.copy(old_theta_mat[i,j])
+                    nnew_phis[i,j] = np.copy(old_phi_mat[i,j])
+            else:
+                pass
+
+                
+
+    #we need to reindex old_indices to correspond to the length of new_states.
+    #we use np.nan as an index if we run into problems.
+    oold_indices = np.array([oo if oo in new_states else np.nan for oo in old_indices])
+    for i, s in enumerate(new_states):
+        oold_indices[oold_indices == s] = i
+    #For everything in the NEW set of barriers
+
+    for i in range(old_len+new_len):
+        for j in range(old_len,old_len+new_len):
+            l = new_states[j-old_len]
+            temp_tlist[j] = new_theta_list[l]
+            temp_plist[j] = new_phi_list[l]
+            temp_mlist[j] = new_m_list[l]
+            #If we're in the indices that are the new set of barriers
+            if i>=old_len:
+                k = new_states[i-old_len]
+
+                #Copy everything over from the new set of barriers
+                nold_barriers[i,j]=np.copy(new_barriers[k,l])
+                nnew_barriers[i,j]=np.copy(new_barriers[k,l])
+                nold_barriers[j,i]=np.copy(new_barriers[l,k])
+                nnew_barriers[j,i]=np.copy(new_barriers[l,k])
+                
+                nold_thetas[i,j]=np.copy(new_theta_mat[k,l])
+                nnew_thetas[i,j]=np.copy(new_theta_mat[k,l])
+                nold_thetas[j,i]=np.copy(new_theta_mat[l,k])
+                nnew_thetas[j,i]=np.copy(new_theta_mat[l,k])
+                
+                nold_phis[i,j]=np.copy(new_phi_mat[k,l])
+                nnew_phis[i,j]=np.copy(new_phi_mat[l,k])
+                nold_phis[j,i]=np.copy(new_phi_mat[k,l])
+                nnew_phis[j,i]=np.copy(new_phi_mat[l,k])
+            else:
+                #For everything else, the barriers are 0 when that state
+                #no longer exists, and you want to go to the nearest 
+                #neighbor state - the barriers back will stay at 
+                #infinity. The logic here is a little confusing, 
+                #basically this is enforcing that the states are
+                #immediately jumped out of at temperatures where
+                #they don't exist.
+
+                #Account for the special case where some barriers are lost
+                #But do not necessarily merge - this leads to an out of range
+                #IndexError because we're expecting more barriers. If this happens
+                #Then we rerun the function but ignoring merges. Hopefully this fixes it!
+                nold_barriers[j,int(nnew_indices[j-old_len])]=0
+
+                if not np.isnan(oold_indices[i-old_len]):
+                    nnew_barriers[i,int(oold_indices[i-old_len]+old_len)]=0
+                else:
+                    if old_stable[i]:
+                        k = old_indices[i]
+                        #nold_barriers[i,j]=np.copy(new_barriers[k,l])
+                        nnew_barriers[i,j]=np.copy(new_barriers[k,l])
+                        #nold_barriers[j,i]=np.copy(new_barriers[l,k])
+                        nnew_barriers[j,i]=np.copy(new_barriers[l,k])
+                        
+                        #nold_thetas[i,j]=np.copy(new_theta_mat[k,l])
+                        nnew_thetas[i,j]=np.copy(new_theta_mat[k,l])
+                        #nold_thetas[j,i]=np.copy(new_theta_mat[l,k])
+                        nnew_thetas[j,i]=np.copy(new_theta_mat[l,k])
+                        
+                        #nold_phis[i,j]=np.copy(new_phi_mat[k,l])
+                        nnew_phis[i,j]=np.copy(new_phi_mat[l,k])
+                        #nold_phis[j,i]=np.copy(new_phi_mat[k,l])
+                        nnew_phis[j,i]=np.copy(new_phi_mat[l,k])
+                    
+                    
+    new_m_list = temp_mlist
+    new_phi_list = temp_plist
+    new_theta_list = temp_tlist
+    #Remake all the input variables with correct length arrays
+    tlists[n]=old_theta_list
+    tlists[n+1]=new_theta_list
+    plists[n]=old_phi_list
+    plists[n+1]=new_phi_list
+    mlists[n]=old_m_list
+    mlists[n+1]=new_m_list
+    barriers[n]=nold_barriers
+    barriers[n+1]=nnew_barriers
+    tmats[n]=nold_thetas
+    tmats[n+1]=nnew_thetas
+    pmats[n]=nold_phis
+    pmats[n+1]=nnew_phis
+    #Propogate these new lengths to all the arrays at other temperatures
+    #as well.
+    #Change everything with the "old_barriers" states.
+    for i in range(minstep,n):
+        tlists[i] = np.append(tlists[i],new_theta_list_orig[new_states])
+        plists[i] = np.append(plists[i],new_phi_list_orig[new_states])
+        mlists[i]=np.append(mlists[i],np.full(new_len,np.inf))
+        
+        temp_barriers=np.full((old_len+new_len,old_len+new_len),np.inf)
+        temp_barriers[:old_len,:old_len]=barriers[i]
+        temp_barriers[old_len:]=nold_barriers[old_len:]
+        temp_barriers[:,old_len:]=nold_barriers[:,old_len:]
+        barriers[i]=temp_barriers
+        
+        temp_thetas=np.full((old_len+new_len,old_len+new_len),-np.inf)
+        temp_thetas[:old_len,:old_len]=tmats[i]
+        temp_thetas[old_len:]=nold_thetas[old_len:]
+        temp_thetas[:,old_len:]=nold_thetas[:,old_len:]
+        tmats[i]=temp_thetas
+        
+        temp_phis=np.full((old_len+new_len,old_len+new_len),-np.inf)
+        temp_phis[:old_len,:old_len]=pmats[i]
+        temp_phis[old_len:]=nold_phis[old_len:]
+        temp_phis[:,old_len:]=nold_phis[:,old_len:]
+        pmats[i]=temp_phis
+
+    for i in range(n+2,maxstep+1):
+
+        
+        
+        temp_barriers=np.full((old_len+new_len,old_len+new_len),np.inf)
+        temp_thetas=np.full((old_len+new_len,old_len+new_len),-np.inf)
+        temp_phis=np.full((old_len+new_len,old_len+new_len),-np.inf)
+        temp_mlist = np.full(old_len+new_len,np.inf)
+        temp_tlist = np.full(old_len+new_len,-np.inf)
+        temp_plist = np.full(old_len+new_len,-np.inf)
+        for j in range(old_len):
+                if old_stable[j]:
+                    l = old_indices[j]
+                    temp_mlist[j] = mlists[i][l]
+                    temp_tlist[j] = tlists[i][l]
+                    temp_plist[j] = plists[i][l]
+                else:
+                    temp_tlist[j] = old_theta_list[j]
+                    temp_plist[j] = old_phi_list[j]
+                for k in range(old_len):
+                    #If these are states that are now lost
+                    #Propagate the old barriers into the new state
+                    #(so stuff doesn't get stuck)
+                    if not old_stable[j] and not old_stable[k]:
+                        temp_barriers[j,k]=np.copy(old_barriers[j,k])
+                        temp_thetas[j,k]=np.copy(old_theta_mat[j,k])
+                        temp_phis[j,k]=np.copy(old_phi_mat[j,k])
+                    #If they're stable, then just take the values from the new
+                    #set of barriers
+                    elif old_stable[j] and old_stable[k]:
+                        l = old_indices[j]
+                        m = old_indices[k]
+                        temp_barriers[j,k] = np.copy(barriers[i][l,m])
+                        temp_thetas[j,k] = np.copy(tmats[i][l,m])
+                        temp_phis[j,k] = np.copy(pmats[i][l,m])
+                    #If state j is unstable, then make the barrier between
+                    #state i and j is zero. 
+                    elif not old_stable[j] and old_stable[k]:
+                        #Check to see whether there's a barrier here
+                        if not np.isinf(old_barriers[j,k]):
+                            temp_barriers[j,k] = 0
+                            temp_thetas[j,k] = np.copy(old_barriers[j,k])
+                            temp_phis[j,k] = np.copy(old_barriers[j,k])
+
+                    else:
+                        pass
+
+        for j in range(old_len+new_len):
+            for k in range(old_len,old_len+new_len):
+                m = new_states[k-old_len]
+                temp_tlist[k] = tlists[i][new_states[k-old_len]]
+                temp_plist[k] = plists[i][new_states[k-old_len]]
+                temp_mlist[k] = mlists[i][new_states[k-old_len]]
+                #If we're in the indices that are the new set of barriers
+                if j>=old_len:
+                    l = new_states[j-old_len]
+
+                    #Copy everything over from the new set of barriers
+                    temp_barriers[j,k]=np.copy(barriers[i][l,m])
+                    temp_barriers[k,j]=np.copy(barriers[i][m,l])
+                    
+                    temp_thetas[j,k]=np.copy(tmats[i][l,m])
+                    temp_thetas[k,j]=np.copy(tmats[i][m,l])
+                    
+                    temp_phis[j,k]=np.copy(pmats[i][l,m])
+                    temp_phis[k,j]=np.copy(pmats[i][m,l])
+                else:
+                    #For everything else, the barriers are 0 when that state
+                    #no longer exists, and you want to go to the nearest 
+                    #neighbor state - the barriers back will stay at 
+                    #infinity. The logic here is a little confusing, 
+                    #basically this is enforcing that the states are
+                    #immediately jumped out of at temperatures where
+                    #they don't exist.
+    
+                    #Account for the special case where some barriers are lost
+                    #But do not necessarily merge - this leads to an out of range
+                    newidx = oold_indices[j-old_len]
+                    if not np.isnan(newidx):
+                        temp_barriers[j,int(oold_indices[j-old_len]+old_len)]=0
+                    else:
+                        if old_stable[j]:
+                            l = old_indices[j]
+                            nnew_barriers[j,k]=np.copy(new_barriers[l,m])
+                            nnew_barriers[k,j]=np.copy(new_barriers[m,l])
+                            
+                            nnew_thetas[j,k]=np.copy(new_theta_mat[l,m])
+                            nnew_thetas[k,j]=np.copy(new_theta_mat[m,l])
+                            
+                            nnew_phis[j,k]=np.copy(new_phi_mat[l,m])
+                            nnew_phis[k,j]=np.copy(new_phi_mat[m,l])
+
+                            
+
+        
+        mlists[i]=temp_mlist
+        tlists[i] = temp_tlist
+        plists[i] = temp_plist
+        tmats[i]=temp_thetas
+        pmats[i]=temp_phis
+        barriers[i]=temp_barriers
     
     #Remake everything
     try:
@@ -1717,6 +2201,200 @@ def direction_result(t,c,k,T):
     return(np.nan_to_num(direction,nan=-np.inf))
 
 class GEL:
+    """
+    Class for storing energy barrier results at all temperatures for a
+    given grain geometry and composition.
+
+    Todo: 
+    1. This should inherit from some base class shared with Hysteresis.
+    2. The run through of temperatures should be parallelized for much
+    quicker object creation.
+    
+    Input Attributes
+    ----------------
+    TMx: float
+    Titanomagnetite composition (0 - 100)
+
+    alignment: str
+    Alignment of magnetocrystalline and shape axis. Either 'hard' or
+    'easy' magnetocrystalline always aligned with shape easy.
+
+    PRO: float
+    Prolateness of ellipsoid (major / intermediate axis)
+
+    OBL: float
+    Oblateness of ellipsoid (intermediae / minor axis)
+
+    T_spacing: float
+    Spacing of temperature steps (Degrees C)
+    """
+    def __init__(self,TMx,alignment,PRO,OBL,T_spacing=1):
+        theta_lists,phi_lists,min_energies,theta_mats,phi_mats,energy_mats,\
+            Ts=find_T_barriers(TMx,alignment,PRO,OBL,T_spacing=T_spacing)
+
+        arrlens=np.array([len(thetas) for thetas in theta_lists])
+
+        #Check for times where number of minima changes
+        diffno=np.where(np.diff(arrlens)!=0)[0]
+        diffno=np.append(diffno,len(theta_lists)-1)
+        diffno=np.append(-1,diffno)
+
+        #Go through each of these segments and reorder so everything is in a 
+        #consistent order
+        if len(diffno)>2:
+            for j in range(len(diffno)-1):
+                for i in range(diffno[j]+1,diffno[j+1]):
+                    theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
+                    theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
+                    =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
+                            phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
+                            phi_mats[i+1],energy_mats[i+1])
+            
+            #diffno[-1] += 1
+            #Now make everything the same length.
+            for i,diff in enumerate(diffno[1:-1]):
+                minstep = 0
+                n = diff
+                maxstep = diffno[i+2]
+                theta_lists,phi_lists,min_energies,theta_mats,phi_mats,\
+                energy_mats=merge_barriers(theta_lists,phi_lists,min_energies,
+                                        theta_mats,phi_mats,energy_mats,n,
+                                        0,maxstep)
+        #If everything's already the same length, no need to merge.
+        else:
+            for i in range(0,len(theta_lists)-1):
+                theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
+                theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
+                =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
+                        phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
+                        phi_mats[i+1],energy_mats[i+1])
+            theta_lists=np.array(theta_lists)
+            phi_lists=np.array(phi_lists)
+            min_energies=np.array(min_energies)
+            theta_mats=np.array(theta_mats)
+            phi_mats=np.array(phi_mats)
+            energy_mats=np.array(energy_mats)
+        
+        min_dir=np.empty(theta_lists.shape[1],dtype='object')
+        min_energy=np.empty(theta_lists.shape[1],dtype='object')
+        
+        bar_dir=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+                         dtype='object')
+        bar_energies=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+                              dtype='object')
+        
+        for i in range(theta_lists.shape[1]):
+            dirs=np.array([theta_lists[:,i],phi_lists[:,i]]).T
+            tck=direction_spline(Ts,dirs)
+            min_dir[i]=tck
+            min_energy[i]=energy_spline(Ts,min_energies[:,i])
+            for j in range(theta_lists.shape[1]):
+                dirs=np.array([theta_mats[:,i,j],phi_mats[:,i,j]]).T
+                tck=direction_spline(Ts,dirs)
+                bar_dir[i,j]=tck
+                bar_energies[i,j]=energy_spline(Ts,energy_mats[:,i,j])
+        
+        self.min_dir=min_dir
+        self.min_energy=min_energy
+        self.bar_dir=bar_dir
+        self.bar_energy=bar_energies
+        self.TMx=TMx
+        self.alignment=alignment
+        self.PRO=PRO
+        self.OBL=OBL
+        self.T_max=max(Ts)
+        self.T_min=min(Ts)
+
+    def to_file(self,fname):
+        """
+        Saves GEL object to file.
+        
+        Inputs
+        ------
+        fname: string 
+        Filename
+
+        Returns
+        -------
+        None
+        """
+        with open(fname, 'wb') as f:
+            pickle.dump(self, f)
+        f.close()
+            
+    
+    def __repr__(self):
+        retstr="""Energy Landscape of TM{TMx} Grain with a prolateness of
+        {PRO} and an oblateness of {OBL} elongated along the
+        magnetocrystalline {alignment} axis.""".format(
+        TMx=self.TMx,PRO=self.PRO,OBL=self.OBL,alignment=self.alignment)
+        return(retstr)
+    
+    def get_params(self,T):
+        """
+        Gets directions and energies associated with LEM states and 
+        barriers for a grain as a function of temperature.
+
+        Inputs
+        ------
+        T: int, float or numpy array
+        Temperature(s) (degrees C)        
+        
+        Returns
+        -------
+        params: dict 
+        Dictionary of arrays for directions and energies.
+        """
+        rot_mat,k1,k2,Ms=get_material_parms(self.TMx,self.alignment,T)
+        min_dir=[]
+        min_e=[]
+
+        if isinstance(T,(float,int,np.float64,np.int64)):
+            assert (T<=self.T_max)&(T>=self.T_min),\
+            'T must be between '+str(self.T_min)+' and '+str(self.T_max)
+            bar_e=np.full(self.bar_energy.shape,np.inf)
+            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2),
+                            np.inf)
+
+        elif isinstance(T,np.ndarray):
+            assert (np.amax(T)<=self.T_max)&(np.amin(T)>=self.T_min),\
+            'T must be between '+str(self.T_min)+' and '+str(self.T_max)
+            bar_e=np.full(len(self.min_energy),len(self.min_energy),2,T.shape,
+                          np.inf)
+            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2,
+                             T.shape),np.inf)
+        
+        else:
+            print(T)
+            raise TypeError('T should not be type '+str(type(T)))
+
+        for i in range(len(self.min_energy)):
+            t,c,k=self.min_energy[i]
+            min_e.append(energy_result(t,c,k,T))
+            t,c,k=self.min_dir[i]
+            min_dir.append(direction_result(t,c,k,T))
+            for j in range(len(self.min_energy)):
+                t,c,k=self.bar_energy[i,j]
+                bar_e[i,j]=energy_result(t,c,k,T)
+                t,c,k=self.bar_dir[i,j]
+                bar_dir[i,j]=direction_result(t,c,k,T)
+                
+        bar_e[bar_e>1e308]=np.inf
+        bar_e[bar_e<0]=0.
+        min_e=np.array(min_e)
+        min_e[min_e>1e308]=np.inf
+        bar_dir[np.abs(bar_dir)>1e308]=np.inf
+        min_dir=np.array(min_dir)
+        min_dir[np.abs(min_dir)>1e308]=np.inf
+        params={'min_dir':np.array(min_dir),
+                'min_e':min_e,
+                'bar_dir':np.array(bar_dir),
+                'bar_e':np.array(bar_e),
+                'T':T,
+                'Ms':Ms}
+        return(params)
+
+class GEL2:
     """
     Class for storing energy barrier results at all temperatures for a
     given grain geometry and composition.

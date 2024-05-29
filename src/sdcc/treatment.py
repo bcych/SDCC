@@ -62,6 +62,7 @@ def temp2time(T, t1, T0, T1, T_amb):
     """
     frac_T = (T - T_amb) / (T0 - T_amb)
     T_rat = (T1 - T_amb) / (T0 - T_amb)
+    print(t1, T0, T1, T_amb)
     return t1 * np.log(frac_T) / np.log(T_rat)
 
 
@@ -80,9 +81,6 @@ class TreatmentStep:
             self.field_strs = field_strs
             self.field_dirs = field_dirs
             self.step_type = "custom"
-
-    def __repr__(self):
-        return "Custom treatment step"
 
 
 class CoolingStep(TreatmentStep):
@@ -103,8 +101,8 @@ class CoolingStep(TreatmentStep):
         char_temp=None,
     ):
         if char_temp == None or max_temp == None:
-            char_temp = t_start - 1
-            max_temp = t_start
+            char_temp = T_start - 1
+            max_temp = T_start
         Ts = np.arange(T_start, T_end - 1, -1, dtype="float64")
         Ts[-1] = Ts[-1] + 0.5
         self.Ts = Ts
@@ -192,6 +190,23 @@ class SuscStep(TreatmentStep):
     Treatment step for susceptibility measurements. Field changes rather
     than temperature.
     """
+
+    def __init__(
+        self, t_start, t_dur, freq, field_peak, field_dir, n_points=100, T=20.0
+    ):
+        self.Ts = np.full(n_points, T)
+        self.ts = np.linspace(0, t_dur, n_points)
+        self.field_strs = field_peak * np.sin(self.Ts * freq)
+        self.field_dirs = np.repeat(np.array([field_dir]), len(self.Ts), axis=0)
+        self.step_type = "VRM"
+        self.step_type = "Susc"
+        self.ts += t_start
+        self.Ts = self.Ts.astype(int)
+        self.freq = freq
+
+    def __repr__(self):
+        return f"""Susceptibility experiment in a 
+        {np.amax(self.field_strs)} μT {self.freq} Hz AC field"""
 
 
 def coe_experiment(temp_steps, B_anc, B_lab, B_ancdir, B_labdir):
@@ -313,4 +328,20 @@ def relaxation_time(energy_landscape: GEL, B_dir, B):
         hold_steps=361,
     )
     steps = [TRM, V_Rel]
+    return steps
+
+
+def dunlop_experiment(energy_landscape: GEL, B_dir, B, pTRM_min, pTRM_max, T_steps):
+    T_max = energy_landscape.T_max
+    T_min = energy_landscape.T_min
+    TRM = CoolingStep(0, T_max, T_min, 0, B_dir)
+    TRM.field_strs[(TRM.Ts <= pTRM_max) & (TRM.Ts >= pTRM_min)] = B
+    steps = [TRM]
+    for T in T_steps:
+        heating = HeatingStep(steps[-1].ts[-1], T_min, T, 0, B_dir)
+        steps.append(heating)
+        hold = HoldStep(steps[-1].ts[-1], T, 0, B_dir)
+        steps.append(hold)
+        cooling = CoolingStep(steps[-1].ts[-1], T, T_min, 0, B_dir)
+        steps.append(cooling)
     return steps
