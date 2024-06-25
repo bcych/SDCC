@@ -62,7 +62,6 @@ def temp2time(T, t1, T0, T1, T_amb):
     """
     frac_T = (T - T_amb) / (T0 - T_amb)
     T_rat = (T1 - T_amb) / (T0 - T_amb)
-    print(t1, T0, T1, T_amb)
     return t1 * np.log(frac_T) / np.log(T_rat)
 
 

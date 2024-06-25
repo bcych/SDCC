@@ -553,7 +553,7 @@ def grain_vectors(
     return (vs, ps)
 
 
-def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=False):
+def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=[False]):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a
@@ -598,7 +598,7 @@ def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=False
     # Steps are progressed through linearly
     new_start_p = start_p
     new_start_t = 0
-
+    j = 0
     for step in steps:
         # Get temperatures and times associated with each timestep
         ts = step.ts
@@ -617,8 +617,9 @@ def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=False
             grain_dir,
             field_strs,
             field_dirs,
-            eq=eq,
+            eq=eq[j],
         )
+        j += 1
 
         # Our new start vectors are whatever is left over after the
         # last step. One step follows immediately from another in
@@ -677,6 +678,12 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     vs = []
     ps = []
     i = 0
+
+    if isinstance(eq, bool):
+        eq = np.full(len(steps), eq)
+    else:
+        pass
+
     for grain_dir in dirs:
         i += 1
         print("Working on grain {i} of {n}".format(i=i, n=n_dirs), end="\r")
@@ -684,6 +691,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
         p_step = []
         new_start_p = start_p
         new_start_t = 0
+        j = 0
         for step in steps:
             ts = step.ts
             Ts = step.Ts
@@ -699,8 +707,9 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
                 grain_dir,
                 field_strs,
                 field_dirs,
-                eq=eq,
+                eq=eq[j],
             )
+            j += 1
             new_start_p = p[-1]
             new_start_t = ts[-1]
             v_step.append(v)
@@ -708,8 +717,6 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
 
         vs.append(v_step)
         ps.append(p_step)
-    for v in vs:
-        print(len(v))
     vs = np.array(vs, dtype="object")
     ps = np.array(ps, dtype="object")
     vs = np.sum(vs, axis=0)
@@ -757,6 +764,12 @@ def parallelized_mono_dispersion(
     step, for each mono-dispersion direction.
     """
     dirs = fib_sphere(n_dirs)
+
+    if isinstance(eq, bool):
+        eq = np.full(len(steps), eq)
+    else:
+        pass
+
     pool = mpc.Pool(mpc.cpu_count())
     objs = np.array(
         [
