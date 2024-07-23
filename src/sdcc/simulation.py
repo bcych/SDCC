@@ -2,8 +2,9 @@ import numpy as np
 import mpmath as mp
 import pickle
 import multiprocessing as mpc
-from sdcc.barriers import GrainEnergyLandscape, GEL, find_all_barriers
-from sdcc.energy import angle2xyz, xyz2angle, dir_to_rot_mat, get_material_parms
+from sdcc.barriers import GrainEnergyLandscape, GEL, HEL, find_all_barriers
+from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
+from sdcc.utils import fib_sphere
 
 mp.prec = 100
 mp.mp.prec = 100
@@ -408,7 +409,7 @@ def thermal_treatment(
     return (ps, theta_lists, phi_lists)
 
 
-def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape: GEL, d):
+def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape, d):
     """
     Obtains the average magnetization vectors for a grain during a
     thermal experiment, given the probabilities and magnetization
@@ -788,30 +789,6 @@ def parallelized_mono_dispersion(
     return (vs, ps)
 
 
-def fib_sphere(n=1000):
-    """
-    Algorithm for producing directions from a Fibonacci sphere
-
-    Inputs
-    ------
-    n: int
-    Number of directions
-
-    Returns
-    -------
-    xyz: array
-    Array of 3D cartesian directions
-    """
-    goldenRatio = (1 + 5**0.5) / 2
-    i = np.arange(0, n)
-    theta = 2 * np.pi * i / goldenRatio
-    phi = np.arccos(1 - 2 * (i + 0.5) / n)
-    x = np.cos(theta) * np.sin(phi)
-    y = np.sin(theta) * np.sin(phi)
-    z = np.cos(phi)
-    return np.array([x, y, z]).T
-
-
 class SDCCResult:
     """
     Class to store results from a set of grain results - able to be
@@ -1125,3 +1102,250 @@ def full_crit_size(TMx, PRO, OBL, alignment):
     else:
         d = critical_size(np.array(barriers)[0, 1])
         return d
+
+
+def hyst_treatment(start_t, start_p, Bs, ts, d, energy_landscape: HEL, eq=False):
+    """
+    Function for calculating the probability of different LEM states in
+    a grain during a hysteresis experiment.
+
+    Inputs
+    ------
+    start_t: float
+    Time at which this experiment step starts
+
+    start_p: numpy array
+    Initial state vector
+
+    Bs: numpy array
+    Set of field strengths at the times corresponding to ts.
+
+    ts: numpy array
+    Time steps at which we calculate the state.
+
+    d: float
+    Equivalent volume spherical diameter of grain (nm).
+
+    energy_landscape: barriers.HEL object
+    Object describing energy barriers for a particular grain geometry.
+
+    eq: bool
+    If True, ignore time steps and run magnetization to equilibrium.
+
+    Returns
+    -------
+    ps: numpy array
+    Array of state vectors at each time step
+
+    theta_lists: numpy array
+    Magnetization directions at each time step
+
+    phi_lists: numpy array
+    Magnetization magnitudes at each time step
+    """
+
+    # Get the starting temperature
+    old_B = Bs[0]
+
+    # Get the energy barriers and LEM states at this temperature.
+    params = energy_landscape.get_params(old_B)
+    # If doing equilibrium, run this state to equilibrium.
+    if eq:
+        old_p = eq_ps(params, 0, [1, 0, 0], d)
+
+    # Otherwise, calculate the Q matrix as normal, calculate the new state
+    # vector.
+
+    else:
+        Q = Q_matrix(params, d, field_dir=np.array([1, 0, 0]), field_str=0)
+        old_p = _update_p_vector(start_p, Q, ts[0] - start_t)  # New state vector
+    # Create list of state vectors, place first one in there.
+    ps = [old_p]
+    # Create list of LEM state directions - put initial ones in there.
+    theta_lists = [params["min_dir"][:, 0]]
+    phi_lists = [params["min_dir"][:, 1]]
+
+    # Loop through time steps
+    for i in range(1, len(ts)):
+        # Get time, temperature, LEM states and barriers at each temperature
+        B = Bs[i]
+        dt = ts[i] - ts[i - 1]
+        params = energy_landscape.get_params(B)
+
+        # Again if equilibrium run for infinite time
+        if eq:
+            new_p = eq_ps(params, 0, [1, 0, 0], d)
+
+        # Otherwise calculate Q matrix and new state vector
+        else:
+            Q = Q_matrix(params, d, field_dir=np.array([1, 0, 0]), field_str=0)
+            new_p = _update_p_vector(ps[-1], Q, dt)
+
+        # Add state vector to list of state vectors
+        ps.append(new_p)
+
+        # Do the same for state magnetization directions at this temp.
+        theta_list = params["min_dir"][:, 0]
+        phi_list = params["min_dir"][:, 1]
+        theta_lists.append(theta_list)
+        phi_lists.append(phi_list)
+
+    return (ps, theta_lists, phi_lists)
+
+
+def grain_hyst_vectors(
+    start_t,
+    start_p,
+    Bs,
+    ts,
+    d,
+    energy_landscape: HEL,
+    field_dir,
+    eq=False,
+):
+    """
+    Gets the state vectors and average magnetization vectors at each
+    time step in a hysteresis experiment for a single direction in a
+    mono-dispersion of grains. This calculation is performed for a
+    single treatment step - i.e. a single heating or cooling.
+    See treatment.TreatmentStep for a full description of this.
+
+        Inputs
+    ------
+    start_t: float
+    Time at which this experiment step starts
+
+    start_p: numpy array
+    Initial state vector
+
+    Bs: numpy array
+    Set of field strengths at the times corresponding to ts.
+
+    ts: numpy array
+    Time steps at which we calculate the state.
+
+    d: float
+    Equivalent volume spherical diameter of grain (nm).
+
+    energy_landscape: barriers.HEL object
+    Object describing energy barriers for a particular grain geometry.
+
+    grain_dir: numpy array
+    Direction associated with this grain.
+
+    field_dir: numpy array
+    Direction of field relative to grain - will be rotated to 1,0,0.
+
+    eq: bool
+    If True, ignore time steps and run magnetization to equilibrium.
+
+    Returns
+    -------
+    vs: numpy array
+    Array of average magnetization vectors at each time step
+
+    ps: numpy array
+    Array of state vectors at each time step
+    """
+    # Convert our field directions to a rotation matrix, so that we can
+    # rotate back to grain coordinates later.
+    field_dirstr = field_dir.astype(str)
+    field_dirstr = " ".join(field_dirstr)
+    ref_dir = np.array([1, 0, 0])
+    ref_dirstr = ref_dir.astype(str)
+    ref_dirstr = " ".join(ref_dirstr)
+    rot_mat = dir_to_rot_mat(ref_dirstr, field_dirstr)
+
+    # Get the field directions rotated according to this matrix.
+
+    # Get the state vectors at each time step.
+    ps, theta_lists, phi_lists = hyst_treatment(
+        start_t, start_p, Bs, ts, d, energy_landscape, eq=eq
+    )
+
+    # Get the average magnetization vectors at each time step
+    vs = get_avg_vectors(ps, theta_lists, phi_lists, Bs, rot_mat, energy_landscape, d)
+    return (vs, ps)
+
+
+def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
+    """
+    Gets the state vectors and average magnetization vectors at each
+    time step in a thermal treatment for a single direction in a
+    mono-dispersion of grains. This calculation is performed for a
+    set of treatment steps - see treatment.TreatmentStep for more details.
+
+    Inputs
+    ------
+    grain_dir: numpy array
+    Direction of this grain in the mono dispersion.
+
+    start_p: numpy array
+    Initial state vector of grain.
+
+    d: float
+    Equivalent volume spherical diameter of grain (nm).
+
+    steps: list of treatment.TreatmentStep objects
+    Set of steps that describe a thermal experiment.
+
+    energy_landscape: barriers.GEL object
+    Object describing LEM states and energy barriers as a function of
+    temperature
+
+    eq: bool
+    If True, ignore time steps and run magnetization to equilibrium.
+
+    Returns
+    -------
+    vs: lists
+    List of arrays of average magnetization vectors at each time step,
+    in each treatment step.
+
+    ps: list
+    List of arrays of state vectors at each time step, in each treatment
+    step.
+    """
+    # Gets the v and p arrays associated with each step.
+    v_step = []
+    p_step = []
+
+    # Steps are progressed through linearly
+    new_start_p = start_p
+    new_start_t = 0
+    j = 0
+    field_dir = np.array(energy_landscape.B_dir)
+    for step in steps:
+        # Get temperatures and times associated with each timestep
+        ts = step.ts
+        Bs = step.field_strs / 1e6
+        # Get the vectors for each time step
+        j += 1
+        # Our new start vectors are whatever is left over after the
+        # last step. One step follows immediately from another in
+        # Our model.
+        v, p = grain_hyst_vectors(
+            new_start_t, new_start_p, Bs, ts, d, energy_landscape, field_dir, eq=eq
+        )
+        new_start_p = p[-1]
+        new_start_t = ts[-1]
+
+        # Add results for each thermal step to the lists.
+        v_step.append(v)
+        p_step.append(p)
+    return (v_step, p_step)
+
+
+def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
+    vs = []
+    ps = []
+    for hel in energy_landscape.HEL_list:
+        min_e = hel.get_params(0)["min_e"]
+        start_p = np.zeros(len(min_e))
+        start_p[~np.isinf(min_e)] = 1 / len(start_p[~np.isinf(min_e)])
+        v, p = mono_hyst_direction(start_p, d, steps, hel, eq=eq)
+        v = np.array(v, dtype="object")
+        vs.append(v)
+        ps.append(p)
+    vs = sum(vs)
+    return (vs, ps)

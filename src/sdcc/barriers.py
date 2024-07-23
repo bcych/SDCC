@@ -3,6 +3,7 @@
 
 ### IMPORT STATEMENTS ###
 import numpy as np
+from copy import deepcopy
 from jax import jit
 import jax.numpy as jnp
 from sdcc.energy import demag_factors,get_material_parms,energy_surface,\
@@ -14,6 +15,7 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 import pickle
 from scipy.interpolate import splprep,splrep,BSpline
+from sdcc.utils import fib_sphere
 
 config.update("jax_enable_x64", True)
 ### GENERIC FUNCTIONS ###
@@ -891,21 +893,22 @@ prune=True,trim=True,tol=2.):
     #Check for weird erroneous states with entirely infinite barriers
     #to/from and remove.
     #This is yet another weird edge case that we have to catch
-    bad_filter=(np.all(np.isinf(barriers),axis=1)|np.all(np.isinf(barriers),
-                                                         axis=0))
+    if len(barriers) > 1:
+        bad_filter=(np.all(np.isinf(barriers),axis=1)|np.all(np.isinf(barriers),
+                                                             axis=0))
 
-    theta_list=theta_list[~bad_filter]
-    phi_list=phi_list[~bad_filter]
-    min_energy_list=min_energy_list[~bad_filter]
+        theta_list=theta_list[~bad_filter]
+        phi_list=phi_list[~bad_filter]
+        min_energy_list=min_energy_list[~bad_filter]
 
-    #Yuck! Must be a better way to do this.
-    dels=np.arange(len(bad_filter))[bad_filter]
-    theta_mat=np.delete(theta_mat,dels,axis=0)
-    theta_mat=np.delete(theta_mat,dels,axis=1)
-    phi_mat=np.delete(phi_mat,dels,axis=0)
-    phi_mat=np.delete(phi_mat,dels,axis=1)
-    barriers=np.delete(barriers,dels,axis=0)
-    barriers=np.delete(barriers,dels,axis=1)
+        #Yuck! Must be a better way to do this.
+        dels=np.arange(len(bad_filter))[bad_filter]
+        theta_mat=np.delete(theta_mat,dels,axis=0)
+        theta_mat=np.delete(theta_mat,dels,axis=1)
+        phi_mat=np.delete(phi_mat,dels,axis=0)
+        phi_mat=np.delete(phi_mat,dels,axis=1)
+        barriers=np.delete(barriers,dels,axis=0)
+        barriers=np.delete(barriers,dels,axis=1)
 
     return(theta_list,phi_list,min_energy_list,theta_mat,phi_mat,barriers)
 
@@ -1014,6 +1017,107 @@ def find_T_barriers(TMx,alignment,PRO,OBL,T_spacing=1):
         
     return(theta_lists,phi_lists,min_energy_lists,theta_mats,phi_mats,\
         energy_mats,Ts)
+
+def find_B_barriers(TMx,alignment,PRO,OBL,B_dir,B_max,B_spacing,T = 20):
+    """
+    Finds all LEM states and energy barriers for a grain composition
+    and geometry over a range of fields in a specfic direction. Runs 
+    from zero-field to B_max. This function could also easily be 
+    parallelized using multiprocessing.
+
+    Inputs
+    ------
+    TMx: float
+    Titanomagnetite composition (0 - 100)
+
+    alignment: str
+    Alignment of magnetocrystalline and shape axis. Either 'hard' or
+    'easy' magnetocrystalline always aligned with shape easy.
+
+    PRO: float
+    Prolateness of ellipsoid (major / intermediate axis)
+
+    OBL: float
+    Oblateness of ellipsoid (intermediae / minor axis)
+
+    B_dir: length 3 array of floats 
+    Cartesian direction (unit vector) of field.
+
+    B_max: float
+    Maximum field (T).
+
+    B_spacing: float
+    Spacing of field steps (T)
+
+    T: float
+    Temperature (Degrees C) - must be between 0 and 80. 
+
+    Returns
+    -------
+    theta_lists, phi lists: numpy arrays
+    Arrays of the minimum energy directions in the SD energy surface
+
+    min_energy_lists: numpy array
+    Minimum energy at the minimum
+
+    theta_mats,phi_mats: numpy arrays
+    Arrays of the directions associated with the energy barriers.
+
+    energy_mats: numpy array
+    Matrix of energy barriers between state i and state j.
+
+    Ts: numpy array
+    List of temperatures.
+    """
+    
+    theta_lists=[]
+    phi_lists=[]
+    min_energy_lists=[]
+    theta_mats=[]
+    phi_mats=[]
+    energy_mats=[]
+    Bs = np.arange(0,B_max+B_spacing,B_spacing)
+    ext_theta,ext_phi = np.degrees(xyz2angle(B_dir))
+
+    for B in Bs:
+        print('Calculating energy barriers at '+str(int(B*1e3)).zfill(4)+\
+            ' mT, calculating up to '+str(B_max*1e3).zfill(4)+' mT',end='\r')
+
+        ext_field = np.array([ext_theta,ext_phi,B])
+        theta_list,phi_list,min_energy_list,theta_mat,phi_mat,energy_mat\
+            =find_all_barriers(TMx,alignment,PRO,OBL,T=T,ext_field=ext_field)
+        theta_lists.append(theta_list)
+        phi_lists.append(phi_list)
+        energy_mats.append(energy_mat)
+        min_energy_lists.append(min_energy_list)
+        theta_mats.append(theta_mat)
+        phi_mats.append(phi_mat)
+
+    theta_lists_new = deepcopy(theta_lists)
+    phi_lists_new = deepcopy(phi_lists)
+    min_energy_lists_new = deepcopy(min_energy_lists)
+    theta_mats_new = deepcopy(theta_mats)
+    phi_mats_new = deepcopy(phi_mats)
+    energy_mats_new = deepcopy(energy_mats)
+    for i in range(1,len(Bs)):
+        theta_list = (theta_lists[i]+np.pi)%(2*np.pi)
+        theta_lists_new = [theta_list] + theta_lists_new
+        phi_list = -phi_lists[i]
+        phi_lists_new = [phi_list] + phi_lists_new
+        theta_mat = (theta_mats[i]+np.pi)%(2*np.pi)
+        theta_mat[np.isnan(theta_mat)] = -np.inf
+        theta_mats_new = [theta_mat] + theta_mats_new
+        phi_mat = -phi_mats[i]
+        phi_mat[np.isinf(phi_mat)] = -np.inf
+        phi_mats_new = [phi_mat] + phi_mats_new
+        min_energy_list = min_energy_lists[i]
+        min_energy_lists_new = [min_energy_list] + min_energy_lists_new
+        energy_mat = energy_mats[i]
+        energy_mats_new = [energy_mat] + energy_mats_new
+    Bs_new = np.append(-np.flip(Bs[1:]),Bs)
+        
+    return(theta_lists_new,phi_lists_new,min_energy_lists_new,theta_mats_new,phi_mats_new,\
+        energy_mats_new,Bs_new)
 
 ### STORING RESULTS ###
 class GrainEnergyLandscape():
@@ -1479,8 +1583,12 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
     for i in range(len(mergers)):
         new_state = new_indices[new_states[i]]
         old_state = new_states[i]
-        
-        if cos_dist[new_state,old_state] == 1.:
+        #Don't use 1 here as floating point precision can mess
+        #things up. This is the minimum level of precision
+        #you can get away with on a 1001x1001 grid. Any number
+        #greater than this is a smaller angle than the cosine
+        #distance between the nearest neighbor grid points.
+        if cos_dist[new_state,old_state] >= 0.9999999999:
             stable_states = np.append(stable_states,old_state)
         else:
             really_new.append(i)
@@ -1765,14 +1873,19 @@ def merge_barriers(tlists,plists,mlists,tmats,pmats,barriers,n,minstep,maxstep):
                     else:
                         if old_stable[j]:
                             l = old_indices[j]
-                            nnew_barriers[j,k]=np.copy(new_barriers[l,m])
-                            nnew_barriers[k,j]=np.copy(new_barriers[m,l])
+                            #Note that these were all nnew_barriers
+                            #nnew_thetas, nnew_phis. I changed them to 
+                            #temp_barriers as I believe that's what
+                            #we're doing here - hopefully it doesnt
+                            #break anything.
+                            temp_barriers[j,k]=np.copy(new_barriers[l,m])
+                            temp_barriers[k,j]=np.copy(new_barriers[m,l])
                             
-                            nnew_thetas[j,k]=np.copy(new_theta_mat[l,m])
-                            nnew_thetas[k,j]=np.copy(new_theta_mat[m,l])
+                            temp_thetas[j,k]=np.copy(new_theta_mat[l,m])
+                            temp_thetas[k,j]=np.copy(new_theta_mat[m,l])
                             
-                            nnew_phis[j,k]=np.copy(new_phi_mat[l,m])
-                            nnew_phis[k,j]=np.copy(new_phi_mat[m,l])
+                            temp_phis[j,k]=np.copy(new_phi_mat[l,m])
+                            temp_phis[k,j]=np.copy(new_phi_mat[m,l])
 
                             
 
@@ -2394,111 +2507,124 @@ class GEL:
                 'Ms':Ms}
         return(params)
 
-class GEL2:
-    """
-    Class for storing energy barrier results at all temperatures for a
-    given grain geometry and composition.
-
-    Todo: 
-    1. This should inherit from some base class shared with Hysteresis.
-    2. The run through of temperatures should be parallelized for much
-    quicker object creation.
-    
-    Input Attributes
-    ----------------
-    TMx: float
-    Titanomagnetite composition (0 - 100)
-
-    alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
-
-    PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
-
-    OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
-
-    T_spacing: float
-    Spacing of temperature steps (Degrees C)
-    """
-    def __init__(self,TMx,alignment,PRO,OBL,T_spacing=1):
-        theta_lists,phi_lists,min_energies,theta_mats,phi_mats,energy_mats,\
-            Ts=find_T_barriers(TMx,alignment,PRO,OBL,T_spacing=T_spacing)
-
-        arrlens=np.array([len(thetas) for thetas in theta_lists])
-
+class HEL:
+    def __init__(self,TMx,alignment,PRO,OBL,B_dir,B_max,B_spacing=0.001,T=20):
+        theta_lists,phi_lists,min_energy_lists,theta_mats,phi_mats,energy_mats,Bs=find_B_barriers(TMx,alignment,PRO,OBL,B_dir,B_max,B_spacing,T=T)
+        split_point = int(len(Bs)/2)
+        first_theta_lists = theta_lists[split_point:]
+        first_phi_lists = phi_lists[split_point:]
+        first_energy_lists = min_energy_lists[split_point:]
+        first_theta_mats = theta_mats[split_point:]
+        first_phi_mats = phi_mats[split_point:]
+        first_energy_mats = energy_mats[split_point:]
+        
+        arrlens=np.array([len(thetas) for thetas in first_theta_lists])
+        
         #Check for times where number of minima changes
         diffno=np.where(np.diff(arrlens)!=0)[0]
-        diffno=np.append(diffno,len(theta_lists)-1)
+        diffno=np.append(diffno,len(first_theta_lists)-1)
         diffno=np.append(-1,diffno)
-
-        #Go through each of these segments and reorder so everything is in a 
-        #consistent order
         if len(diffno)>2:
             for j in range(len(diffno)-1):
                 for i in range(diffno[j]+1,diffno[j+1]):
-                    theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
-                    theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
-                    =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
-                            phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
-                            phi_mats[i+1],energy_mats[i+1])
-            
-            diffno[-1] += 1
-            #Now make everything the same length.
-            for i,diff in enumerate(diffno[1:-1]):
-                minstep = 0
-                n = diff
-                maxstep = diffno[i+2]
-                theta_lists,phi_lists,min_energies,theta_mats,phi_mats,\
-                energy_mats=merge_barriers(theta_lists,phi_lists,min_energies,
-                                        theta_mats,phi_mats,energy_mats,n,
-                                        0,maxstep)
-        #If everything's already the same length, no need to merge.
-        else:
-            for i in range(0,len(theta_lists)-1):
-                theta_lists[i+1],phi_lists[i+1],min_energies[i+1],\
-                theta_mats[i+1],phi_mats[i+1],energy_mats[i+1]\
-                =reorder(theta_lists[i],phi_lists[i],theta_lists[i+1],
-                        phi_lists[i+1],min_energies[i+1],theta_mats[i+1],
-                        phi_mats[i+1],energy_mats[i+1])
-            theta_lists=np.array(theta_lists)
-            phi_lists=np.array(phi_lists)
-            min_energies=np.array(min_energies)
-            theta_mats=np.array(theta_mats)
-            phi_mats=np.array(phi_mats)
-            energy_mats=np.array(energy_mats)
+                    first_theta_lists[i+1],first_phi_lists[i+1],first_energy_lists[i+1],\
+                    first_theta_mats[i+1],first_phi_mats[i+1],first_energy_mats[i+1]\
+                    =reorder(first_theta_lists[i],first_phi_lists[i],first_theta_lists[i+1],
+                            first_phi_lists[i+1],first_energy_lists[i+1],first_theta_mats[i+1],
+                            first_phi_mats[i+1],first_energy_mats[i+1])
         
-        min_dir=np.empty(theta_lists.shape[1],dtype='object')
-        min_energy=np.empty(theta_lists.shape[1],dtype='object')
+        for i,diff in enumerate(diffno[1:-1]):
+            n = diff
+            maxstep = diffno[i+2]
+            first_theta_lists,first_phi_lists,first_energy_lists,first_theta_mats,first_phi_mats,\
+            first_energy_mats=merge_barriers(first_theta_lists,first_phi_lists,first_energy_lists,
+                                    first_theta_mats,first_phi_mats,first_energy_mats,n,
+                                    0,maxstep)
         
-        bar_dir=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+        second_theta_lists = theta_lists[:split_point+1][::-1]
+        second_phi_lists = phi_lists[:split_point+1][::-1]
+        second_energy_lists = min_energy_lists[:split_point+1][::-1]
+        second_theta_mats = theta_mats[:split_point+1][::-1]
+        second_phi_mats = phi_mats[:split_point+1][::-1]
+        second_energy_mats = energy_mats[:split_point+1][::-1]
+        
+        arrlens=np.array([len(thetas) for thetas in second_theta_lists])
+        
+        #Check for times where number of minima changes
+        diffno=np.where(np.diff(arrlens)!=0)[0]
+        diffno=np.append(diffno,len(second_theta_lists)-1)
+        diffno=np.append(-1,diffno)
+        if len(diffno)>2:
+            for j in range(len(diffno)-1):
+                for i in range(diffno[j]+1,diffno[j+1]):
+                    second_theta_lists[i+1],second_phi_lists[i+1],second_energy_lists[i+1],\
+                    second_theta_mats[i+1],second_phi_mats[i+1],second_energy_mats[i+1]\
+                    =reorder(second_theta_lists[i],second_phi_lists[i],second_theta_lists[i+1],
+                            second_phi_lists[i+1],second_energy_lists[i+1],second_theta_mats[i+1],
+                            second_phi_mats[i+1],second_energy_mats[i+1])
+        
+        for i,diff in enumerate(diffno[1:-1]):
+            n = diff
+            maxstep = diffno[i+2]
+            second_theta_lists,second_phi_lists,second_energy_lists,second_theta_mats,second_phi_mats,\
+            second_energy_mats=merge_barriers(second_theta_lists,second_phi_lists,second_energy_lists,
+                                    second_theta_mats,second_phi_mats,second_energy_mats,n,
+                                    0,maxstep)
+        
+        pos_min_dir=np.empty(first_theta_lists.shape[1],dtype='object')
+        pos_min_energy=np.empty(first_theta_lists.shape[1],dtype='object')
+        
+        pos_bar_dir=np.empty((first_theta_lists.shape[1],first_theta_lists.shape[1]),
                          dtype='object')
-        bar_energies=np.empty((theta_lists.shape[1],theta_lists.shape[1]),
+        pos_bar_energies=np.empty((first_theta_lists.shape[1],first_theta_lists.shape[1]),
                               dtype='object')
         
-        for i in range(theta_lists.shape[1]):
-            dirs=np.array([theta_lists[:,i],phi_lists[:,i]]).T
-            tck=direction_spline(Ts,dirs)
-            min_dir[i]=tck
-            min_energy[i]=energy_spline(Ts,min_energies[:,i])
-            for j in range(theta_lists.shape[1]):
-                dirs=np.array([theta_mats[:,i,j],phi_mats[:,i,j]]).T
-                tck=direction_spline(Ts,dirs)
-                bar_dir[i,j]=tck
-                bar_energies[i,j]=energy_spline(Ts,energy_mats[:,i,j])
+        pos_Bs = Bs[split_point:]
+        for i in range(first_theta_lists.shape[1]):
+            dirs=np.array([first_theta_lists[:,i],first_phi_lists[:,i]]).T
+            tck=direction_spline(pos_Bs,dirs)
+            pos_min_dir[i]=tck
+            pos_min_energy[i]=energy_spline(pos_Bs,first_energy_lists[:,i])
+            for j in range(first_theta_lists.shape[1]):
+                dirs=np.array([first_theta_mats[:,i,j],first_phi_mats[:,i,j]]).T
+                tck=direction_spline(pos_Bs,dirs)
+                pos_bar_dir[i,j]=tck
+                pos_bar_energies[i,j]=energy_spline(pos_Bs,first_energy_mats[:,i,j])
         
-        self.min_dir=min_dir
-        self.min_energy=min_energy
-        self.bar_dir=bar_dir
-        self.bar_energy=bar_energies
+        neg_min_dir=np.empty(second_theta_lists.shape[1],dtype='object')
+        neg_min_energy=np.empty(second_theta_lists.shape[1],dtype='object')
+        
+        neg_bar_dir=np.empty((second_theta_lists.shape[1],second_theta_lists.shape[1]),
+                         dtype='object')
+        neg_bar_energies=np.empty((second_theta_lists.shape[1],second_theta_lists.shape[1]),
+                              dtype='object')
+        
+        neg_Bs = Bs[:split_point+1]
+        for i in range(second_theta_lists.shape[1]):
+            dirs=np.array([second_theta_lists[::-1,i],second_phi_lists[::-1,i]]).T
+            tck=direction_spline(neg_Bs,dirs)
+            neg_min_dir[i]=tck
+            neg_min_energy[i]=energy_spline(neg_Bs,second_energy_lists[::-1,i])
+            for j in range(second_theta_lists.shape[1]):
+                dirs=np.array([second_theta_mats[::-1,i,j],second_phi_mats[::-1,i,j]]).T
+                tck=direction_spline(neg_Bs,dirs)
+                neg_bar_dir[i,j]=tck
+                neg_bar_energies[i,j]=energy_spline(neg_Bs,second_energy_mats[::-1,i,j])
+
+        self.min_dir=(neg_min_dir,pos_min_dir)
+        self.min_energy=(neg_min_energy,pos_min_energy)
+        self.bar_dir=(neg_bar_dir,pos_bar_dir)
+        self.bar_energy=(neg_bar_energies,pos_bar_energies)
+        
         self.TMx=TMx
         self.alignment=alignment
         self.PRO=PRO
         self.OBL=OBL
-        self.T_max=max(Ts)
-        self.T_min=min(Ts)
-
+        
+        self.B_max=B_max
+        self.B_dir=B_dir
+        self.T = T
+        
     def to_file(self,fname):
         """
         Saves GEL object to file.
@@ -2515,63 +2641,67 @@ class GEL2:
         with open(fname, 'wb') as f:
             pickle.dump(self, f)
         f.close()
-            
     
     def __repr__(self):
         retstr="""Energy Landscape of TM{TMx} Grain with a prolateness of
-        {PRO} and an oblateness of {OBL} elongated along the
-        magnetocrystalline {alignment} axis.""".format(
-        TMx=self.TMx,PRO=self.PRO,OBL=self.OBL,alignment=self.alignment)
+{PRO} and an oblateness of {OBL} elongated along the
+magnetocrystalline {alignment} axis.""".format(
+    TMx=self.TMx,PRO=self.PRO,OBL=self.OBL,alignment=self.alignment)
         return(retstr)
     
-    def get_params(self,T):
+    def get_params(self,B):
         """
         Gets directions and energies associated with LEM states and 
-        barriers for a grain as a function of temperature.
+        barriers for a grain as a function of field.
 
         Inputs
         ------
-        T: int, float or numpy array
-        Temperature(s) (degrees C)        
+        B: int, float or numpy array
+        External Field (T)        
         
         Returns
         -------
         params: dict 
         Dictionary of arrays for directions and energies.
         """
-        rot_mat,k1,k2,Ms=get_material_parms(self.TMx,self.alignment,T)
+        rot_mat,k1,k2,Ms=get_material_parms(self.TMx,self.alignment,self.T)
         min_dir=[]
         min_e=[]
+        
 
-        if isinstance(T,(float,int,np.float64,np.int64)):
-            assert (T<=self.T_max)&(T>=self.T_min),\
-            'T must be between '+str(self.T_min)+' and '+str(self.T_max)
-            bar_e=np.full(self.bar_energy.shape,np.inf)
-            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2),
+        if isinstance(B,(float,int,np.float64,np.int64)):
+            assert (B<=self.B_max)&(B>=-self.B_max),\
+            'B must be between '+str(-self.B_max)+' and '+str(self.B_max)
+            bar_e=np.full(self.bar_energy[0].shape,np.inf)
+            bar_dir=np.full((len(self.min_energy[0]),len(self.min_energy[0]),2),
                             np.inf)
-
-        elif isinstance(T,np.ndarray):
-            assert (np.amax(T)<=self.T_max)&(np.amin(T)>=self.T_min),\
-            'T must be between '+str(self.T_min)+' and '+str(self.T_max)
-            bar_e=np.full(len(self.min_energy),len(self.min_energy),2,T.shape,
+            
+        elif isinstance(B,np.ndarray):
+            assert (np.amax(B)<=self.B_max)&(np.amin(B)>=-self.B_max),\
+            'B must be between '+str(-self.B_max)+' and '+str(self.B_max)
+            bar_e=np.full(len(self.min_energy[0]),len(self.min_energy[0]),2,B.shape,
                           np.inf)
-            bar_dir=np.full((len(self.min_energy),len(self.min_energy),2,
-                             T.shape),np.inf)
+            bar_dir=np.full((len(self.min_energy[0]),len(self.min_energy[0]),2,
+                             B.shape),np.inf)
         
         else:
-            print(T)
-            raise TypeError('T should not be type '+str(type(T)))
-
-        for i in range(len(self.min_energy)):
-            t,c,k=self.min_energy[i]
-            min_e.append(energy_result(t,c,k,T))
-            t,c,k=self.min_dir[i]
-            min_dir.append(direction_result(t,c,k,T))
-            for j in range(len(self.min_energy)):
-                t,c,k=self.bar_energy[i,j]
-                bar_e[i,j]=energy_result(t,c,k,T)
-                t,c,k=self.bar_dir[i,j]
-                bar_dir[i,j]=direction_result(t,c,k,T)
+            print(B)
+            raise TypeError('B should not be type '+str(type(B)))
+        if B > 0:
+            splindex = 1
+        else:
+            splindex = 0
+            
+        for i in range(len(self.min_energy[0])):
+            t,c,k=self.min_energy[splindex][i]
+            min_e.append(energy_result(t,c,k,B))
+            t,c,k=self.min_dir[splindex][i]
+            min_dir.append(direction_result(t,c,k,B))
+            for j in range(len(self.min_energy[0])):
+                t,c,k=self.bar_energy[splindex][i,j]
+                bar_e[i,j]=energy_result(t,c,k,B)
+                t,c,k=self.bar_dir[splindex][i,j]
+                bar_dir[i,j]=direction_result(t,c,k,B)
                 
         bar_e[bar_e>1e308]=np.inf
         bar_e[bar_e<0]=0.
@@ -2584,6 +2714,37 @@ class GEL2:
                 'min_e':min_e,
                 'bar_dir':np.array(bar_dir),
                 'bar_e':np.array(bar_e),
-                'T':T,
-                'Ms':Ms}
+                'B':B,
+                'Ms':Ms,
+                'T':self.T}
         return(params)
+
+class HELs:
+    def __init__(self,TMx,alignment,PRO,OBL,B_max,B_spacing=0.001,T=20, 
+                 B_dirs=None,n_dirs=30):
+        if type(B_dirs) == type(None):
+            B_dirs = fib_sphere(n_dirs)
+        HEL_list = []
+        for B_dir in B_dirs:
+            HEL_list.append(HEL(TMx,alignment,PRO,OBL,B_dir,B_max,B_spacing,T))
+        self.HEL_list = HEL_list
+        self.B_dirs = B_dirs
+    def __getitem__(self,index: int):
+        return(self.HEL_list[index])
+    
+    def to_file(self,fname):
+        """
+        Saves GEL object to file.
+        
+        Inputs
+        ------
+        fname: string 
+        Filename
+
+        Returns
+        -------
+        None
+        """
+        with open(fname, 'wb') as f:
+            pickle.dump(self, f)
+        f.close()

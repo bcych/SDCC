@@ -208,6 +208,24 @@ class SuscStep(TreatmentStep):
         {np.amax(self.field_strs)} μT {self.freq} Hz AC field"""
 
 
+class HystBranch(TreatmentStep):
+    def __init__(
+        self, t_start, B_start, B_end, B_step=1000.0, t_step=1, T=20, B_dir=[1, 0, 0]
+    ):
+        if B_start > B_end:
+            B_step = -B_step
+        self.field_strs = np.arange(B_start, B_end + B_step, B_step)
+        self.ts = np.arange(0.0, len(self.field_strs) * t_step, t_step)
+        self.field_dirs = np.repeat(np.array([B_dir]), len(self.field_strs), axis=0)
+        self.Ts = np.full(len(self.field_dirs), T)
+        self.ts += t_start
+        self.step_type = "hysteresis"
+
+    def __repr__(self):
+        return f"""Hysteresis Branch from {self.field_strs[0]/1e3} mT to 
+{self.field_strs[-1]/1e3} mT in steps of {np.abs(self.field_strs[0]-self.field_strs[1])/1e3} mT"""
+
+
 def coe_experiment(temp_steps, B_anc, B_lab, B_ancdir, B_labdir):
     """
     Creates a set of thermal treatment steps for an IZZI-Coe experiment
@@ -343,4 +361,18 @@ def dunlop_experiment(energy_landscape: GEL, B_dir, B, pTRM_min, pTRM_max, T_ste
         steps.append(hold)
         cooling = CoolingStep(steps[-1].ts[-1], T, T_min, 0, B_dir)
         steps.append(cooling)
+    return steps
+
+
+def hyst_loop(B_max, B_step=0.001, **kwargs):
+    steps = []
+    steps.append(HystBranch(0, 0, B_max * 1e6, B_step * 1e6, **kwargs))
+    last_t = steps[-1].ts[-1]
+    steps.append(
+        HystBranch(last_t + 1e-12, B_max * 1e6, -B_max * 1e6, B_step * 1e6, **kwargs)
+    )
+    last_t = steps[-1].ts[-1]
+    steps.append(
+        HystBranch(last_t + 1e-12, -B_max * 1e6, B_max * 1e6, B_step * 1e6, **kwargs)
+    )
     return steps

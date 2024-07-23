@@ -466,8 +466,12 @@ def get_material_parms(TMx, alignment, T):
 
     if alignment == "easy":
         rot_from = anis[0]
+    elif alignment == "intermediate":
+        rot_from = anis[1]
     elif alignment == "hard":
         rot_from = anis[2]
+    else:
+        raise ValueError("alignment must be easy, intermediate or hard")
 
     rot_mat = dir_to_rot_mat(rot_from, rot_to)
     TMx /= 100
