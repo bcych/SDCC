@@ -90,7 +90,7 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     field_mat = np.array([field_mat[0].T, field_mat[1].T, field_mat[2].T])
 
     zeeman_energy = np.sum(xyz * field_mat, axis=0)
-    zeeman_energy = zeeman_energy.at[np.isinf(phi_mat.T)].set(0.0)
+    zeeman_energy = zeeman_energy.at[np.isinf(phi_mat)].set(0.0)
     logQ = -(energy_densities.T * V - zeeman_energy) / (kb * (273 + T))
 
     logQ = np.array(logQ)
@@ -877,7 +877,6 @@ def eq_ps_legacy(theta_list, phi_list, min_energies, field_str, field_dir, T, d,
     ps = e_ratio / sum(e_ratio)
     return np.array(ps, dtype="float64")
 
-
 def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     """
     Function for calculating the relaxation time of a mono-dispersion
@@ -903,20 +902,22 @@ def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     relax_routine[1].ts - relax_routine[0].ts[-1]
     """
     # Run a parallelized mono dispersion
-    vs, ps = parallelized_mono_dispersion(start_p, d, relax_routine, energy_landscape)
+    vs, ps = mono_dispersion(start_p, d, relax_routine, energy_landscape,n_dirs = 30,
+                             eq=np.array([True,False,False]))
     # Calculate magnitude of vector
-    mags = np.linalg.norm(vs[1], axis=1)
+    mags = np.linalg.norm(vs[2], axis=1)
     # Calculate TRMs
-    TRM = np.linalg.norm(vs[0][-1])
+    TRM = np.linalg.norm(vs[1][-1])
     # Get relaxation time (M = TRM/e)
-    try:
-        relax_time = ts[mags <= (TRM / np.e)][0]
-    except:
+    if mags[-1]<= (TRM/np.e**2):
+        relax_time = ts[mags <= (TRM / np.e**2)][0]
+    else:
         relax_time = ts[-1]
     return relax_time
 
 
-def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_incr=150):
+
+def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_incr=10):
     """
     Finds the critical SP size of a grain.
 
@@ -943,7 +944,7 @@ def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_in
     """
     n_states = len(energy_landscape.get_params(energy_landscape.T_max)["min_e"])
     start_p = np.full(n_states, 1 / n_states)
-    ts = relax_routine[1].ts - relax_routine[0].ts[-1]
+    ts = relax_routine[2].ts - relax_routine[1].ts[-1]
 
     relax_times = []
     ds = []
@@ -1091,6 +1092,16 @@ def full_crit_size(TMx, PRO, OBL, alignment):
     if do_full:
         Energy = GEL(TMx, alignment, PRO, OBL)
         relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
+        relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
+        #If the grain is unfeasibly large, we might not reach equilibrium
+        #And so have zero magnetization
+        #In these cases, a "pre-hold" where we force the grain to equilibrium
+        #At max temperature.
+        pre_hold = [HoldStep(0,Energy.T_max,40,np.array([1, 0, 0]),hold_steps = 2)]
+        for step in pre_hold:
+            step.ts -= 1801
+        relax_routine = pre_hold + relax_routine
+
         barrierslist = []
         for barrier in np.unique(np.floor(barriers[~np.isinf(barriers)] / 1000) * 1000):
             barrierslist.append(
@@ -1191,6 +1202,7 @@ def hyst_treatment(start_t, start_p, Bs, ts, d, energy_landscape: HEL, eq=False)
         phi_lists.append(phi_list)
 
     return (ps, theta_lists, phi_lists)
+
 
 
 def grain_hyst_vectors(

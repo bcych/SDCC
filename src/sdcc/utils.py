@@ -23,3 +23,4 @@ def fib_sphere(n=1000):
     y = np.sin(theta) * np.sin(phi)
     z = np.cos(phi)
     return np.array([x, y, z]).T
+    

@@ -376,3 +376,49 @@ def hyst_loop(B_max, B_step=0.001, **kwargs):
         HystBranch(last_t + 1e-12, -B_max * 1e6, B_max * 1e6, B_step * 1e6, **kwargs)
     )
     return steps
+
+
+def overprint(TRM_mag, TRM_dir, oPrint_mag, oPrint_dir, oPrint_T, oPrint_t, gel):
+    T_max = gel.T_max
+    T_min = gel.T_min
+
+    init_TRM = CoolingStep(0, T_max, T_min, TRM_mag, TRM_dir)
+    oPrint_heat = HeatingStep(
+        init_TRM.ts[-1] + 1e-12, T_min, oPrint_T, oPrint_mag, oPrint_dir
+    )
+    oPrint_hold = HoldStep(
+        oPrint_heat.ts[-1] + 1e-12,
+        oPrint_T,
+        oPrint_mag,
+        oPrint_dir,
+        hold_steps=2,
+        hold_time=oPrint_t,
+    )
+    oPrint_cool = CoolingStep(
+        oPrint_hold.ts[-1] + 1e-12, oPrint_T, T_min, oPrint_mag, oPrint_dir
+    )
+    if oPrint_T == T_min:
+        oPrint_cool.ts[0] = oPrint_hold.ts[-1] + 1e-12
+        oPrint_cool.Ts[0] = T_min
+    return [init_TRM, oPrint_heat, oPrint_hold, oPrint_cool]
+
+
+def thermal_demag(Ts):
+    NRM = HoldStep(0.0, 20.0, 0.0, np.array([1, 0, 0]), hold_steps=2, hold_time=100.0)
+    steps = [NRM]
+    for T in Ts:
+        steps.append(
+            HeatingStep(steps[-1].ts[-1] + 1e-12, 20.0, T, 0.0, np.array([1, 0, 0]))
+        )
+        steps.append(HoldStep(steps[-1].ts[-1] + 1e-12, T, 0.0, np.array([1, 0, 0])))
+        steps.append(
+            CoolingStep(
+                steps[-1].ts[-1] + 1e-12,
+                T,
+                20.0,
+                0.0,
+                np.array([1, 0, 0]),
+                max_temp=max(Ts),
+            )
+        )
+    return steps
