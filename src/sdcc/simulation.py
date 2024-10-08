@@ -2,6 +2,7 @@ import numpy as np
 import mpmath as mp
 import pickle
 import multiprocessing as mpc
+import warnings
 from sdcc.barriers import GrainEnergyLandscape, GEL, HEL, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
 from sdcc.utils import fib_sphere
@@ -675,6 +676,11 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     List of arrays of state vectors at each time step, in each treatment
     step, for each mono-dispersion direction.
     """
+    if d > energy_landscape.d_min:
+        warnings.warn(
+            "WARNING: This particle may be too large to be single domain, results may be innaccurate"
+        )
+
     dirs = fib_sphere(n_dirs)
     vs = []
     ps = []
@@ -764,6 +770,11 @@ def parallelized_mono_dispersion(
     List of arrays of state vectors at each time step, in each treatment
     step, for each mono-dispersion direction.
     """
+    if d > energy_landscape.d_min:
+        warnings.warn(
+            "WARNING: This particle may be too large to be single domain, results may be innaccurate"
+        )
+
     dirs = fib_sphere(n_dirs)
 
     if isinstance(eq, bool):
@@ -877,6 +888,7 @@ def eq_ps_legacy(theta_list, phi_list, min_energies, field_str, field_dir, T, d,
     ps = e_ratio / sum(e_ratio)
     return np.array(ps, dtype="float64")
 
+
 def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     """
     Function for calculating the relaxation time of a mono-dispersion
@@ -902,19 +914,24 @@ def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     relax_routine[1].ts - relax_routine[0].ts[-1]
     """
     # Run a parallelized mono dispersion
-    vs, ps = mono_dispersion(start_p, d, relax_routine, energy_landscape,n_dirs = 30,
-                             eq=np.array([True,False,False]))
+    vs, ps = mono_dispersion(
+        start_p,
+        d,
+        relax_routine,
+        energy_landscape,
+        n_dirs=30,
+        eq=np.array([True, False, False]),
+    )
     # Calculate magnitude of vector
     mags = np.linalg.norm(vs[2], axis=1)
     # Calculate TRMs
     TRM = np.linalg.norm(vs[1][-1])
     # Get relaxation time (M = TRM/e)
-    if mags[-1]<= (TRM/np.e**2):
+    if mags[-1] <= (TRM / np.e**2):
         relax_time = ts[mags <= (TRM / np.e**2)][0]
     else:
         relax_time = ts[-1]
     return relax_time
-
 
 
 def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_incr=10):
@@ -1093,11 +1110,11 @@ def full_crit_size(TMx, PRO, OBL, alignment):
         Energy = GEL(TMx, alignment, PRO, OBL)
         relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
         relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
-        #If the grain is unfeasibly large, we might not reach equilibrium
-        #And so have zero magnetization
-        #In these cases, a "pre-hold" where we force the grain to equilibrium
-        #At max temperature.
-        pre_hold = [HoldStep(0,Energy.T_max,40,np.array([1, 0, 0]),hold_steps = 2)]
+        # If the grain is unfeasibly large, we might not reach equilibrium
+        # And so have zero magnetization
+        # In these cases, a "pre-hold" where we force the grain to equilibrium
+        # At max temperature.
+        pre_hold = [HoldStep(0, Energy.T_max, 40, np.array([1, 0, 0]), hold_steps=2)]
         for step in pre_hold:
             step.ts -= 1801
         relax_routine = pre_hold + relax_routine
@@ -1202,7 +1219,6 @@ def hyst_treatment(start_t, start_p, Bs, ts, d, energy_landscape: HEL, eq=False)
         phi_lists.append(phi_list)
 
     return (ps, theta_lists, phi_lists)
-
 
 
 def grain_hyst_vectors(
@@ -1349,8 +1365,50 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
 
 
 def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
+    """
+    Gets the state vectors and average magnetization vectors at each
+    time step in a high-field treatment for all directions in a
+    mono-dispersion of grains. This calculation is performed for a
+    set of treatment steps - see treatment.TreatmentStep for more details.
+
+    Inputs
+    ------
+    start_p: numpy array
+    Initial state vector of grain.
+
+    d: float
+    Equivalent volume spherical diameter of grain (nm).
+
+    steps: list of treatment.TreatmentStep objects
+    Set of steps that describe a hysteresis experiment.
+
+    energy_landscape: barriers.HELs object
+    Object describing LEM states and energy barriers as a function of
+    fields.
+
+    n_dirs: int
+    Number of Fibonacci sphere directions to use for mono-dispersion
+
+    eq: bool
+    If True, ignore time steps and run magnetization to equilibrium.
+
+    Returns
+    -------
+    vs: numpy array
+    List of arrays of average magnetization vectors at each time step,
+    in each treatment step, for each mono-dispersion direction.
+
+    ps: numpy array
+    List of arrays of state vectors at each time step, in each treatment
+    step, for each mono-dispersion direction.
+    """
     vs = []
     ps = []
+    if d > energy_landscape.HEL_list[0].d_min:
+        warnings.warn(
+            "WARNING: This particle may be too large to be single domain, results may be innaccurate"
+        )
+
     for hel in energy_landscape.HEL_list:
         min_e = hel.get_params(0)["min_e"]
         start_p = np.zeros(len(min_e))
