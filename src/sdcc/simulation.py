@@ -667,32 +667,14 @@ def eq_ps(params, field_str, field_dir, d):
     xyz = angle2xyz(theta_list, phi_list)
     for i in range(len(theta_list)):
         zeeman_energy = np.dot(xyz[:, i], field_dir * field_str * 1e-6) * Ms
+        if np.isnan(zeeman_energy):
+            zeeman_energy = 0
         min_energies[i] -= zeeman_energy
 
     precise_exp = np.vectorize(mp.exp)
     e_ratio = precise_exp(-(min_energies * V) / (kb * (273 + T)))
     ps = e_ratio / sum(e_ratio)
     return np.array(ps, dtype="float64")
-
-
-def eq_ps_legacy(theta_list, phi_list, min_energies, field_str, field_dir, T, d, Ms):
-    """
-    DEPRECATED
-    Legacy version of eq_ps (no params).
-    """
-    V = 4 / 3 * np.pi * ((d / 2 * 1e-9) ** 3)
-    kb = 1.380649e-23
-    min_energies = np.array(min_energies)
-    xyz = angle2xyz(theta_list, phi_list)
-    for i in range(len(theta_list)):
-        zeeman_energy = np.dot(xyz[:, i], field_dir * field_str * 1e-6) * Ms
-        min_energies[i] -= zeeman_energy
-
-    precise_exp = np.vectorize(mp.exp)
-    e_ratio = precise_exp(-(min_energies * V) / (kb * (273 + T)))
-    ps = e_ratio / sum(e_ratio)
-    return np.array(ps, dtype="float64")
-
 
 def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     """
