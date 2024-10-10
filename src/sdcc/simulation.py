@@ -3,40 +3,13 @@ import mpmath as mp
 import pickle
 import multiprocessing as mpc
 import warnings
-from sdcc.barriers import GrainEnergyLandscape, GEL, HEL, find_all_barriers
+from sdcc.barriers import GEL, HEL, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
 from sdcc.utils import fib_sphere
 
 mp.prec = 100
 mp.mp.prec = 100
 from sdcc.treatment import relaxation_time
-
-
-def change_minima(p_old, old_theta_list, old_phi_list, new_theta_list, new_phi_list):
-    """
-    DEPRECATED
-
-    Calculates the set of energy minima at one temperature for a grain
-    which correspond to the set of energy minima at another temperature.
-    """
-    old_len = len(old_theta_list)  # number of old minima
-    new_len = len(new_theta_list)  # number of new minima
-
-    # Calculate cosine difference between old and new minima
-    cos_dist = np.empty((old_len, new_len))
-    for i in range(old_len):
-        for j in range(new_len):
-            xyz_old = angle2xyz(old_theta_list[i], old_phi_list[i])
-            xyz_new = angle2xyz(new_theta_list[j], new_phi_list[j])
-            cos_dist[i, j] = np.dot(xyz_old, xyz_new)
-
-    # Assign new p vector
-    p_new = np.zeros(new_len)
-    for j in range(len(p_new)):
-        p_new[j] += np.sum(p_old[np.where(cos_dist[:, j] == np.amax(cos_dist[:, j]))])
-    p_new /= sum(p_new)
-    return p_new
-
 
 def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     """
@@ -107,58 +80,6 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
         Q[i, i] = -mp.fsum(Q[:, i])
     return Q
 
-
-def Q_matrix_legacy(
-    theta_list,
-    phi_list,
-    theta_mat,
-    phi_mat,
-    energy_densities,
-    T,
-    d,
-    Ms,
-    field_dir=np.array([1, 0, 0]),
-    field_str=0.0,
-):
-    """
-    DEPRECATED
-
-    Legacy version of Q_matrix function.
-    """
-    V = 4 / 3 * np.pi * ((d / 2 * 1e-9) ** 3)
-    kb = 1.380649e-23
-    tau_0 = 1e-9
-    tt, pp = np.meshgrid(theta_list, phi_list)
-    xyz = angle2xyz(tt, pp)
-    xyz *= Ms * V
-    xyz_T = angle2xyz(theta_mat, phi_mat)
-    xyz_T *= Ms * V
-    xyz = xyz_T - xyz
-
-    field_dir = field_dir * field_str * 1e-6
-
-    field_mat = np.empty((3, len(theta_list), len(theta_list)))
-    for i in range(len(theta_list)):
-        for j in range(len(theta_list)):
-            field_mat[:, i, j] = field_dir
-    field_mat = np.array([field_mat[0].T, field_mat[1].T, field_mat[2].T])
-
-    zeeman_energy = np.sum(xyz * field_mat, axis=0)
-    logQ = -(energy_densities.T * V - zeeman_energy) / (kb * (273 + T))
-
-    logQ = np.array(logQ)
-    logQ[np.isnan(logQ)] = -mp.inf
-    logQ[np.isinf(logQ)] = -mp.inf
-    precise_exp = np.vectorize(mp.exp)
-    Q = precise_exp(logQ)
-    Q /= mp.mpmathify(tau_0)
-
-    # print(Q)
-    for i in range(len(theta_list)):
-        Q[i, i] = -np.sum(Q[:, i])
-    return Q
-
-
 def _update_p_vector(p_vec, Q, dt):
     """
     Given an initial state vector, a Q matrix and a time, calculates a
@@ -197,121 +118,6 @@ def _update_p_vector(p_vec, Q, dt):
     # Exactly 1 - this will blow up if we don't renormalize.
     p_vec_new /= sum(p_vec_new)
     return p_vec_new
-
-
-def thermal_treatment_legacy(
-    start_t,
-    start_p,
-    Ts,
-    ts,
-    d,
-    energy_landscape: GrainEnergyLandscape,
-    field_strs,
-    field_dirs,
-    eq=False,
-):
-    """
-    DEPRECATED
-
-    Legacy version of thermal_treatment
-    """
-    old_T = Ts[0]
-    old_min_energies = energy_landscape.min_energies[energy_landscape.Ts == old_T][0]
-    old_thetas = energy_landscape.theta_lists[energy_landscape.Ts == old_T][0]
-    old_phis = energy_landscape.phi_lists[energy_landscape.Ts == old_T][0]
-    old_saddle_thetas = energy_landscape.theta_mats[energy_landscape.Ts == old_T][0]
-    old_saddle_phis = energy_landscape.phi_mats[energy_landscape.Ts == old_T][0]
-    old_mats = energy_landscape.energy_mats[energy_landscape.Ts == old_T][0]
-    rot_mat, k1, k2, Ms = get_material_parms(
-        energy_landscape.TMx, energy_landscape.alignment, old_T
-    )
-
-    if eq:
-        old_p = eq_ps(
-            old_thetas,
-            old_phis,
-            old_min_energies,
-            field_strs[0],
-            field_dirs[0],
-            old_T,
-            d,
-            Ms,
-        )
-
-    else:
-
-        Q = Q_matrix(
-            old_thetas,
-            old_phis,
-            old_saddle_thetas,
-            old_saddle_phis,
-            old_mats,
-            old_T,
-            d,
-            Ms,
-            field_dir=field_dirs[0],
-            field_str=field_strs[0],
-        )
-        old_p = _update_p_vector(start_p, Q, ts[0] - start_t)
-    ps = [old_p]
-    theta_lists = [old_thetas]
-    phi_lists = [old_phis]
-    for i in range(1, len(Ts)):
-        T = Ts[i]
-        dt = ts[i] - ts[i - 1]
-        new_thetas = energy_landscape.theta_lists[energy_landscape.Ts == Ts[i]][0]
-        new_phis = energy_landscape.phi_lists[energy_landscape.Ts == Ts[i]][0]
-        new_min_energies = energy_landscape.min_energies[energy_landscape.Ts == Ts[i]][
-            0
-        ]
-        new_saddle_thetas = energy_landscape.theta_mats[energy_landscape.Ts == Ts[i]][0]
-        new_saddle_phis = energy_landscape.phi_mats[energy_landscape.Ts == Ts[i]][0]
-        new_mats = energy_landscape.energy_mats[energy_landscape.Ts == Ts[i]][0]
-
-        old_p = change_minima(old_p, old_thetas, old_phis, new_thetas, new_phis)
-
-        rot_mat, k1, k2, Ms = get_material_parms(
-            energy_landscape.TMx, energy_landscape.alignment, T
-        )
-
-        if eq:
-            new_p = eq_ps(
-                new_thetas,
-                new_phis,
-                new_min_energies,
-                field_strs[i],
-                field_dirs[i],
-                T,
-                d,
-                Ms,
-            )
-
-        else:
-            Q = Q_matrix(
-                new_thetas,
-                new_phis,
-                new_saddle_thetas,
-                new_saddle_phis,
-                new_mats,
-                T,
-                d,
-                Ms,
-                field_dir=field_dirs[i],
-                field_str=field_strs[i],
-            )
-            new_p = _update_p_vector(old_p, Q, dt)
-
-        ps.append(new_p)
-
-        old_thetas = new_thetas
-        old_phis = new_phis
-        old_mats = new_mats
-        old_p = new_p
-        theta_lists.append(new_thetas)
-        phi_lists.append(new_phis)
-
-    return (ps, theta_lists, phi_lists)
-
 
 def thermal_treatment(
     start_t, start_p, Ts, ts, d, energy_landscape: GEL, field_strs, field_dirs, eq=False
@@ -447,7 +253,6 @@ def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape, d
     # not the field. We correct for this by applying the inverse of the
     # rotation matrix to the grain magnetization states at the end.
     inv_rot = np.linalg.inv(rot_mat)
-    # SOMETHING IS WRONG WITH THIS - SHOULD BE DIFFERENT SOMEHOW
 
     for i in range(len(ps)):
         # Volume of grain
