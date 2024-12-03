@@ -21,7 +21,7 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 import pickle
 from scipy.interpolate import splprep, splrep, BSpline
-from sdcc.utils import fib_sphere, calc_d_min
+from sdcc.utils import fib_sphere, calc_d_min, fib_hypersphere
 from scipy.optimize import minimize
 
 config.update("jax_enable_x64", True)
@@ -288,7 +288,7 @@ def get_min_regions(energies, markers=None):
         tiled_markers = None
 
     # take watershed of image
-    labels_old = watershed(tiled_energies, connectivity=2, markers=tiled_markers)
+    labels_old = watershed(tiled_energies, connectivity=1, markers=tiled_markers)
 
     # Take center part of map (this is done so that wrapping is not an issue)
     labels = labels_old[:, 500:1501]
@@ -954,8 +954,32 @@ def smart_sort(
     )
     # If the indices are already lost, they have inf theta, so ignore em
     lost_indices = lost_indices[~np.isinf(low_theta_list[lost_indices])]
-    delete_splits(new_indices, old_indices, high_energy_list)
+    
+    
 
+    
+    delete_splits(new_indices, old_indices, high_energy_list)
+    
+    #if len(lost_indices) == 0:
+    #    cos_dist = np.full((len(high_theta_list), len(low_theta_list)), -np.inf)
+    #    for i in range(len(high_theta_list)):
+    #        for j in range(len(low_theta_list)):
+    #            xyz_new = angle2xyz(high_theta_list[i], high_phi_list[i])
+    #            xyz_old = angle2xyz(low_theta_list[j], low_phi_list[j])
+    #            cos_dist[i, j] = np.dot(xyz_new, xyz_old)
+    #            if np.isnan(cos_dist[i,j]):
+    #                cos_dist[i,j] = np.nan
+    #                
+    #        old_j = new_indices[i]
+    #        new_j = np.where(cos_dist[i]==np.amax(cos_dist[i]))[0]
+    #        print(old_j,new_j)
+    #        if type(new_j) == np.ndarray:
+    #            if len(new_j) == 0:
+    #                new_j = i
+    #            else:
+    #                new_j = new_j[0]
+    #        if old_j != new_j:
+    #            print('Warning: indexing methods disagree!','Watershed: ',old_j,'Nearest Neighbor: ',new_j)
     # Create new barriers with shape of old ones.
     barriers_new = deepcopy(low_barriers)
     thetas_new = deepcopy(low_theta_list)
@@ -1004,7 +1028,6 @@ def smart_sort(
 
     # Set outflow from "lost" states to 0s
     # Check which state "lost" states turned into
-    # print(lost_indices,low_theta_list,low_phi_list)
     for i in lost_indices:
         where = np.where((thetas == low_theta_list[i]) & (phis == low_phi_list[i]))
         j = new_indices[high_labels[where][0]]
@@ -1100,40 +1123,42 @@ def find_T_barriers(TMx, alignment, PRO, OBL, T_spacing=1):
             energy_mat,
             labels,
         ) = find_all_barriers(TMx, alignment, PRO, OBL, T=T, return_labels=True)
-        if T > min(Ts):
+        if len(theta_list) == 0:
+            Ts = np.delete(Ts, Ts == T)
+        else:
+            if T > min(Ts):
+                (
+                    theta_list,
+                    phi_list,
+                    min_energy_list,
+                    theta_mat,
+                    phi_mat,
+                    energy_mat,
+                    labels,
+                ) = smart_sort(
+                    theta_lists[-1],
+                    phi_lists[-1],
+                    min_energy_lists[-1],
+                    theta_mats[-1],
+                    phi_mats[-1],
+                    energy_mats[-1],
+                    labels_old,
+                    theta_list,
+                    phi_list,
+                    min_energy_list,
+                    theta_mat,
+                    phi_mat,
+                    energy_mat,
+                    labels,
+                )
 
-            (
-                theta_list,
-                phi_list,
-                min_energy_list,
-                theta_mat,
-                phi_mat,
-                energy_mat,
-                labels,
-            ) = smart_sort(
-                theta_lists[-1],
-                phi_lists[-1],
-                min_energy_lists[-1],
-                theta_mats[-1],
-                phi_mats[-1],
-                energy_mats[-1],
-                labels_old,
-                theta_list,
-                phi_list,
-                min_energy_list,
-                theta_mat,
-                phi_mat,
-                energy_mat,
-                labels,
-            )
-
-        theta_lists.append(theta_list)
-        phi_lists.append(phi_list)
-        energy_mats.append(energy_mat)
-        min_energy_lists.append(min_energy_list)
-        theta_mats.append(theta_mat)
-        phi_mats.append(phi_mat)
-        labels_old = deepcopy(labels)
+            theta_lists.append(theta_list)
+            phi_lists.append(phi_list)
+            energy_mats.append(energy_mat)
+            min_energy_lists.append(min_energy_list)
+            theta_mats.append(theta_mat)
+            phi_mats.append(phi_mat)
+            labels_old = deepcopy(labels)
 
     return (
         theta_lists,
@@ -1363,39 +1388,42 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
         ) = find_all_barriers(
             TMx, alignment, PRO, OBL, T=T, ext_field=ext_field, return_labels=True
         )
-        if B > min(Bs):
-            (
-                theta_list,
-                phi_list,
-                min_energy_list,
-                theta_mat,
-                phi_mat,
-                energy_mat,
-                labels,
-            ) = smart_sort(
-                theta_lists[-1],
-                phi_lists[-1],
-                min_energy_lists[-1],
-                theta_mats[-1],
-                phi_mats[-1],
-                energy_mats[-1],
-                labels_old,
-                theta_list,
-                phi_list,
-                min_energy_list,
-                theta_mat,
-                phi_mat,
-                energy_mat,
-                labels,
-            )
+        if len(theta_list) == 0:
+            Bs = np.delete(Bs, Bs == B)
+        else:
+            if B > min(Bs):
+                (
+                    theta_list,
+                    phi_list,
+                    min_energy_list,
+                    theta_mat,
+                    phi_mat,
+                    energy_mat,
+                    labels,
+                ) = smart_sort(
+                    theta_lists[-1],
+                    phi_lists[-1],
+                    min_energy_lists[-1],
+                    theta_mats[-1],
+                    phi_mats[-1],
+                    energy_mats[-1],
+                    labels_old,
+                    theta_list,
+                    phi_list,
+                    min_energy_list,
+                    theta_mat,
+                    phi_mat,
+                    energy_mat,
+                    labels,
+                )
 
-        theta_lists.append(theta_list)
-        phi_lists.append(phi_list)
-        energy_mats.append(energy_mat)
-        min_energy_lists.append(min_energy_list)
-        theta_mats.append(theta_mat)
-        phi_mats.append(phi_mat)
-        labels_old = deepcopy(labels)
+            theta_lists.append(theta_list)
+            phi_lists.append(phi_list)
+            energy_mats.append(energy_mat)
+            min_energy_lists.append(min_energy_list)
+            theta_mats.append(theta_mat)
+            phi_mats.append(phi_mat)
+            labels_old = deepcopy(labels)
 
     Bs, theta_lists, phi_lists, min_energy_lists, theta_mats, phi_mats, energy_mats = (
         make_antipode_array(
@@ -1410,12 +1438,12 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
     )
 
     return (
-        theta_lists,
-        phi_lists,
-        min_energy_lists,
-        theta_mats,
-        phi_mats,
-        energy_mats,
+        np.array(theta_lists),
+        np.array(phi_lists),
+        np.array(min_energy_lists),
+        np.array(theta_mats),
+        np.array(phi_mats),
+        np.array(energy_mats),
         Bs,
     )
 
@@ -1778,8 +1806,9 @@ class HEL:
     Spacing of field steps (Tesla)
     """
 
-    def __init__(self, TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing=0.001, T=20):
+    def __init__(self, TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing=0.001, T=20):
         self.d_min = calc_d_min(TMx, alignment, PRO, OBL)
+        B_dir = rot_mat @ np.array([1.,0.,0.])
         (
             theta_lists,
             phi_lists,
@@ -1866,6 +1895,7 @@ class HEL:
 
         self.B_max = B_max
         self.B_dir = B_dir
+        self.rot_mat = rot_mat
         self.T = T
 
     def to_file(self, fname):
@@ -1989,16 +2019,21 @@ class HELs:
         B_max,
         B_spacing=0.001,
         T=20,
-        B_dirs=None,
+        rot_mats=None,
         n_dirs=30,
     ):
-        if type(B_dirs) == type(None):
-            B_dirs = fib_sphere(n_dirs)
+
+        if type(rot_mats) == type(None):
+            rot_mats = fib_hypersphere(n_dirs)
+    
         HEL_list = []
-        for B_dir in B_dirs:
-            HEL_list.append(HEL(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T))
+        B_dirs = []
+        for rot_mat in rot_mats:
+            B_dirs.append(rot_mat@np.array([1,0,0]))
+            HEL_list.append(HEL(TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing, T))
         self.HEL_list = HEL_list
         self.B_dirs = B_dirs
+        self.rot_mats = rot_mats
 
     def __getitem__(self, index: int):
         return self.HEL_list[index]

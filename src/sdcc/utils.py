@@ -1,6 +1,7 @@
 import numpy as np
 import warnings
 from scipy.interpolate import griddata
+from scipy.spatial.transform import Rotation
 
 
 def fib_sphere(n=1000):
@@ -73,6 +74,52 @@ def smooth_surface(xx, yy, zs, grid_x, grid_y, kind="cubic"):
     )
     return grid_z
 
+def fib_hypersphere(n):
+    """
+    Algorithm for producing uniformly distributed orientations from a 
+    super Fibonacci spiral according to the method of Alexa (2022). 
+    This is required because the fibonacci sphere does not describe a 
+    uniformly destributed set of rotation matrices, but instead 
+    describes a uniformly distributed set of directions. This is 
+    important when rotation a magnetization which is not in the same
+    orientation as the field direction, as those vectors may not be
+    uniformly oriented.
+
+    Inputs
+    ------
+    n: int
+    Number of directions
+
+    Returns
+    -------
+    rot_mats: n x 3 x 3 array
+    Array of 3x3 rotation matrices of length n describing a set of
+    uniformly distributed rotations.
+    """
+    PHI = np.sqrt(2)
+    PSI = 1.533751168755204288118041
+
+    quats = np.empty(shape=(n,4), dtype=float)
+
+    i = np.arange(n)
+    s = i+0.5
+    r = np.sqrt(s/n)
+    R = np.sqrt(1. - s/n)
+    alpha = 2 * np.pi * s/PHI
+    beta  = 2 * np.pi * s/PSI
+
+    quats[:,0] = r * np.sin(alpha)
+    quats[:,1] = r * np.cos(alpha)
+    quats[:,2] = R * np.sin(beta)
+    quats[:,3] = R * np.cos(beta)
+
+    rot_mats = Rotation.from_quat(quats)
+    #Rotate reference frame such that x is the best distributed
+    #Under inverse rotation.
+    rot_ref  = Rotation.from_euler('YZX',[np.pi/2,0,0])
+    rot_mats = rot_ref*rot_mats
+    rot_mats = rot_mats.as_matrix()
+    return(rot_mats)
 
 def calc_d_min(TMx, alignment, PRO, OBL):
     """
@@ -111,7 +158,7 @@ def calc_d_min(TMx, alignment, PRO, OBL):
         )
     elif TMx > 60:
         warnings.warn(
-            "Warning! The maximum SD size limit is not known for this shape, proceed with caution!"
+            "Warning! The maximum SD size limit is not known for this composition, proceed with caution!"
         )
     elif TMx < 0:
         raise ValueError("Titanomagnetite compositon must be between 0 and 100")

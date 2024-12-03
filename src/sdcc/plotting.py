@@ -167,6 +167,7 @@ def plot_energy_surface(
     levels=10,
     n_points=100,
     projection="equirectangular",
+    ax = None
 ):
     """
     Plots an energy density surface for a single domain grain.
@@ -215,8 +216,9 @@ def plot_energy_surface(
 
     # If equidimensional, plot an equidimensional plot
     if "equi" in projection.lower():
-        fig = plt.figure()
-        plt.contour(
+        if ax == None:
+            fig,ax = plt.subplots()
+        ax.contour(
             np.degrees(thetas),
             np.degrees(phis),
             energies,
@@ -224,7 +226,7 @@ def plot_energy_surface(
             cmap="viridis",
             antialiased=True,
         )
-        plt.contourf(
+        contourf = ax.contourf(
             np.degrees(thetas),
             np.degrees(phis),
             energies,
@@ -233,13 +235,19 @@ def plot_energy_surface(
             antialiased=True,
             linewidths=0.2,
         )
-        plt.colorbar(label="Energy Density (Jm$^{-3}$)")
-        plt.xlabel(r"$\theta$", fontsize=14)
-        plt.ylabel("$\phi$", fontsize=14)
+        plt.colorbar(contourf,label="Energy Density (Jm$^{-3}$)", ax = ax)
+        ax.set_xlabel(r"$\theta$", fontsize=14)
+        ax.set_ylabel("$\phi$", fontsize=14)
 
     # If stereonet, plot on two stereonets (upper, lower)
     elif "stereo" in projection.lower():
-        fig, ax = plt.subplots(1, 2, figsize=(9, 4))
+        if ax == None:
+            fig = plt.figure(figsize=(9,4))
+            grid = fig.add_gridspec(100,20)
+            ax1 = fig.add_subplot(grid[:,:9])
+            ax2 = fig.add_subplot(grid[:,9:18])
+            ax3 = fig.add_subplot(grid[5:95,18:])
+            ax = [ax1,ax2,ax3]
         plot_net(ax[0])
         vmin = np.amin(energies)
         vmax = np.amax(energies)
@@ -264,13 +272,12 @@ def plot_energy_surface(
             levels=levels,
             antialiased=True,
         )
-        cax = fig.add_axes([0.9, 0.05, 0.1, 0.9])
-        cax.axis("Off")
-        fig.colorbar(lower, ax=cax, label="Energy Density (Jm$^{-3}$)")
+        ax[2].axis('off')
+        plt.colorbar(lower, ax=ax[2], label="Energy Density (Jm$^{-3}$)")
     # Otherwise raise an error
     else:
         raise KeyError("Unknown projection type: " + projection)
-    fig.suptitle("SD Energy Surface TM" + str(TMx).zfill(2) + " AR %1.2f" % (PRO / OBL))
+    #fig.suptitle("SD Energy Surface TM" + str(TMx).zfill(2) + " AR %1.2f" % (PRO / OBL))
     plt.tight_layout()
 
 

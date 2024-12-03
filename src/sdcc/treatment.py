@@ -102,8 +102,9 @@ class CoolingStep(TreatmentStep):
         if char_temp == None or max_temp == None:
             char_temp = T_start - 1
             max_temp = T_start
-        Ts = np.arange(T_start, T_end - 1, -1, dtype="float64")
-        Ts[-1] = Ts[-1] + 0.5
+        Ts = np.arange(T_start, T_end, -1, dtype="float64")
+        Ts = np.append(Ts,T_end)
+        Ts[-1] += (Ts[-2] - Ts[-1])/2
         self.Ts = Ts
         self.ts = temp2time(self.Ts, char_time, max_temp, char_temp, T_end)
         self.ts = self.ts - self.ts[0]

@@ -5,11 +5,12 @@ import multiprocessing as mpc
 import warnings
 from sdcc.barriers import GEL, HEL, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
-from sdcc.utils import fib_sphere
+from sdcc.utils import fib_sphere,fib_hypersphere
 
 mp.prec = 100
 mp.mp.prec = 100
 from sdcc.treatment import relaxation_time
+
 
 def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     """
@@ -80,6 +81,7 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
         Q[i, i] = -mp.fsum(Q[:, i])
     return Q
 
+
 def _update_p_vector(p_vec, Q, dt):
     """
     Given an initial state vector, a Q matrix and a time, calculates a
@@ -118,6 +120,7 @@ def _update_p_vector(p_vec, Q, dt):
     # Exactly 1 - this will blow up if we don't renormalize.
     p_vec_new /= sum(p_vec_new)
     return p_vec_new
+
 
 def thermal_treatment(
     start_t, start_p, Ts, ts, d, energy_landscape: GEL, field_strs, field_dirs, eq=False
@@ -270,7 +273,7 @@ def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape, d
 
         # For SD, magnitude is V * Ms
         vecs = angle2xyz(theta_list, phi_list) * ps[i] * Ms * V
-
+        vecs = np.nan_to_num(vecs, nan=0)
         v = np.sum(vecs, axis=1)  # Grain direction
         vs.append(inv_rot @ v)  # Rotate back into constant field direction
     return np.array(vs)
@@ -283,7 +286,7 @@ def grain_vectors(
     ts,
     d,
     energy_landscape: GEL,
-    grain_dir,
+    rot_mat,
     field_strs,
     field_dirs,
     eq=False,
@@ -315,8 +318,8 @@ def grain_vectors(
     energy_landscape: barriers.GEL object
     Object describing energy barriers for a particular grain geometry.
 
-    grain_dir: numpy array
-    Direction associated with this grain.
+    rot_mat: 3x3 matrix
+    Orientation of grain
 
     field_strs: numpy array
     Array of field strengths at each time step.
@@ -335,14 +338,6 @@ def grain_vectors(
     ps: numpy array
     Array of state vectors at each time step
     """
-    # Convert our field directions to a rotation matrix, so that we can
-    # rotate back to grain coordinates later.
-    grain_dirstr = grain_dir.astype(str)
-    grain_dirstr = " ".join(grain_dirstr)
-    ref_dir = np.array([1, 0, 0])
-    ref_dirstr = ref_dir.astype(str)
-    ref_dirstr = " ".join(ref_dirstr)
-    rot_mat = dir_to_rot_mat(ref_dirstr, grain_dirstr)
 
     # Get the field directions rotated according to this matrix.
     rot_field_dirs = []
@@ -360,7 +355,7 @@ def grain_vectors(
     return (vs, ps)
 
 
-def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=[False]):
+def mono_direction(rot_mat,start_p, d, steps, energy_landscape: GEL, eq=[False]):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a
@@ -369,9 +364,6 @@ def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=[Fals
 
     Inputs
     ------
-    grain_dir: numpy array
-    Direction of this grain in the mono dispersion.
-
     start_p: numpy array
     Initial state vector of grain.
 
@@ -384,6 +376,9 @@ def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=[Fals
     energy_landscape: barriers.GEL object
     Object describing LEM states and energy barriers as a function of
     temperature
+
+    rot_mat: numpy array
+    Direction of this grain in the mono dispersion.
 
     eq: bool
     If True, ignore time steps and run magnetization to equilibrium.
@@ -421,7 +416,7 @@ def mono_direction(grain_dir, start_p, d, steps, energy_landscape: GEL, eq=[Fals
             ts,
             d,
             energy_landscape,
-            grain_dir,
+            rot_mat,
             field_strs,
             field_dirs,
             eq=eq[j],
@@ -484,9 +479,9 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     if d > energy_landscape.d_min:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
-        )
+       )
 
-    dirs = fib_sphere(n_dirs)
+    rot_mats = fib_hypersphere(n_dirs)
     vs = []
     ps = []
     i = 0
@@ -496,7 +491,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     else:
         pass
 
-    for grain_dir in dirs:
+    for rot_mat in rot_mats:
         i += 1
         print("Working on grain {i} of {n}".format(i=i, n=n_dirs), end="\r")
         v_step = []
@@ -516,7 +511,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
                 ts,
                 d,
                 energy_landscape,
-                grain_dir,
+                rot_mat,
                 field_strs,
                 field_dirs,
                 eq=eq[j],
@@ -580,7 +575,7 @@ def parallelized_mono_dispersion(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
 
-    dirs = fib_sphere(n_dirs)
+    rot_mats = fib_hypersphere(n_dirs)
 
     if isinstance(eq, bool):
         eq = np.full(len(steps), eq)
@@ -592,9 +587,9 @@ def parallelized_mono_dispersion(
         [
             pool.apply_async(
                 mono_direction,
-                args=(grain_dir, start_p, d, steps, energy_landscape, eq),
+                args=(rot_mat, start_p, d, steps, energy_landscape, eq),
             )
-            for grain_dir in dirs
+            for rot_mat in rot_mats
         ]
     )
     vps = np.array([obj.get() for obj in objs], dtype="object")
@@ -675,6 +670,7 @@ def eq_ps(params, field_str, field_dir, d):
     e_ratio = precise_exp(-(min_energies * V) / (kb * (273 + T)))
     ps = e_ratio / sum(e_ratio)
     return np.array(ps, dtype="float64")
+
 
 def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     """
@@ -1015,7 +1011,7 @@ def grain_hyst_vectors(
     ts,
     d,
     energy_landscape: HEL,
-    field_dir,
+    rot_mat,
     eq=False,
 ):
     """
@@ -1045,8 +1041,8 @@ def grain_hyst_vectors(
     energy_landscape: barriers.HEL object
     Object describing energy barriers for a particular grain geometry.
 
-    grain_dir: numpy array
-    Direction associated with this grain.
+    rot_mat: 3x3 matrix
+    Orientation associated with this grain.
 
     field_dir: numpy array
     Direction of field relative to grain - will be rotated to 1,0,0.
@@ -1062,14 +1058,7 @@ def grain_hyst_vectors(
     ps: numpy array
     Array of state vectors at each time step
     """
-    # Convert our field directions to a rotation matrix, so that we can
-    # rotate back to grain coordinates later.
-    field_dirstr = field_dir.astype(str)
-    field_dirstr = " ".join(field_dirstr)
-    ref_dir = np.array([1, 0, 0])
-    ref_dirstr = ref_dir.astype(str)
-    ref_dirstr = " ".join(ref_dirstr)
-    rot_mat = dir_to_rot_mat(ref_dirstr, field_dirstr)
+
 
     # Get the field directions rotated according to this matrix.
 
@@ -1092,9 +1081,6 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
 
     Inputs
     ------
-    grain_dir: numpy array
-    Direction of this grain in the mono dispersion.
-
     start_p: numpy array
     Initial state vector of grain.
 
@@ -1129,7 +1115,7 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
     new_start_p = start_p
     new_start_t = 0
     j = 0
-    field_dir = np.array(energy_landscape.B_dir)
+    rot_mat = np.array(energy_landscape.rot_mat)
     for step in steps:
         # Get temperatures and times associated with each timestep
         ts = step.ts
@@ -1140,7 +1126,7 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
         # last step. One step follows immediately from another in
         # Our model.
         v, p = grain_hyst_vectors(
-            new_start_t, new_start_p, Bs, ts, d, energy_landscape, field_dir, eq=eq
+            new_start_t, new_start_p, Bs, ts, d, energy_landscape, rot_mat, eq=eq
         )
         new_start_p = p[-1]
         new_start_t = ts[-1]
@@ -1205,4 +1191,66 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
         vs.append(v)
         ps.append(p)
     vs = sum(vs)
+    return (vs, ps)
+
+def parallelized_mono_dispersion(
+    start_p, d, steps, energy_landscape: GEL, eq=False
+):
+    """
+    Gets the state vectors and average magnetization vectors at each
+    time step in a hysteresis treatment for all directions in a
+    mono-dispersion of grains. This calculation is performed for a
+    set of treatment steps - see treatment.TreatmentStep for more details.
+
+    Inputs
+    ------
+    start_p: numpy array
+    Initial state vector of grain.
+
+    d: float
+    Equivalent volume spherical diameter of grain (nm).
+
+    steps: list of treatment.TreatmentStep objects
+    Set of steps that describe a thermal experiment.
+
+    energy_landscape: barriers.GEL object
+    Object describing LEM states and energy barriers as a function of
+    temperature
+
+    n_dirs: int
+    Number of Fibonacci sphere directions to use for mono-dispersion
+
+    eq: bool
+    If True, ignore time steps and run magnetization to equilibrium.
+
+    Returns
+    -------
+    vs: numpy array
+    List of arrays of average magnetization vectors at each time step,
+    in each treatment step, for each mono-dispersion direction.
+
+    ps: numpy array
+    List of arrays of state vectors at each time step, in each treatment
+    step, for each mono-dispersion direction.
+    """
+    if d > energy_landscape.HEL_list[0].d_min:
+        warnings.warn(
+            "WARNING: This particle may be too large to be single domain, results may be innaccurate"
+        )
+
+    pool = mpc.Pool(mpc.cpu_count())
+    objs = np.array(
+        [
+            pool.apply_async(
+                mono_hyst_direction,
+                args=(start_p, d, steps, energy_landscape, eq),
+            )
+            for hel in energy_landscape.HEL_list
+        ]
+    )
+    vps = np.array([obj.get() for obj in objs], dtype="object")
+    pool.close()
+    vs = vps[:, 0]
+    ps = vps[:, 1]
+    vs = np.sum(vs, axis=0)
     return (vs, ps)
