@@ -8,15 +8,15 @@ def fib_sphere(n=1000):
     """
     Algorithm for producing directions from a Fibonacci sphere
 
-    Inputs
+    Parameters
     ------
     n: int
-    Number of directions
+        Number of directions
 
     Returns
     -------
     xyz: array
-    Array of 3D cartesian directions
+        Array of 3D cartesian directions
     """
     goldenRatio = (1 + 5**0.5) / 2
     i = np.arange(0, n)
@@ -33,30 +33,30 @@ def smooth_surface(xx, yy, zs, grid_x, grid_y, kind="cubic"):
     Interpolates critical size values on a grid to obtain
     a smoothed surface.
 
-    Inputs
+    Parameters
     ------
     xx: numpy array
-    Meshgrid of TM compositions
+        Meshgrid of TM compositions
 
     yy: numpy array
-    Meshgrid of shapes
+        Meshgrid of shapes
 
     zs: numpy array
-    Critical sizes at (xx,yy)
+        Critical sizes at (xx,yy)
 
     grid_x: float or array
-    TMx value(s) to calculate smoothed surface for.
+        TMx value(s) to calculate smoothed surface for.
 
     grid_y: float or array
-    Shapes to calculate smoothed surface for.
+        Shapes to calculate smoothed surface for.
 
     kind: string
-    What kind of smoothing to do (should always be 'cubic')
+        What kind of smoothing to do (should always be 'cubic')
 
     Returns
     -------
     grid_z: numpy array
-    Interpolated critical size(s)
+        Interpolated critical size(s)
     """
     xx = xx.flatten()
     yy = yy.flatten()
@@ -74,77 +74,79 @@ def smooth_surface(xx, yy, zs, grid_x, grid_y, kind="cubic"):
     )
     return grid_z
 
+
 def fib_hypersphere(n):
     """
-    Algorithm for producing uniformly distributed orientations from a 
-    super Fibonacci spiral according to the method of Alexa (2022). 
-    This is required because the fibonacci sphere does not describe a 
-    uniformly destributed set of rotation matrices, but instead 
-    describes a uniformly distributed set of directions. This is 
+    Algorithm for producing uniformly distributed orientations from a
+    super Fibonacci spiral according to the method of Alexa (2022).
+    This is required because the fibonacci sphere does not describe a
+    uniformly destributed set of rotation matrices, but instead
+    describes a uniformly distributed set of directions. This is
     important when rotation a magnetization which is not in the same
     orientation as the field direction, as those vectors may not be
     uniformly oriented.
 
-    Inputs
+    Parameters
     ------
     n: int
-    Number of directions
+        Number of directions
 
     Returns
     -------
     rot_mats: n x 3 x 3 array
-    Array of 3x3 rotation matrices of length n describing a set of
-    uniformly distributed rotations.
+        Array of 3x3 rotation matrices of length n describing a set of
+        uniformly distributed rotations.
     """
     PHI = np.sqrt(2)
     PSI = 1.533751168755204288118041
 
-    quats = np.empty(shape=(n,4), dtype=float)
+    quats = np.empty(shape=(n, 4), dtype=float)
 
     i = np.arange(n)
-    s = i+0.5
-    r = np.sqrt(s/n)
-    R = np.sqrt(1. - s/n)
-    alpha = 2 * np.pi * s/PHI
-    beta  = 2 * np.pi * s/PSI
+    s = i + 0.5
+    r = np.sqrt(s / n)
+    R = np.sqrt(1.0 - s / n)
+    alpha = 2 * np.pi * s / PHI
+    beta = 2 * np.pi * s / PSI
 
-    quats[:,0] = r * np.sin(alpha)
-    quats[:,1] = r * np.cos(alpha)
-    quats[:,2] = R * np.sin(beta)
-    quats[:,3] = R * np.cos(beta)
+    quats[:, 0] = r * np.sin(alpha)
+    quats[:, 1] = r * np.cos(alpha)
+    quats[:, 2] = R * np.sin(beta)
+    quats[:, 3] = R * np.cos(beta)
 
     rot_mats = Rotation.from_quat(quats)
-    #Rotate reference frame such that x is the best distributed
-    #Under inverse rotation.
-    rot_ref  = Rotation.from_euler('YZX',[np.pi/2,0,0])
-    rot_mats = rot_ref*rot_mats
+    # Rotate reference frame such that x is the best distributed
+    # Under inverse rotation.
+    rot_ref = Rotation.from_euler("YZX", [np.pi / 2, 0, 0])
+    rot_mats = rot_ref * rot_mats
     rot_mats = rot_mats.as_matrix()
-    return(rot_mats)
+    return rot_mats
+
 
 def calc_d_min(TMx, alignment, PRO, OBL):
     """
     Calculates the SD size limit (d_min) using data from Cych et al
     (Magnetic Domain States and Critical Sizes in the Titanomagnetite Series, 2024)
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite Composition
+        Titanomagnetite Composition
 
     alignment: str
-    Magnetocrystalline axis aligned with shape easy axis, either 'easy','intermediate'
-    or 'hard'
+        Magnetocrystalline axis aligned with shape easy axis, either 'easy','intermediate'
+        or 'hard'
 
     PRO: float
-    Prolateness (> 1)
+        Prolateness (> 1)
 
     OBL: float
-    Oblateness (> 1)
+        Oblateness (> 1)
 
     Returns
     -------
     d_min: float
-    Critical size below which the SV state does not exist.
+        Critical size below which the SV state does not exist.
     """
 
     if PRO > 1.0 and OBL > 1.0:

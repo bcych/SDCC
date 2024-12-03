@@ -5,7 +5,7 @@ import multiprocessing as mpc
 import warnings
 from sdcc.barriers import GEL, HEL, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
-from sdcc.utils import fib_sphere,fib_hypersphere
+from sdcc.utils import fib_sphere, fib_hypersphere
 
 mp.prec = 100
 mp.mp.prec = 100
@@ -16,25 +16,25 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     """
     Constructs a Q matrix of rates of transition between LEM states.
 
-    Inputs
+    Parameters
     ------
     params: dictionary
-    Dictionary output from a barriers.GEL object - contains states and
-    energy barriers.
+        Dictionary output from a barriers.GEL object - contains states and
+        energy barriers.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     field_dir: numpy array
-    Unit vector with external field direction.
+        Unit vector with external field direction.
 
     field_str: numpy array
-    Strength of field (uT)
+        Strength of field (uT)
 
     Returns
     -------
     Q: numpy array
-    Array of transition rates.
+        Array of transition rates.
     """
     theta_list = params["min_dir"][:, 0]
     phi_list = params["min_dir"][:, 1]
@@ -94,21 +94,21 @@ def _update_p_vector(p_vec, Q, dt):
     this it would be extremely helpful as we're dealing with some large
     numbers (age of Solar System) here.
 
-    Inputs
+    Parameters
     ------
     p_vec: numpy array
-    Vector of relative proportions of grains in each state.
+        Vector of relative proportions of grains in each state.
 
     Q: numpy array
-    Rate matrix of transition times between states.
+        Rate matrix of transition times between states.
 
     dt: float
-    Amount of time spent in these field conditions/temperature.
+        Amount of time spent in these field conditions/temperature.
 
     Returns
     -------
     p_vec_new: numpy array
-    New state vector after treatment applied.
+        New state vector after treatment applied.
     """
     # To get the new state vector, we use a matrix exponential.
     dp_dt = mp.expm(mp.matrix(Q) * mp.mpmathify(dt))
@@ -129,45 +129,45 @@ def thermal_treatment(
     Function for calculating the probability of different LEM states in
     a grain during a thermal experiment.
 
-    Inputs
+    Parameters
     ------
     start_t: float
-    Time at which this experiment step starts
+        Time at which this experiment step starts
 
     start_p: numpy array
-    Initial state vector
+        Initial state vector
 
     Ts: numpy array
-    Set of temperatures at the times corresponding to ts.
+        Set of temperatures at the times corresponding to ts.
 
     ts: numpy array
-    Time steps at which we calculate the state.
+        Time steps at which we calculate the state.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     energy_landscape: barriers.GEL object
-    Object describing energy barriers for a particular grain geometry.
+        Object describing energy barriers for a particular grain geometry.
 
     field_strs: numpy array
-    Array of field strengths at each time step.
+        Array of field strengths at each time step.
 
     field_dirs: numpy array
-    Array of field directions at each time step.
+        Array of field directions at each time step.
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     ps: numpy array
-    Array of state vectors at each time step
+        Array of state vectors at each time step
 
     theta_lists: numpy array
-    Magnetization directions at each time step
+        Magnetization directions at each time step
 
     phi_lists: numpy array
-    Magnetization magnitudes at each time step
+        Magnetization magnitudes at each time step
     """
 
     # Get the starting temperature
@@ -225,29 +225,29 @@ def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape, d
     thermal experiment, given the probabilities and magnetization
     directions of said state.
 
-    Inputs
+    Parameters
     ------
     ps: numpy array
-    Array of state vectors at each time step.
+        Array of state vectors at each time step.
 
     theta_lists,phi_lists: numpy arrays
-    Arrays of magnetization directions at each time step
+        Arrays of magnetization directions at each time step
 
     Ts: numpy array
-    Array of temperatures at each time step
+        Array of temperatures at each time step
 
     rot_mat: numpy array
-    Rotation matrix applied to field direction - the inverse of this is
-    applied to the states
+        Rotation matrix applied to field direction - the inverse of this is
+        applied to the states
 
     energy_landscape: barriers.GEL object
-    Object describing energy barriers and LEM states for a particular
-    grain geometry. Here it's used to get Ms.
+        Object describing energy barriers and LEM states for a particular
+        grain geometry. Here it's used to get Ms.
 
     Returns
     -------
     vs: numpy array
-    Array of average magnetization directions at each time step
+        Array of average magnetization directions at each time step
     """
     vs = []
 
@@ -298,45 +298,45 @@ def grain_vectors(
     single treatment step - i.e. a single heating or cooling.
     See treatment.TreatmentStep for a full description of this.
 
-        Inputs
+    Parameters
     ------
     start_t: float
-    Time at which this experiment step starts
+        Time at which this experiment step starts
 
     start_p: numpy array
-    Initial state vector
+        Initial state vector
 
     Ts: numpy array
-    Set of temperatures at the times corresponding to ts.
+        Set of temperatures at the times corresponding to ts.
 
     ts: numpy array
-    Time steps at which we calculate the state.
+        Time steps at which we calculate the state.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     energy_landscape: barriers.GEL object
-    Object describing energy barriers for a particular grain geometry.
+        Object describing energy barriers for a particular grain geometry.
 
     rot_mat: 3x3 matrix
-    Orientation of grain
+        Orientation of grain
 
     field_strs: numpy array
-    Array of field strengths at each time step.
+        Array of field strengths at each time step.
 
     field_dirs: numpy array
-    Array of field directions at each time step.
+        Array of field directions at each time step.
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    Array of average magnetization vectors at each time step
+        Array of average magnetization vectors at each time step
 
     ps: numpy array
-    Array of state vectors at each time step
+        Array of state vectors at each time step
     """
 
     # Get the field directions rotated according to this matrix.
@@ -355,43 +355,43 @@ def grain_vectors(
     return (vs, ps)
 
 
-def mono_direction(rot_mat,start_p, d, steps, energy_landscape: GEL, eq=[False]):
+def mono_direction(rot_mat, start_p, d, steps, energy_landscape: GEL, eq=[False]):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a
     mono-dispersion of grains. This calculation is performed for a
     set of treatment steps - see treatment.TreatmentStep for more details.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a thermal experiment.
+        Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature
+        Object describing LEM states and energy barriers as a function of
+        temperature
 
     rot_mat: numpy array
-    Direction of this grain in the mono dispersion.
+        Direction of this grain in the mono dispersion.
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: lists
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step.
 
     ps: list
-    List of arrays of state vectors at each time step, in each treatment
-    step.
+        List of arrays of state vectors at each time step, in each treatment
+        step.
     """
     # Gets the v and p arrays associated with each step.
     v_step = []
@@ -445,41 +445,41 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     N.B. - Recommend using parallelized_mono_dispersion instead of this,
     it's a lot faster.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a thermal experiment.
+        Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature
+        Object describing LEM states and energy barriers as a function of
+        temperature
 
     n_dirs: int
-    Number of Fibonacci sphere directions to use for mono-dispersion
+        Number of Fibonacci sphere directions to use for mono-dispersion
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step, for each mono-dispersion direction.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step, for each mono-dispersion direction.
 
     ps: numpy array
-    List of arrays of state vectors at each time step, in each treatment
-    step, for each mono-dispersion direction.
+        List of arrays of state vectors at each time step, in each treatment
+        step, for each mono-dispersion direction.
     """
     if d > energy_landscape.d_min:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
-       )
+        )
 
     rot_mats = fib_hypersphere(n_dirs)
     vs = []
@@ -539,36 +539,36 @@ def parallelized_mono_dispersion(
     mono-dispersion of grains. This calculation is performed for a
     set of treatment steps - see treatment.TreatmentStep for more details.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a thermal experiment.
+        Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature
+        Object describing LEM states and energy barriers as a function of
+        temperature
 
     n_dirs: int
-    Number of Fibonacci sphere directions to use for mono-dispersion
+        Number of Fibonacci sphere directions to use for mono-dispersion
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step, for each mono-dispersion direction.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step, for each mono-dispersion direction.
 
     ps: numpy array
-    List of arrays of state vectors at each time step, in each treatment
-    step, for each mono-dispersion direction.
+        List of arrays of state vectors at each time step, in each treatment
+        step, for each mono-dispersion direction.
     """
     if d > energy_landscape.d_min:
         warnings.warn(
@@ -622,31 +622,31 @@ def eq_ps(params, field_str, field_dir, d):
     Get the probabilities of each state in a grain under a specific set
     of conditions after an infinite amount of time.
 
-    Inputs
+    Parameters
     ------
     params: dictionary
-    Dictionary output from a barriers.GEL object - contains states and
-    energy barriers.
+        Dictionary output from a barriers.GEL object - contains states and
+        energy barriers.
 
     field_str: float
-    Field strength (uT)
+        Field strength (uT)
 
     field_dirs: numpy array
-    Unit vector of field direction
+        Unit vector of field direction
 
     T: float
-    Temperature (degrees C)
+        Temperature (degrees C)
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     Ms: float
-    Saturation magnetization of grain (A/m)
+        Saturation magnetization of grain (A/m)
 
     Return
     ------
     ps: numpy array
-    Equilibrium state vector.
+        Equilibrium state vector.
     """
     # This works very similarly to Q matrix, except we just use the
     # Relative energies of the states instead of the barriers approach!
@@ -678,23 +678,23 @@ def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
     of grains. The relaxation time is calculated as the time it takes
     for the magnetization to decay to 1/e.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Starting state vector
+        Starting state vector
 
     relax_routine: list of treatment.TreatmentStep objects.
-    Steps describing a relaxation time treatment (cooling infield,
-    followed by hold at room temperature infield).
+        Steps describing a relaxation time treatment (cooling infield,
+        followed by hold at room temperature infield).
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature.
+        Object describing LEM states and energy barriers as a function of
+        temperature.
 
     ts: numpy array
-    Array of time steps to check relaxation time at
-    N.B. this should be roughly the same as
-    relax_routine[1].ts - relax_routine[0].ts[-1]
+        Array of time steps to check relaxation time at
+        N.B. this should be roughly the same as
+        relax_routine[1].ts - relax_routine[0].ts[-1]
     """
     # Run a parallelized mono dispersion
     vs, ps = mono_dispersion(
@@ -721,26 +721,26 @@ def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_in
     """
     Finds the critical SP size of a grain.
 
-    Inputs
+    Parameters
     ------
     relax_routine: list of treatment.TreatmentStep objects.
-    Steps describing a relaxation time treatment (cooling infield,
-    followed by hold at room temperature infield).
+        Steps describing a relaxation time treatment (cooling infield,
+        followed by hold at room temperature infield).
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature.
+        Object describing LEM states and energy barriers as a function of
+        temperature.
 
     init_size: list of ints
-    Initial grain sizes to try.
+        Initial grain sizes to try.
 
     size_incr: int
-    Amount to increment size by in certain situations.
+        Amount to increment size by in certain situations.
 
     Returns
     -------
     d: int
-    Critical SD size in nm.
+        Critical SD size in nm.
     """
     n_states = len(energy_landscape.get_params(energy_landscape.T_max)["min_e"])
     start_p = np.full(n_states, 1 / n_states)
@@ -854,30 +854,30 @@ def critical_size(K):
 
 def full_crit_size(TMx, PRO, OBL, alignment):
     """
-    Calculate critical SD size of a grain, taking some shortcuts by
-    using Neel relaxation time in cases when there should be only one
-    energy barrier.
+        Calculate critical SD size of a grain, taking some shortcuts by
+        using Neel relaxation time in cases when there should be only one
+        energy barrier.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition % (0 - 100)
+        Titanomagnetite composition % (0 - 100)
 
     PRO: float
-    Prolateness ratio (major axis/intermediate axis)
+        Prolateness ratio (major axis/intermediate axis)
 
     OBL: float
-    Oblateness ratio (intermediate axis/minor axis)
+        Oblateness ratio (intermediate axis/minor axis)
 
     alignment: string
-    Either `easy` or `hard`. Specifies the magnetocrystalline direction
-    that should be aligned with the x direction, which for our
-    ellipsoids is the major (shape easy) axis.
+        Either `easy` or `hard`. Specifies the magnetocrystalline direction
+        that should be aligned with the x direction, which for our
+        ellipsoids is the major (shape easy) axis.
 
     Returns
     -------
     d: int
-    Critical SD size in nm.
+        Critical SD size in nm.
     """
     theta_list, phi_list, min_energy_list, theta_mat, phi_mat, barriers = (
         find_all_barriers(TMx, alignment, PRO, OBL)
@@ -920,39 +920,39 @@ def hyst_treatment(start_t, start_p, Bs, ts, d, energy_landscape: HEL, eq=False)
     Function for calculating the probability of different LEM states in
     a grain during a hysteresis experiment.
 
-    Inputs
+    Parameters
     ------
     start_t: float
-    Time at which this experiment step starts
+        Time at which this experiment step starts
 
     start_p: numpy array
-    Initial state vector
+        Initial state vector
 
     Bs: numpy array
-    Set of field strengths at the times corresponding to ts.
+        Set of field strengths at the times corresponding to ts.
 
     ts: numpy array
-    Time steps at which we calculate the state.
+        Time steps at which we calculate the state.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     energy_landscape: barriers.HEL object
-    Object describing energy barriers for a particular grain geometry.
+        Object describing energy barriers for a particular grain geometry.
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     ps: numpy array
-    Array of state vectors at each time step
+        Array of state vectors at each time step
 
     theta_lists: numpy array
-    Magnetization directions at each time step
+        Magnetization directions at each time step
 
     phi_lists: numpy array
-    Magnetization magnitudes at each time step
+        Magnetization magnitudes at each time step
     """
 
     # Get the starting temperature
@@ -1021,44 +1021,43 @@ def grain_hyst_vectors(
     single treatment step - i.e. a single heating or cooling.
     See treatment.TreatmentStep for a full description of this.
 
-        Inputs
+        Parameters
     ------
     start_t: float
-    Time at which this experiment step starts
+        Time at which this experiment step starts
 
     start_p: numpy array
-    Initial state vector
+        Initial state vector
 
     Bs: numpy array
-    Set of field strengths at the times corresponding to ts.
+        Set of field strengths at the times corresponding to ts.
 
     ts: numpy array
-    Time steps at which we calculate the state.
+        Time steps at which we calculate the state.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     energy_landscape: barriers.HEL object
-    Object describing energy barriers for a particular grain geometry.
+        Object describing energy barriers for a particular grain geometry.
 
     rot_mat: 3x3 matrix
-    Orientation associated with this grain.
+        Orientation associated with this grain.
 
     field_dir: numpy array
-    Direction of field relative to grain - will be rotated to 1,0,0.
+        Direction of field relative to grain - will be rotated to 1,0,0.
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    Array of average magnetization vectors at each time step
+        Array of average magnetization vectors at each time step
 
     ps: numpy array
-    Array of state vectors at each time step
+        Array of state vectors at each time step
     """
-
 
     # Get the field directions rotated according to this matrix.
 
@@ -1079,33 +1078,33 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
     mono-dispersion of grains. This calculation is performed for a
     set of treatment steps - see treatment.TreatmentStep for more details.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a thermal experiment.
+        Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature
+        Object describing LEM states and energy barriers as a function of
+        temperature
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: lists
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step.
 
     ps: list
-    List of arrays of state vectors at each time step, in each treatment
-    step.
+        List of arrays of state vectors at each time step, in each treatment
+        step.
     """
     # Gets the v and p arrays associated with each step.
     v_step = []
@@ -1144,36 +1143,36 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
     mono-dispersion of grains. This calculation is performed for a
     set of treatment steps - see treatment.TreatmentStep for more details.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a hysteresis experiment.
+        Set of steps that describe a hysteresis experiment.
 
     energy_landscape: barriers.HELs object
-    Object describing LEM states and energy barriers as a function of
-    fields.
+        Object describing LEM states and energy barriers as a function of
+        fields.
 
     n_dirs: int
-    Number of Fibonacci sphere directions to use for mono-dispersion
+        Number of Fibonacci sphere directions to use for mono-dispersion
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step, for each mono-dispersion direction.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step, for each mono-dispersion direction.
 
     ps: numpy array
-    List of arrays of state vectors at each time step, in each treatment
-    step, for each mono-dispersion direction.
+        List of arrays of state vectors at each time step, in each treatment
+        step, for each mono-dispersion direction.
     """
     vs = []
     ps = []
@@ -1193,7 +1192,8 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
     vs = sum(vs)
     return (vs, ps)
 
-def parallelized_mono_dispersion(
+
+def parallelized_hyst_mono_dispersion(
     start_p, d, steps, energy_landscape: GEL, eq=False
 ):
     """
@@ -1202,36 +1202,36 @@ def parallelized_mono_dispersion(
     mono-dispersion of grains. This calculation is performed for a
     set of treatment steps - see treatment.TreatmentStep for more details.
 
-    Inputs
+    Parameters
     ------
     start_p: numpy array
-    Initial state vector of grain.
+        Initial state vector of grain.
 
     d: float
-    Equivalent volume spherical diameter of grain (nm).
+        Equivalent volume spherical diameter of grain (nm).
 
     steps: list of treatment.TreatmentStep objects
-    Set of steps that describe a thermal experiment.
+        Set of steps that describe a thermal experiment.
 
     energy_landscape: barriers.GEL object
-    Object describing LEM states and energy barriers as a function of
-    temperature
+        Object describing LEM states and energy barriers as a function of
+        temperature
 
     n_dirs: int
-    Number of Fibonacci sphere directions to use for mono-dispersion
+        Number of Fibonacci sphere directions to use for mono-dispersion
 
     eq: bool
-    If True, ignore time steps and run magnetization to equilibrium.
+        If True, ignore time steps and run magnetization to equilibrium.
 
     Returns
     -------
     vs: numpy array
-    List of arrays of average magnetization vectors at each time step,
-    in each treatment step, for each mono-dispersion direction.
+        List of arrays of average magnetization vectors at each time step,
+        in each treatment step, for each mono-dispersion direction.
 
     ps: numpy array
-    List of arrays of state vectors at each time step, in each treatment
-    step, for each mono-dispersion direction.
+        List of arrays of state vectors at each time step, in each treatment
+        step, for each mono-dispersion direction.
     """
     if d > energy_landscape.HEL_list[0].d_min:
         warnings.warn(

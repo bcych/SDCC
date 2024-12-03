@@ -23,18 +23,18 @@ def angle2xyz(theta, phi):
     Converts from coordinates on a sphere surface (theta, phi) radians
     to cartesian coordinates (x,y,z) as a unit vector
 
-    Inputs
+    Parameters
     ------
     theta: float
-    horizontal angle (radians) between 0 and 2*pi
+        horizontal angle (radians) between 0 and 2*pi
 
     phi: float
-    vertical angle (radians) between -pi and pi
+        vertical angle (radians) between -pi and pi
 
     Returns
     ------
     xyz: jax numpy array
-    array of the x,y and z cartesian coordinates
+        array of the x,y and z cartesian coordinates
     """
     x = jnp.cos(theta) * jnp.cos(phi)
     y = jnp.sin(theta) * jnp.cos(phi)
@@ -48,24 +48,24 @@ def xyz2angle(xyz):
     Converts cartesian coordinates to coordinates on a sphere surface.
     Vector length is lost in conversion.
 
-    Inputs
+    Parameters
     ------
     x: float
-    cartesian x coordinate
+        cartesian x coordinate
 
     y: float
-    cartesian y coordinate
+        cartesian y coordinate
 
     z: float
-    cartesian z coordinate
+        cartesian z coordinate
 
     Returns
     -------
     theta: float
-    horizontal angle (radians) between 0 and 2*pi
+        horizontal angle (radians) between 0 and 2*pi
 
     phi: float
-    vertical angle (radians) between -pi and pi
+        vertical angle (radians) between -pi and pi
 
     """
     x = xyz[0]
@@ -83,18 +83,18 @@ def demag_factors(PRO, OBL):
     the ellipsoid is always along x and the minor axis of the ellipsoid
     is always along z.
 
-    Inputs
+    Parameters
     ------
     PRO: float
-    Prolateness ratio (major axis/intermediate axis)
+        Prolateness ratio (major axis/intermediate axis)
 
     OBL: float
-    Oblateness ratio (intermediate axis/minor axis)
+        Oblateness ratio (intermediate axis/minor axis)
 
     Returns
     -------
     LMN: numpy array
-    Array of L, M, N, corresponding to the demagnetizing factors
+        Array of L, M, N, corresponding to the demagnetizing factors
     """
     a = PRO
     b = 1.0
@@ -152,24 +152,24 @@ def Ed(LMN, theta, phi, Ms):
     function of theta, phi angles and saturation magnetization. Only
     applicable to single domain grains.
 
-    Inputs
+    Parameters
     ------
     LMN: numpy array
-    Demagnetizing factors of the ellipsoid along x, y, z directions.
+        Demagnetizing factors of the ellipsoid along x, y, z directions.
 
     theta: float
-    horizontal angle (radians) between 0 and 2*pi
+        horizontal angle (radians) between 0 and 2*pi
 
     phi: float
-    vertical angle (radians) between -pi and pi
+        vertical angle (radians) between -pi and pi
 
     Ms: float
-    Saturation magnetization in A/m
+        Saturation magnetization in A/m
 
     Returns
     -------
     Ed: float
-    Demagnetizing field energy in J/m3
+        Demagnetizing field energy in J/m3
     """
     xyz = angle2xyz(theta, phi) * Ms
     N = jnp.eye(3) * LMN
@@ -186,23 +186,23 @@ def Ea(k1, k2, theta, phi, rot_mat):
     function of theta, phi angles. Anisotropy energy field can be
     rotated using a rotation matrix.
 
-    Inputs
+    Parameters
     ------
     k1,k2: floats
-    Cubic magnetocrystalline anisotropy constants. If k2 is not
-    calculated, leave as 0.
+        Cubic magnetocrystalline anisotropy constants. If k2 is not
+        calculated, leave as 0.
 
     theta,phi: floats
-    Angles in spherical coordinates along which the energy is
-    calculated (in radians).
+        Angles in spherical coordinates along which the energy is
+        calculated (in radians).
 
     rot_mat: numpy array
-    Rotation matrix to rotate anisotropy energy field by.
+        Rotation matrix to rotate anisotropy energy field by.
 
     Returns
     -------
     Ea: float
-    Magnetocrystalline anisotropy energy.
+        Magnetocrystalline anisotropy energy.
     """
     xyz = angle2xyz(theta, phi)
     xyz = jnp.matmul(rot_mat, xyz)
@@ -220,24 +220,24 @@ def Ez(theta, phi, field_theta, field_phi, field_str, Ms):
     """
     Calculates the Zeeman energy as a function of theta, phi angles.
 
-    Inputs
+    Parameters
     ------
     theta, phi: floats
-    Angles along which energy is evaluated (radians).
+        Angles along which energy is evaluated (radians).
 
     field theta, field phi: floats
-    Direction of field specified as an angle (radians).
+        Direction of field specified as an angle (radians).
 
     field str: float
-    Strength of field (in Tesla).
+        Strength of field (in Tesla).
 
     Ms: float
-    Saturation magnetization of sample.
+        Saturation magnetization of sample.
 
     Returns
     -------
     Ez: float
-    Zeeman energy.
+        Zeeman energy.
     """
     xyz = angle2xyz(theta, phi)
     field_xyz = angle2xyz(field_theta, field_phi)
@@ -253,31 +253,31 @@ def energy_ang(angles, k1, k2, rot_mat, LMN, Ms, ext_field):
     function of theta, phi angle. Requires material parameters and
     demagnetizing factors.
 
-    Inputs
+    Parameters
     ------
     angles: array
-    Array of angles specified as [theta, phi]
+        Array of angles specified as [theta, phi]
 
     k1, k2: floats
-    Magnetocrystalline anisotropy constant
+        Magnetocrystalline anisotropy constant
 
     rot_mat: numpy array
-    Rotation matrix for magnetocrystalline anisotropy field.
+        Rotation matrix for magnetocrystalline anisotropy field.
 
     LMN: numpy array
-    Array of demagnetizing factors for Ellipsoid shape.
+        Array of demagnetizing factors for Ellipsoid shape.
 
     Ms: float
-    Saturation magnetization of material
+        Saturation magnetization of material
 
     ext_field: numpy array
-    Array of [theta, phi, B] for the external field, where theta and
-    phi are expressed in DEGREES and B is in Tesla.
+        Array of [theta, phi, B] for the external field, where theta and
+        phi are expressed in DEGREES and B is in Tesla.
 
     Returns
     -------
     Etot: float
-    Total energy as a function of theta, phi angle.
+        Total energy as a function of theta, phi angle.
     """
     theta, phi = angles
     field_theta, field_phi, field_str = ext_field
@@ -298,31 +298,31 @@ def energy_xyz(xyz, k1, k2, rot_mat, LMN, Ms, ext_field):
     function of x, y, z coordinate. Requires material parameters and
     demagnetizing factors.
 
-    Inputs
+    Parameters
     ------
     xyz: array
-    Array of coordinates specified as [x,y,z]
+        Array of coordinates specified as [x,y,z]
 
     k1, k2: floats
-    Magnetocrystalline anisotropy constant
+        Magnetocrystalline anisotropy constant
 
     rot_mat: numpy array
-    Rotation matrix for magnetocrystalline anisotropy field.
+        Rotation matrix for magnetocrystalline anisotropy field.
 
     LMN: numpy array
-    Array of demagnetizing factors for Ellipsoid shape.
+        Array of demagnetizing factors for Ellipsoid shape.
 
     Ms: float
-    Saturation magnetization of material
+        Saturation magnetization of material
 
     ext_field: numpy array
-    Array of [theta, phi, B] for the external field, where theta and
-    phi are expressed in DEGREES and B is in Tesla.
+        Array of [theta, phi, B] for the external field, where theta and
+        phi are expressed in DEGREES and B is in Tesla.
 
     Returns
     -------
     Etot: float
-    Total energy as a function of theta, phi angle.
+        Total energy as a function of theta, phi angle.
     """
     theta, phi = xyz2angle(xyz / jnp.linalg.norm(xyz))
     field_theta, field_phi, field_str = ext_field
@@ -342,17 +342,17 @@ def calculate_anisotropies(TMx):
     directions as a function of titanomagnetite composition. This
     function could probably be handled by materials.py in the future
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition (0 to 100).
+        Titanomagnetite composition (0 to 100).
 
     Returns
     -------
     sorted_axes: numpy array
-    "Special Directions" array of [easy, intermediate, hard] axes.
-    Direction is given as a space separated string e.g. '1 0 0' for
-    compatibility with MERRILL script.
+        "Special Directions" array of [easy, intermediate, hard] axes.
+        Direction is given as a space separated string e.g. '1 0 0' for
+        compatibility with MERRILL script.
     """
     TMx /= 100
     Tc = 3.7237e02 * TMx**3 - 6.9152e02 * TMx**2 - 4.1385e02 * TMx**1 + 5.8000e02
@@ -389,18 +389,18 @@ def dir_to_rot_mat(x, x_prime):
     Creates a rotation matrix that rotates from one crystallographic
     direction to another.
 
-    Inputs
+    Parameters
     ------
     x: string
-    vector to be rotated from. Specified as a space separated string
-    e.g. '1 0 0' for compatibility with MERRILL script.
+        vector to be rotated from. Specified as a space separated string
+        e.g. '1 0 0' for compatibility with MERRILL script.
 
     x_prime: string
-    vector to be rotated to. Specified in the same way.
+        vector to be rotated to. Specified in the same way.
 
     Returns:
     rot_mat: numpy array
-    Rotation matrix.
+        Rotation matrix.
     """
     a = np.array(x.split(" ")).astype(float)
     b = np.array(x_prime.split(" ")).astype(float)
@@ -434,30 +434,30 @@ def get_material_parms(TMx, alignment, T):
     Calculates the material parameters for titanomagnetites of different
     compositions.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition % (0 - 100)
+        Titanomagnetite composition % (0 - 100)
 
     alignment: string
-    Either `easy` or `hard`. Specifies the magnetocrystalline direction
-    that should be aligned with the x direction, which for our
-    ellipsoids is the major (shape easy) axis.
+        Either `easy` or `hard`. Specifies the magnetocrystalline direction
+        that should be aligned with the x direction, which for our
+        ellipsoids is the major (shape easy) axis.
 
     T: float
-    Temperature (degrees C).
+        Temperature (degrees C).
 
     Returns
     -------
     rot_mat:
-    Rotation matrix associated with magnetocrystalline anisotropy
-    energy.
+        Rotation matrix associated with magnetocrystalline anisotropy
+        energy.
 
     K1, K2: floats
-    magnetocrystalline anisotropy constants.
+        magnetocrystalline anisotropy constants.
 
     Ms: float
-    Saturation magnetization.
+        Saturation magnetization.
     """
     if T < 0:
         raise ValueError("Error: Temperature should be greater than 0 degrees")
@@ -525,40 +525,41 @@ def energy_surface(
 
     N.B. This has a lot of arguments, maybe specify a dictionary?
 
-    Inputs:
-    ------
+    Parameters
+    -----------
     k1, k2: floats
-    Magnetocrystalline anisotropy constants
+        Magnetocrystalline anisotropy constants
 
     rot_mat: numpy array
-    Rotation matrix for magnetocrystalline anisotropy field.
+        Rotation matrix for magnetocrystalline anisotropy field.
 
     Ms: float
-    Saturation magnetization.
+        Saturation magnetization.
 
     LMN: numpy array
-    Demagnetizing factors of Ellipsoid along x, y, z directions.
+        Demagnetizing factors of Ellipsoid along x, y, z directions.
 
     ext_field: numpy array
-    Array of [theta, phi, B] for the external field, where theta and
-    phi are expressed in DEGREES and B is in Tesla.
+        Array of [theta, phi, B] for the external field, where theta and
+        phi are expressed in DEGREES and B is in Tesla.
 
     n_points: int
-    Number of points in theta, phi direction to calculate energy.
+        Number of points in theta, phi direction to calculate energy.
 
     bounds: numpy array
-    Theta, phi bounds within which to calculate the energies. Specified
-    as [[theta_min,theta_max],[phi_min,phi_max]]
+        Theta, phi bounds within which to calculate the energies. Specified
+        as [[theta_min,theta_max],[phi_min,phi_max]]
 
-    Returns:
+    Returns
+    -------
     thetas: numpy array
-    grid of theta angles
+        grid of theta angles
 
     phis: numpy array
-    grid of phi angles
+        grid of phi angles
 
     energies: numpy array
-    grid of energies associated with these thetas and phis.
+        grid of energies associated with these thetas and phis.
     """
     thetas = jnp.linspace(bounds[0, 0], bounds[0, 1], n_points)
     phis = jnp.linspace(bounds[1, 0], bounds[1, 1], n_points)

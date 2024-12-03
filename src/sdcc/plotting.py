@@ -24,12 +24,12 @@ def dimap(D, I):
 
     Parameters
     ----------
-    D : list or array of declinations (as float)
-    I : list or array or inclinations (as float)
+        D : list or array of declinations (as float)
+        I : list or array or inclinations (as float)
 
     Returns
     -------
-    XY : x, y values of directions for equal area projection [x,y]
+        XY : x, y values of directions for equal area projection [x,y]
     """
     try:
         D = float(D)
@@ -69,11 +69,11 @@ def dimap_V(D, I):
 
     Parameters
     ----------
-    D, I : numpy arrays
+        D, I : numpy arrays
 
     Returns
     -------
-    XY : array of equal area projections
+        XY : array of equal area projections
 
     Examples
     --------
@@ -99,13 +99,13 @@ def plot_net(ax=None):
     Draws circle and tick marks for equal area projection. (Adapted
     from pmagpy)
 
-    Inputs
+    Parameters
     ------
-    ax: axis to draw net onto
+        ax: axis to draw net onto
 
     Returns
     -------
-    None
+        None
     """
     if ax == None:
         fig, ax = plt.subplots()
@@ -167,39 +167,41 @@ def plot_energy_surface(
     levels=10,
     n_points=100,
     projection="equirectangular",
-    ax = None
+    ax=None,
 ):
     """
     Plots an energy density surface for a single domain grain.
 
+    Parameters
+    ----------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     T: float
-    Temperature (degrees C)
+        Temperature (degrees C)
 
     ext_field: numpy array
-    Array of field_theta,field_phi,field_str where theta and phi are in
-    radians and str is in Tesla.
+        Array of field_theta,field_phi,field_str where theta and phi are in
+        radians and str is in Tesla.
 
     levels: int
-    Number of contour levels
+        Number of contour levels
 
     n_points: int
-    Number of grid points to evaluate the energy surface at.
+        Number of grid points to evaluate the energy surface at.
 
     projection: string
-    Either "equirectangular" or "stereonet".
+        Either "equirectangular" or "stereonet".
 
     Returns
     -------
@@ -217,7 +219,7 @@ def plot_energy_surface(
     # If equidimensional, plot an equidimensional plot
     if "equi" in projection.lower():
         if ax == None:
-            fig,ax = plt.subplots()
+            fig, ax = plt.subplots()
         ax.contour(
             np.degrees(thetas),
             np.degrees(phis),
@@ -235,19 +237,19 @@ def plot_energy_surface(
             antialiased=True,
             linewidths=0.2,
         )
-        plt.colorbar(contourf,label="Energy Density (Jm$^{-3}$)", ax = ax)
+        plt.colorbar(contourf, label="Energy Density (Jm$^{-3}$)", ax=ax)
         ax.set_xlabel(r"$\theta$", fontsize=14)
         ax.set_ylabel("$\phi$", fontsize=14)
 
     # If stereonet, plot on two stereonets (upper, lower)
     elif "stereo" in projection.lower():
         if ax == None:
-            fig = plt.figure(figsize=(9,4))
-            grid = fig.add_gridspec(100,20)
-            ax1 = fig.add_subplot(grid[:,:9])
-            ax2 = fig.add_subplot(grid[:,9:18])
-            ax3 = fig.add_subplot(grid[5:95,18:])
-            ax = [ax1,ax2,ax3]
+            fig = plt.figure(figsize=(9, 4))
+            grid = fig.add_gridspec(100, 20)
+            ax1 = fig.add_subplot(grid[:, :9])
+            ax2 = fig.add_subplot(grid[:, 9:18])
+            ax3 = fig.add_subplot(grid[5:95, 18:])
+            ax = [ax1, ax2, ax3]
         plot_net(ax[0])
         vmin = np.amin(energies)
         vmax = np.amax(energies)
@@ -272,12 +274,12 @@ def plot_energy_surface(
             levels=levels,
             antialiased=True,
         )
-        ax[2].axis('off')
+        ax[2].axis("off")
         plt.colorbar(lower, ax=ax[2], label="Energy Density (Jm$^{-3}$)")
     # Otherwise raise an error
     else:
         raise KeyError("Unknown projection type: " + projection)
-    #fig.suptitle("SD Energy Surface TM" + str(TMx).zfill(2) + " AR %1.2f" % (PRO / OBL))
+    # fig.suptitle("SD Energy Surface TM" + str(TMx).zfill(2) + " AR %1.2f" % (PRO / OBL))
     plt.tight_layout()
 
 
@@ -389,47 +391,47 @@ def plot_energy_path(
     Efficiency scales with n_perturbations * n_saddles. It's not a fast
     function either way.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     mask: numpy array
-    An array of True/False wherever the energy barriers are -> this
-    could probably be taken out and the function could just calculate
-    where they are.
+        An array of True/False wherever the energy barriers are -> this
+        could probably be taken out and the function could just calculate
+        where they are.
 
     T: float
-    Temperature (degrees C)
+        Temperature (degrees C)
 
     ext_field: numpy array
-    Array of field_theta,field_phi,field_str where theta and phi are in
-    radians and str is in Tesla.
+        Array of field_theta,field_phi,field_str where theta and phi are in
+        radians and str is in Tesla.
 
     n_perturbations: int
-    number of perturbations to run from each energy barrier
+        number of perturbations to run from each energy barrier
 
     n_saddles: int
-    number of barriers to find paths from.
+        number of barriers to find paths from.
 
     projection: str
-    Either "equirectangular" or "stereonet".
+        Either "equirectangular" or "stereonet".
 
     method: str
-    Either fast or slow
+        Either fast or slow
 
     kwargs:
-    arguments to pass to plot_energy_surface function
+        arguments to pass to plot_energy_surface function
 
     Returns
     -------
@@ -617,13 +619,13 @@ def plot_minima(minima_thetas, minima_phis, projection="equirectangular"):
     """
     Plots a set of LEM states on an energy surface plot as numerals.
 
-    Inputs
+    Parameters
     ------
     minima_thetas,minima_phis: numpy arrays
-    Locations of the minima on the surface.
+        Locations of the minima on the surface.
 
     projection: str
-    Either "equirectangular" or "stereonet".
+        Either "equirectangular" or "stereonet".
     """
     ax = plt.gcf().get_axes()
     for i in range(len(minima_thetas)):
@@ -651,16 +653,16 @@ def plot_barriers(barrier_thetas, barrier_phis, projection="equirectangular", ax
     Plots a set of barrier locations on an energy surface plot as
     numerals.
 
-    Inputs
+    Parameters
     ------
     barrier_thetas,barrier_phis: numpy arrays
-    Locations of the barriers on the surface.
+        Locations of the barriers on the surface.
 
     projection: str
-    Either "equirectangular" or "stereonet".
+        Either "equirectangular" or "stereonet".
 
     ax: matplotlib axes
-    Axes to plot on top of.
+        Axes to plot on top of.
     """
     if ax == None:
         ax = plt.gcf().get_axes()
@@ -703,7 +705,7 @@ def plot_routine(steps):
     """
     Plots a set of thermal steps for a particular experiment or routine
 
-    Inputs
+    Parameters
     ------
     steps: list of treatment.TreatmentStep objects
 
@@ -733,10 +735,10 @@ def energy_matrix_plot(barriers):
     """
     Plots the energy barriers between states as a matrix pair-plot.
 
-    Inputs
+    Parameters
     ------
     barriers: numpy array
-    Matrix of energy barriers
+        Matrix of energy barriers
 
     Returns
     -------
@@ -754,153 +756,229 @@ def energy_matrix_plot(barriers):
     plt.xticks(np.arange(0, len(barriers)))
     plt.yticks(np.arange(0, len(barriers)))
 
-def plot_pullaiah_curves(gel, ds, i, j, ax=None, plot_size=True,color='k',add_ticks=True):
+
+def plot_pullaiah_curves(
+    gel, ds, i, j, ax=None, plot_size=True, color="k", add_ticks=True
+):
     """
     Plots Pullaiah curves for a particular energy barrier in a grain as a function
     of size.
 
-    Inputs
+    Parameters
     ------
     gel: sdcc.barriers.gel object
-    Energy landscape that can calculate barriers as a function
-    of temperature.
+        Energy landscape that can calculate barriers as a function
+        of temperature.
 
     ds: float or array of floats
-    Equivalent sphere volume diameters of grains to plot.
+        Equivalent sphere volume diameters of grains to plot.
 
     i: int
-    Index of state we are switching from in energy barrier.
+        Index of state we are switching from in energy barrier.
 
     j: int
-    Index of state we are switching to in energy barrier.
+        Index of state we are switching to in energy barrier.
 
     ax: None or matplotlib axis
-    axis to plot data to. If no axis specified, creates
-    a new figure.
+        axis to plot data to. If no axis specified, creates
+        a new figure.
 
     plot_size: bool
-    If True, plots size next to pullaiah curve as text.
+        If True, plots size next to pullaiah curve as text.
 
     color: string or array of floats
-    Matplotlib color for plotting
+        Matplotlib color for plotting
 
     add_ticks:
-    Whether to add y ticks to plot.
+        Whether to add y ticks to plot.
 
     Returns
     -------
     None
     """
-    s_in_yr = 3.154e+7
-    ts = [1,10,100,3600,3600*24,3600*24*30,s_in_yr]
-    for k in range(1,10):
-        ts.append(s_in_yr*10**k)
-    ts.append(4.5*10**9 * s_in_yr)
-    ts = np.log10(ts)#
+    s_in_yr = 3.154e7
+    ts = [1, 10, 100, 3600, 3600 * 24, 3600 * 24 * 30, s_in_yr]
+    for k in range(1, 10):
+        ts.append(s_in_yr * 10**k)
+    ts.append(4.5 * 10**9 * s_in_yr)
+    ts = np.log10(ts)  #
     if ax == None:
-        fig,ax = plt.subplots()
+        fig, ax = plt.subplots()
     ilist = []
     jlist = []
-    Ts = np.arange(gel.T_min,gel.T_max,1)
+    Ts = np.arange(gel.T_min, gel.T_max, 1)
     for T in Ts:
-        barriers = gel.get_params(T)['bar_e']
-        if np.any(barriers[i]==0):
-            i = np.arange(len(barriers[i]))[barriers[i]==0][-1]
-        if np.any(barriers[j]==0):
-            j = np.arange(len(barriers[j]))[barriers[j]==0][-1]
+        barriers = gel.get_params(T)["bar_e"]
+        if np.any(barriers[i] == 0):
+            i = np.arange(len(barriers[i]))[barriers[i] == 0][-1]
+        if np.any(barriers[j] == 0):
+            j = np.arange(len(barriers[j]))[barriers[j] == 0][-1]
         ilist.append(i)
         jlist.append(j)
-        
+
     for d in ds:
         rts = []
 
-        for k,T in enumerate(Ts):
-            barriers = gel.get_params(T)['bar_e']
-            barrier = max(barriers[ilist[k],jlist[k]],0)
-            relax = uniaxial_relaxation_time(d,T,barrier)
+        for k, T in enumerate(Ts):
+            barriers = gel.get_params(T)["bar_e"]
+            barrier = max(barriers[ilist[k], jlist[k]], 0)
+            relax = uniaxial_relaxation_time(d, T, barrier)
             rts.append(relax)
-            
-        ax.plot(Ts,np.log10(rts),color=color,lw=1)
+
+        ax.plot(Ts, np.log10(rts), color=color, lw=1)
         logrts = np.log10(rts)
-        center_rts = logrts[(logrts >= min(ts)) & (logrts<= max(ts))]
-        if len(center_rts>0):
+        center_rts = logrts[(logrts >= min(ts)) & (logrts <= max(ts))]
+        if len(center_rts > 0):
             minrt = min(center_rts)
             maxrt = max(center_rts)
-            meanrt = (minrt+maxrt)/2
-            meandiff = (logrts-meanrt)**2
-            meanT = Ts[(meandiff==np.amin(meandiff))][0]
-            angle = np.degrees(np.arctan(np.gradient(logrts/(max(ts)-min(ts)),1.5*Ts/600)[(meandiff==np.amin(meandiff))][0]))
+            meanrt = (minrt + maxrt) / 2
+            meandiff = (logrts - meanrt) ** 2
+            meanT = Ts[(meandiff == np.amin(meandiff))][0]
+            angle = np.degrees(
+                np.arctan(
+                    np.gradient(logrts / (max(ts) - min(ts)), 1.5 * Ts / 600)[
+                        (meandiff == np.amin(meandiff))
+                    ][0]
+                )
+            )
             if plot_size:
-                ax.text(meanT+7,meanrt+0.25,f'{d} nm',rotation=angle,ha='center',va='center',color=color)
+                ax.text(
+                    meanT + 7,
+                    meanrt + 0.25,
+                    f"{d} nm",
+                    rotation=angle,
+                    ha="center",
+                    va="center",
+                    color=color,
+                )
     if add_ticks:
-        yticks = ['1s','10s','100s','1h','1d','1m','1y','10y','100y','1000y','1e4y','1e5y','1My','10My','100My','1Gy','4.5Gy']
-        ax.set_yticks(ts,yticks);
-        ax.set_xticks(np.arange(0,650,50))
-        ax.set_xticks(np.arange(0,610,10),minor=True)
-        ax.set_ylim(min(ts),max(ts))
+        yticks = [
+            "1s",
+            "10s",
+            "100s",
+            "1h",
+            "1d",
+            "1m",
+            "1y",
+            "10y",
+            "100y",
+            "1000y",
+            "1e4y",
+            "1e5y",
+            "1My",
+            "10My",
+            "100My",
+            "1Gy",
+            "4.5Gy",
+        ]
+        ax.set_yticks(ts, yticks)
+        ax.set_xticks(np.arange(0, 650, 50))
+        ax.set_xticks(np.arange(0, 610, 10), minor=True)
+        ax.set_ylim(min(ts), max(ts))
 
-        ax.set_xlabel(r'T ($^\circ$C)')
-        ax.set_ylabel('Relaxation Time')
-        
-        ax.tick_params(axis="x", which='minor', bottom=True, top=True, labelbottom=True, labeltop=True)
+        ax.set_xlabel(r"T ($^\circ$C)")
+        ax.set_ylabel("Relaxation Time")
+
+        ax.tick_params(
+            axis="x",
+            which="minor",
+            bottom=True,
+            top=True,
+            labelbottom=True,
+            labeltop=True,
+        )
         ax.tick_params(axis="x", bottom=True, top=True, labelbottom=True, labeltop=True)
         ax.grid()
 
-def plot_relax_experiment(vs,relax_routine,ax = None):
+
+def plot_relax_experiment(vs, relax_routine, ax=None):
     """
     Plots a VRM decay experiment for a mono-dispersion of particles
 
-    Inputs
+    Parameters
     ------
     vs: list
-    Result from mono-dispersion
+        Result from mono-dispersion
 
     relax_routine: list
-    Relaxation time routine
+        Relaxation time routine
 
     ax: matplotlib axis
-    Axis to plot to
+        Axis to plot to
 
     Returns
     -------
     None
     """
-    
+
     if ax == None:
-        fig,ax = plt.subplots()
+        fig, ax = plt.subplots()
 
-    #The first set of
-    TRM_vectors=vs[0]
-    TRM_ts=relax_routine[0].ts
-    relax_vectors=vs[1]
-    relax_ts=relax_routine[1].ts
-    
-    TRM_mags = np.linalg.norm(TRM_vectors,axis=1)
-    relax_mags = np.linalg.norm(relax_vectors,axis=1)
-   
+    # The first set of
+    TRM_vectors = vs[0]
+    TRM_ts = relax_routine[0].ts
+    relax_vectors = vs[1]
+    relax_ts = relax_routine[1].ts
 
-    ax.plot(TRM_ts,TRM_mags,'b',label='TRM acquisition')
-    ax.plot(relax_ts, relax_mags,'k',label='TRM decay')
-    ax.axvline(TRM_ts[-1],color='r')
-    ax.text(TRM_ts[-1]*2,0.9*TRM_mags[-1],'Field switched off',rotation=90,color='r',ha='left',va='top')
-    interpx = relax_mags/TRM_mags[-1]
+    TRM_mags = np.linalg.norm(TRM_vectors, axis=1)
+    relax_mags = np.linalg.norm(relax_vectors, axis=1)
+
+    ax.plot(TRM_ts, TRM_mags, "b", label="TRM acquisition")
+    ax.plot(relax_ts, relax_mags, "k", label="TRM decay")
+    ax.axvline(TRM_ts[-1], color="r")
+    ax.text(
+        TRM_ts[-1] * 2,
+        0.9 * TRM_mags[-1],
+        "Field switched off",
+        rotation=90,
+        color="r",
+        ha="left",
+        va="top",
+    )
+    interpx = relax_mags / TRM_mags[-1]
     interpy = np.log10(relax_ts)
-    paleo_relax_time = 10**np.interp(1/np.e**2, np.flip(interpx), np.flip(interpy))
-    
-    ax.axvline(paleo_relax_time,color='k')
-    ax.text(paleo_relax_time*2, TRM_mags[-1]/np.e**2, 'Paleomagnetic Relaxation Time',
-                rotation = 90 , ha = 'left')
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Moment (A$m^2$)')
+    paleo_relax_time = 10 ** np.interp(1 / np.e**2, np.flip(interpx), np.flip(interpy))
+
+    ax.axvline(paleo_relax_time, color="k")
+    ax.text(
+        paleo_relax_time * 2,
+        TRM_mags[-1] / np.e**2,
+        "Paleomagnetic Relaxation Time",
+        rotation=90,
+        ha="left",
+    )
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Moment (A$m^2$)")
     ax2 = plt.twinx()
-    ax2.set_ylim(0,1.2)
-    ax.set_ylim(0, 1.2*TRM_mags[-1])
-    ax2.set_ylabel('Moment/TRM')
-    ax.semilogx();
+    ax2.set_ylim(0, 1.2)
+    ax.set_ylim(0, 1.2 * TRM_mags[-1])
+    ax2.set_ylabel("Moment/TRM")
+    ax.semilogx()
 
-
-    ax2.annotate(text='', xy=(TRM_ts[-1],1.15), xytext=(ax2.get_xlim()[0],1.15), arrowprops=dict(arrowstyle='<->'),color='b')
-    ax2.annotate(text='Acquisition',xy=(np.exp((np.log(TRM_ts[-1])+np.log(ax2.get_xlim()[0]))/2),1.14),ha='center',va='top')
-    ax2.annotate(text='', xy=(TRM_ts[-1],1.15), xytext=(paleo_relax_time,1.15), arrowprops=dict(arrowstyle='<->'),color='k')
-    ax2.annotate(text='Relaxation',xy=(np.exp((np.log(TRM_ts[-1])+np.log(paleo_relax_time))/2),1.14),ha='center',va='top')
+    ax2.annotate(
+        text="",
+        xy=(TRM_ts[-1], 1.15),
+        xytext=(ax2.get_xlim()[0], 1.15),
+        arrowprops=dict(arrowstyle="<->"),
+        color="b",
+    )
+    ax2.annotate(
+        text="Acquisition",
+        xy=(np.exp((np.log(TRM_ts[-1]) + np.log(ax2.get_xlim()[0])) / 2), 1.14),
+        ha="center",
+        va="top",
+    )
+    ax2.annotate(
+        text="",
+        xy=(TRM_ts[-1], 1.15),
+        xytext=(paleo_relax_time, 1.15),
+        arrowprops=dict(arrowstyle="<->"),
+        color="k",
+    )
+    ax2.annotate(
+        text="Relaxation",
+        xy=(np.exp((np.log(TRM_ts[-1]) + np.log(paleo_relax_time)) / 2), 1.14),
+        ha="center",
+        va="top",
+    )
     return None

@@ -1,0 +1,555 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Package Reference &#8212; sdcc-0.3.0 latest documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="_static/contentui.css?v=4cf5b151" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=b1def801"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/contentui.js?v=9ee86694"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sdcc package" href="sdcc.html" />
+    <link rel="prev" title="Examples" href="sdcc_examples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">sdcc-0.3.0 latest documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html">Examples</a></li>
+
+
+
+
+
+
+
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Package Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html">sdcc package</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/modules.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Package Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="package-reference">
+<h1>Package Reference<a class="headerlink" href="#package-reference" title="Link to this heading">#</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sdcc.html">sdcc package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.analysis">sdcc.analysis module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.barriers">sdcc.barriers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.GEL.get_params"><code class="docutils literal notranslate"><span class="pre">GEL.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.GEL.to_file"><code class="docutils literal notranslate"><span class="pre">GEL.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.HEL.get_params"><code class="docutils literal notranslate"><span class="pre">HEL.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.HEL.to_file"><code class="docutils literal notranslate"><span class="pre">HEL.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.HELs.to_file"><code class="docutils literal notranslate"><span class="pre">HELs.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.blocking_temperature"><code class="docutils literal notranslate"><span class="pre">blocking_temperature()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.construct_energy_mat_fast"><code class="docutils literal notranslate"><span class="pre">construct_energy_mat_fast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.delete_splits"><code class="docutils literal notranslate"><span class="pre">delete_splits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.dijkstras"><code class="docutils literal notranslate"><span class="pre">dijkstras()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.direction_result"><code class="docutils literal notranslate"><span class="pre">direction_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.direction_spline"><code class="docutils literal notranslate"><span class="pre">direction_spline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.energy_result"><code class="docutils literal notranslate"><span class="pre">energy_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.energy_spline"><code class="docutils literal notranslate"><span class="pre">energy_spline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.find_B_barriers"><code class="docutils literal notranslate"><span class="pre">find_B_barriers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.find_T_barriers"><code class="docutils literal notranslate"><span class="pre">find_T_barriers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.find_all_barriers"><code class="docutils literal notranslate"><span class="pre">find_all_barriers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.find_global_minimum"><code class="docutils literal notranslate"><span class="pre">find_global_minimum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.fix_minima"><code class="docutils literal notranslate"><span class="pre">fix_minima()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.get_antipode_order"><code class="docutils literal notranslate"><span class="pre">get_antipode_order()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.get_min_regions"><code class="docutils literal notranslate"><span class="pre">get_min_regions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.get_minima"><code class="docutils literal notranslate"><span class="pre">get_minima()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.make_antipode_array"><code class="docutils literal notranslate"><span class="pre">make_antipode_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.mat_to_mask"><code class="docutils literal notranslate"><span class="pre">mat_to_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.merge_similar_minima"><code class="docutils literal notranslate"><span class="pre">merge_similar_minima()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.prune_energies"><code class="docutils literal notranslate"><span class="pre">prune_energies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.segment_region"><code class="docutils literal notranslate"><span class="pre">segment_region()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.smart_sort"><code class="docutils literal notranslate"><span class="pre">smart_sort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.uniaxial_critical_size"><code class="docutils literal notranslate"><span class="pre">uniaxial_critical_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.uniaxial_relaxation_time"><code class="docutils literal notranslate"><span class="pre">uniaxial_relaxation_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.wrap_labels"><code class="docutils literal notranslate"><span class="pre">wrap_labels()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.energy">sdcc.energy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.Ea"><code class="docutils literal notranslate"><span class="pre">Ea()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.Ed"><code class="docutils literal notranslate"><span class="pre">Ed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.Ez"><code class="docutils literal notranslate"><span class="pre">Ez()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.angle2xyz"><code class="docutils literal notranslate"><span class="pre">angle2xyz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.calculate_anisotropies"><code class="docutils literal notranslate"><span class="pre">calculate_anisotropies()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.demag_factors"><code class="docutils literal notranslate"><span class="pre">demag_factors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.dir_to_rot_mat"><code class="docutils literal notranslate"><span class="pre">dir_to_rot_mat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.energy_ang"><code class="docutils literal notranslate"><span class="pre">energy_ang()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.energy_surface"><code class="docutils literal notranslate"><span class="pre">energy_surface()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.energy_xyz"><code class="docutils literal notranslate"><span class="pre">energy_xyz()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.get_material_parms"><code class="docutils literal notranslate"><span class="pre">get_material_parms()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.energy.xyz2angle"><code class="docutils literal notranslate"><span class="pre">xyz2angle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.materials">sdcc.materials module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Anisotropy.make_functions"><code class="docutils literal notranslate"><span class="pre">Anisotropy.make_functions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.CubicAnisotropy"><code class="docutils literal notranslate"><span class="pre">CubicAnisotropy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.Aex"><code class="docutils literal notranslate"><span class="pre">Material.Aex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.Kd"><code class="docutils literal notranslate"><span class="pre">Material.Kd()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.Ms"><code class="docutils literal notranslate"><span class="pre">Material.Ms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.anisotropy_constants"><code class="docutils literal notranslate"><span class="pre">Material.anisotropy_constants()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.exch_len"><code class="docutils literal notranslate"><span class="pre">Material.exch_len()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.mesh_sizing"><code class="docutils literal notranslate"><span class="pre">Material.mesh_sizing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.Material.min_exch_len"><code class="docutils literal notranslate"><span class="pre">Material.min_exch_len()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.SolidSolution"><code class="docutils literal notranslate"><span class="pre">SolidSolution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.materials.SolidSolution.composition"><code class="docutils literal notranslate"><span class="pre">SolidSolution.composition()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.TM_k1"><code class="docutils literal notranslate"><span class="pre">TM_k1()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.plotting">sdcc.plotting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting._descent_update"><code class="docutils literal notranslate"><span class="pre">_descent_update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.dimap"><code class="docutils literal notranslate"><span class="pre">dimap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.dimap_V"><code class="docutils literal notranslate"><span class="pre">dimap_V()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_minima"><code class="docutils literal notranslate"><span class="pre">plot_minima()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_net"><code class="docutils literal notranslate"><span class="pre">plot_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_pullaiah_curves"><code class="docutils literal notranslate"><span class="pre">plot_pullaiah_curves()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_relax_experiment"><code class="docutils literal notranslate"><span class="pre">plot_relax_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_routine"><code class="docutils literal notranslate"><span class="pre">plot_routine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.simulation">sdcc.simulation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.Q_matrix"><code class="docutils literal notranslate"><span class="pre">Q_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.SDCCResult"><code class="docutils literal notranslate"><span class="pre">SDCCResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.simulation.SDCCResult.to_file"><code class="docutils literal notranslate"><span class="pre">SDCCResult.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation._update_p_vector"><code class="docutils literal notranslate"><span class="pre">_update_p_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.calc_relax_time"><code class="docutils literal notranslate"><span class="pre">calc_relax_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.critical_size"><code class="docutils literal notranslate"><span class="pre">critical_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.eq_ps"><code class="docutils literal notranslate"><span class="pre">eq_ps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.full_crit_size"><code class="docutils literal notranslate"><span class="pre">full_crit_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.get_avg_vectors"><code class="docutils literal notranslate"><span class="pre">get_avg_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.grain_hyst_vectors"><code class="docutils literal notranslate"><span class="pre">grain_hyst_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.grain_vectors"><code class="docutils literal notranslate"><span class="pre">grain_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">hyst_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.hyst_treatment"><code class="docutils literal notranslate"><span class="pre">hyst_treatment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_direction"><code class="docutils literal notranslate"><span class="pre">mono_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_dispersion"><code class="docutils literal notranslate"><span class="pre">mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_hyst_direction"><code class="docutils literal notranslate"><span class="pre">mono_hyst_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.treatment">sdcc.treatment module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.CoolingStep"><code class="docutils literal notranslate"><span class="pre">CoolingStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HeatingStep"><code class="docutils literal notranslate"><span class="pre">HeatingStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HoldStep"><code class="docutils literal notranslate"><span class="pre">HoldStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HystBranch"><code class="docutils literal notranslate"><span class="pre">HystBranch</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.SuscStep"><code class="docutils literal notranslate"><span class="pre">SuscStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.TreatmentStep"><code class="docutils literal notranslate"><span class="pre">TreatmentStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.VRMStep"><code class="docutils literal notranslate"><span class="pre">VRMStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.coe_experiment"><code class="docutils literal notranslate"><span class="pre">coe_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.dunlop_experiment"><code class="docutils literal notranslate"><span class="pre">dunlop_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.hyst_loop"><code class="docutils literal notranslate"><span class="pre">hyst_loop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.overprint"><code class="docutils literal notranslate"><span class="pre">overprint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.relaxation_time"><code class="docutils literal notranslate"><span class="pre">relaxation_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.temp2time"><code class="docutils literal notranslate"><span class="pre">temp2time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.thermal_demag"><code class="docutils literal notranslate"><span class="pre">thermal_demag()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.time2temp"><code class="docutils literal notranslate"><span class="pre">time2temp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.utils">sdcc.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.calc_d_min"><code class="docutils literal notranslate"><span class="pre">calc_d_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.fib_hypersphere"><code class="docutils literal notranslate"><span class="pre">fib_hypersphere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.fib_sphere"><code class="docutils literal notranslate"><span class="pre">fib_sphere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.smooth_surface"><code class="docutils literal notranslate"><span class="pre">smooth_surface()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sdcc_examples.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sdcc.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">sdcc package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brendan Cych
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Brendan Cych.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

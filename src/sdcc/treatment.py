@@ -6,27 +6,27 @@ def time2temp(t, t1, T0, T1, T_amb):
     """
     Converts a time to a temperature assuming Newtonian cooling.
 
-    Inputs
+    Parameters
     ------
     t: numpy array
-    Array of time steps
+        Array of time steps
 
     t1: float
-    Characteristic cooling time (i.e. time to T1)
+        Characteristic cooling time (i.e. time to T1)
 
     T0: float
-    Maximum temperature.
+        Maximum temperature.
 
     T1: float
-    Characteristic temperature at time T1
+        Characteristic temperature at time T1
 
     T_amb: float
-    Ambient temperature (usually 20C)
+        Ambient temperature (usually 20C)
 
     Returns
     -------
     T: numpy array
-    Array of temperatures at times ts.
+        Array of temperatures at times ts.
     """
     T_range = T0 - T_amb
     t_rat = t / t1
@@ -38,27 +38,27 @@ def temp2time(T, t1, T0, T1, T_amb):
     """
     Converts a temperature to a time assuming Newtonian cooling.
 
-    Inputs
+    Parameters
     ------
     T: numpy array
-    Array of temperature steps
+        Array of temperature steps
 
     t1: float
-    Characteristic cooling time (i.e. time to T1)
+        Characteristic cooling time (i.e. time to T1)
 
     T0: float
-    Maximum temperature.
+        Maximum temperature.
 
     T1: float
-    Characteristic temperature at time T1
+        Characteristic temperature at time T1
 
     T_amb: float
-    Ambient temperature (usually 20C)
+        Ambient temperature (usually 20C)
 
     Returns
     -------
     t: numpy array
-    Array of times at temperatures T.
+        Array of times at temperatures T.
     """
     frac_T = (T - T_amb) / (T0 - T_amb)
     T_rat = (T1 - T_amb) / (T0 - T_amb)
@@ -103,8 +103,8 @@ class CoolingStep(TreatmentStep):
             char_temp = T_start - 1
             max_temp = T_start
         Ts = np.arange(T_start, T_end, -1, dtype="float64")
-        Ts = np.append(Ts,T_end)
-        Ts[-1] += (Ts[-2] - Ts[-1])/2
+        Ts = np.append(Ts, T_end)
+        Ts[-1] += (Ts[-2] - Ts[-1]) / 2
         self.Ts = Ts
         self.ts = temp2time(self.Ts, char_time, max_temp, char_temp, T_end)
         self.ts = self.ts - self.ts[0]
@@ -231,27 +231,27 @@ def coe_experiment(temp_steps, B_anc, B_lab, B_ancdir, B_labdir):
     """
     Creates a set of thermal treatment steps for an IZZI-Coe experiment
 
-    Inputs
+    Parameters
     ------
     temp_steps: numpy array
-    Set of temperatures for the Coe experiment
+        Set of temperatures for the Coe experiment
 
     B_anc: float
-    Ancient field strength (T)
+        Ancient field strength (T)
 
     B_lab: float
-    Lab field strength (T)
+        Lab field strength (T)
 
     B_ancdir: numpy array
-    Unit vector ancient field direction
+        Unit vector ancient field direction
 
     B_labdir: numpy array
-    Unit vector lab field direction
+        Unit vector lab field direction
 
     Returns
     -------
     steps: list of treatment.ThermalStep objects
-    Set of steps for coe experiment.
+        Set of steps for coe experiment.
     """
     T_max = temp_steps[-1]
     T_min = temp_steps[0]
@@ -317,22 +317,22 @@ def relaxation_time(energy_landscape: GEL, B_dir, B):
     Creates a set of thermal treatment steps for a relaxation time
     estimate.
 
-    Inputs
+    Parameters
     ------
     energy_landscape: barriers.GEL object
-    Object describing energy barriers and LEM states for a particular
-    grain geometry. Here it's used to get Ms.
+        Object describing energy barriers and LEM states for a particular
+        grain geometry. Here it's used to get Ms.
 
     B_dir: numpy array
-    Unit vector field direction
+        Unit vector field direction
 
     B: float
-    Field strength (uT)
+        Field strength (uT)
 
     Returns
     -------
     steps: list of treatment.ThermalStep objects
-    Set of steps for coe experiment.
+        Set of steps for coe experiment.
     """
     T_max = energy_landscape.T_max
     T_min = energy_landscape.T_min

@@ -34,34 +34,34 @@ def find_global_minimum(thetas, phis, energies, mask=None):
     """
     Finds the global minimum of a masked region of a theta-phi map
 
-    Inputs
+    Parameters
     ------
     thetas: numpy array
-    grid of theta angles
+        grid of theta angles
 
     phis: numpy array
-    grid of phi angles
+        grid of phi angles
 
     energies: numpy array
-    grid of energies corresponding to theta, phi angles
+        grid of energies corresponding to theta, phi angles
 
     mask: numpy array
-    grid of True or False indicating the location within the grid which
-    should be evaluated to find the minimum
+        grid of True or False indicating the location within the grid which
+        should be evaluated to find the minimum
 
     Returns
     -------
     best_coords: numpy array
-    Indices of minima
+        Indices of minima
 
     best_theta: float
-    Theta value of minima
+        Theta value of minima
 
     best_phi: float
-    Phi value of minima
+        Phi value of minima
 
     best_energy: float
-    Energy value of minima
+        Energy value of minima
     """
     if np.all(mask == None):
         mask = np.full(energies.shape, True)
@@ -81,15 +81,15 @@ def wrap_labels(labels):
     the first and last columns are the same - this is useful as the
     arrays we use wrap at theta = 0 and 2*pi.
 
-    Inputs
+    Parameters
     ------
     Labels: array
-    Array of integer labels for the "drainage basins" for each LEM
+        Array of integer labels for the "drainage basins" for each LEM
 
     Returns
     -------
     Labels: array
-    Array of wrapped labels.
+        Array of wrapped labels.
     """
     for l in jnp.unique(labels[:, 0]):
         locs = jnp.where(labels[:, 0] == l)
@@ -101,18 +101,18 @@ def wrap_labels(labels):
 
 def segment_region(mask):
     """
-        Splits an energy array into a segmented regions according to a mask
-        Produces a set of labels for the array. Creates regions of
-        "drainage basins" for the array.
+    Splits an energy array into a segmented regions according to a mask
+    Produces a set of labels for the array. Creates regions of
+    "drainage basins" for the array.
 
-        Inputs
-        ------
-        mask: numpy array
+    Parameters
+    ------
+    mask: numpy array
         mask of regions to segment
-    
-        Returns
-        -------
-        labels: numpy array
+
+    Returns
+    -------
+    labels: numpy array
         array of drainage basin labels.
     """
     labels = measure.label(mask)
@@ -125,24 +125,24 @@ def get_minima(thetas, phis, energies, labels):
     Gets the minimum energies for each label in an array with labelled
     regions.
 
-    Inputs
+    Parameters
     ------
     thetas: numpy array
-    grid of theta angles
+        grid of theta angles
 
     phis: numpy array
-    grid of phi angles
+        grid of phi angles
 
     energies: numpy array
-    grid of energies corresponding to theta, phi angles
+        grid of energies corresponding to theta, phi angles
 
     labels: numpy array
-    grid of integer labels for each drainage basin
+        grid of integer labels for each drainage basin
 
     Returns
     -------
     theta_coords, phi_coords: arrays
-    arrays of theta and phi coordinates of each minimum.
+        arrays of theta and phi coordinates of each minimum.
     """
     theta_coords = []
     phi_coords = []
@@ -164,6 +164,7 @@ def get_minima(thetas, phis, energies, labels):
     phi_coords = phi_coords[temp_energies != max(temp_energies)]
     return (theta_coords, phi_coords)
 
+
 ### SKIMAGE WATERSHED IMPLEMENTATION ###
 ### These functions calculate ALL energy barriers for a specimen using the
 ### skimage implementation of the watershed algorithm. This is far faster and
@@ -178,17 +179,18 @@ def dijkstras(i, j, barriers):
     barriers between states which already have a smaller barrier
     between them.
 
-    Inputs
-    ------
+    Parameters:
+    ----------
     i, j: ints
-    Indices for barriers
+        Indices for barriers
 
     barriers: numpy array
-    matrix of energy barriers
+        matrix of energy barriers
 
-    returns:
+    Returns:
+    -------
     barriers: numpy array
-    barrier array with steps pruned
+        barrier array with steps pruned
     """
     visited = np.full(len(barriers), False)
     distances = barriers[i]
@@ -216,27 +218,27 @@ def prune_energies(barriers, thetas, phis):
     """
     Uses modified dijkstras algorithm to "prune" extraneous barriers
 
-    Inputs
+    Parameters
     ------
     barriers: numpy array
-    Matrix of energy barriers
+        Matrix of energy barriers
 
     thetas: numpy array
-    Theta locations of barriers
+        Theta locations of barriers
 
     phis: numpy array
-    Phi locations of barriers
+        Phi locations of barriers
 
     Returns
     -------
     temp_barriers: numpy array
-    "Pruned" barrier array
+        "Pruned" barrier array
 
     thetas: numpy array
-    "Pruned" theta array
+        "Pruned" theta array
 
     phis: numpy array
-    "Pruned" phi array
+        "Pruned" phi array
     """
     temp_barriers = barriers
     for i in range(barriers.shape[0]):
@@ -257,23 +259,23 @@ def get_min_regions(energies, markers=None):
     drainage divides between two watersheds will later be used as the
     energy barriers.
 
-    Inputs
+    Parameters
     ------
     energies: numpy array
-    SD energy surface
+        SD energy surface
 
     markers: None or numpy array
-    If supplied, uses "markers" as the starting minima to calculate the
-    drainage divides
+        If supplied, uses "markers" as the starting minima to calculate the
+        drainage divides
 
     Returns
     -------
     min_coords: numpy array
-    indices of the minima in each region (should correspond to markers
-    if this was supplied.
+        indices of the minima in each region (should correspond to markers
+        if this was supplied.
 
     labels: numpy array
-    array of labelled drainage divides corresponding to the
+        array of labelled drainage divides corresponding to the
     """
 
     # tile energies to preserve connectivity relationship
@@ -349,30 +351,30 @@ def construct_energy_mat_fast(thetas, phis, energies, labels):
     Does so in a rapid fashion by finding the minimum along an edge
     between two minima.
 
-    Inputs
+    Parameters
     ------
     thetas: numpy array
-    grid of theta angles
+        grid of theta angles
 
     phis: numpy array
-    grid of phi angles
+        grid of phi angles
 
     energies: numpy array
-    grid of energies corresponding to theta, phi angles
+        grid of energies corresponding to theta, phi angles
 
     labels: numpy array
-    grid of integer labels for each drainage basin
+        grid of integer labels for each drainage basin
 
     Returns
     -------
     theta_mat: numpy array
-    matrix of energy barrier thetas between state i and j
+        matrix of energy barrier thetas between state i and j
 
     phi_mat: numpy array
-    matrix of energy barrier phis between state i and j
+        matrix of energy barrier phis between state i and j
 
     energy_mat: numpy array
-    matrix of energy barriers between state i and state j
+        matrix of energy barriers between state i and state j
     """
     labels_pad_v = np.pad(labels, ((1, 1), (0, 0)), mode="edge")
     labels_pad_h = np.pad(labels, ((0, 0), (1, 1)), mode="wrap")
@@ -429,21 +431,21 @@ def fix_minima(min_coords, energies, max_minima):
     Trims out the lowest minima and makes sure things on the border
     wrap for good minima.
 
-    Inputs
+    Parameters
     ------
     min_coords: list
-    List of indices of LEM values on our grid
+        List of indices of LEM values on our grid
 
     energies: numpy array
-    SD energy surface as a function of direction
+        SD energy surface as a function of direction
 
     max_minima: int
-    Nominal maximum number of minima
+        Nominal maximum number of minima
 
     Returns
     -------
     new_markers: numpy array
-    Corrected indices of energy minima.
+        Corrected indices of energy minima.
     """
 
     # First work out the energies
@@ -490,28 +492,28 @@ def merge_similar_minima(min_coords, thetas, phis, energies, tol):
     Merges together close together LEM states assuming they're the same
     state. Takes the state with lowest energy as the "true" minimum.
 
-    Inputs
+    Parameters
     ------
     min_coords: list
-    List of minima coordinate values.
+        List of minima coordinate values.
 
     thetas,phis: numpy arrays
-    Grid of theta,phi values on which energies are evaluated.
+        Grid of theta,phi values on which energies are evaluated.
 
     energies: numpy array
-    Energies at theta, phi locations.
+        Energies at theta, phi locations.
 
     tol: float
-    Angular distance in degrees, below which two states considered the
-    same.
+        Angular distance in degrees, below which two states considered the
+        same.
 
     Returns
     -------
     min_coords: list
-    List of minima index values:
+        List of minima index values:
 
     markers: numpy array
-    Locations of these minima in the energy matrix.
+        Locations of these minima in the energy matrix.
     """
 
     # Find your thetas phis, energies associated with your minima
@@ -603,60 +605,60 @@ def find_all_barriers(
     Finds all the minimum energy states in an SD grains and the
     barriers between them.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     T: float
-    Temperature (degrees C)
+        Temperature (degrees C)
 
     ext_field: numpy array
-    Array of field_theta,field_phi,field_str where theta and phi are in
-    radians and str is in Tesla.
+        Array of field_theta,field_phi,field_str where theta and phi are in
+        radians and str is in Tesla.
 
     prune: boolean
-    if True, uses dijkstras algorithm to prune extraneous barriers from
-    the result.
+        if True, uses dijkstras algorithm to prune extraneous barriers from
+        the result.
 
     trim: boolean
-    if True, removes minima with more barriers than the number of
-    magnetocrystalline easy directions. Can cause problems if tol is
-    set too low, because some close together minima may be chosen
-    instead of distinct ones, removing legitimate minima.
+        if True, removes minima with more barriers than the number of
+        magnetocrystalline easy directions. Can cause problems if tol is
+        set too low, because some close together minima may be chosen
+        instead of distinct ones, removing legitimate minima.
 
     tol: float
-    Angular distance in degrees between minima below which they're
-    considered  "the same" state. Used to fix numerical errors where
-    multiple minima are found in extremely flat regions of the
-    energy surface.
+        Angular distance in degrees between minima below which they're
+        considered  "the same" state. Used to fix numerical errors where
+        multiple minima are found in extremely flat regions of the
+        energy surface.
 
     return_labels: boolean
-    If True, returns the "labels" array. Default behavior is False.
+        If True, returns the "labels" array. Default behavior is False.
 
     Returns
     -------
     theta_list, phi list: numpy arrays
-    Arrays of the minimum energy directions in the SD energy surface
+        Arrays of the minimum energy directions in the SD energy surface
 
     min_energy_list: numpy array
-    Minimum energy at the minimum
+        Minimum energy at the minimum
 
     theta_mat,phi_mat: numpy arrays
-    Arrays of the directions associated with the energy barriers.
+        Arrays of the directions associated with the energy barriers.
 
     barriers: numpy array
-    Matrix of energy barriers between state i and state j.
+        Matrix of energy barriers between state i and state j.
     """
 
     # Set up parameters
@@ -767,15 +769,15 @@ def mat_to_mask(theta_mat, phi_mat):
     """
     Creates a mask for use in plot_energy_barriers
 
-    Inputs
+    Parameters
     ------
     theta_mat,phi_mat: numpy arrays
-    Matrices of directions associated with energy barriers
+        Matrices of directions associated with energy barriers
 
     Returns
     -------
     mask: numpy array
-    Array of bools showing where the energy minima are.
+        Array of bools showing where the energy minima are.
     """
 
     thetas = np.linspace(0, 2 * np.pi, 1001)
@@ -808,16 +810,21 @@ def delete_splits(new_indices, old_indices, high_energy_list):
     intended behaviour but will cause problems for e.g. low-T
     magnetite
 
-    Inputs
+    Parameters
     ------
     new_indices: numpy array
-    Array of "new" set of indices of states
+        Array of "new" set of indices of states
 
     old_indices: numpy array
-    Array of "old" set of indices of states
+        Array of "old" set of indices of states
 
     high_energy_list: numpy array
-    Energies at higher temperature or field.
+        Energies at higher temperature or field.
+
+    Returns
+    -------
+    new_indices,old_indices: numpy arrays
+        Arrays of new and old indices with "new" states deleted
     """
     # Currently if we find a ``new'' state at a higher field or temperature
     # this is considered to be anomalous and is ignored. This might lead
@@ -859,73 +866,73 @@ def smart_sort(
     Uses the final set of labels from the watershed algorithm to calculate what each state would
     minimize to.
 
-    Inputs
+    Parameters
     ------
     low_theta_list: length n numpy array
-    Array of theta coordinates for lower temperature or field states
+        Array of theta coordinates for lower temperature or field states
 
     low_phi_list: length n numpy array
-    Ditto, for phi coordinates
+        Ditto, for phi coordinates
 
     low_energy_list: length n numpy array
-    Ditto for energies
+        Ditto for energies
 
     low_theta_mat: n x n array
-    Ditto for energy barrier theta coordinate
+        Ditto for energy barrier theta coordinate
 
     low_phi_mat: n x n array
-    Ditto for energy barrier phi coordinate
+        Ditto for energy barrier phi coordinate
 
     low_barriers: n x n array
-    Ditto for energy barriers
+        Ditto for energy barriers
 
     low_labels: 1001 x 1001 array
-    Labels for low temperature/field energy barriers
+        Labels for low temperature/field energy barriers
 
     high_theta_list: length m numpy array
-    Array of theta coordinates for lower temperature or field states
+        Array of theta coordinates for lower temperature or field states
 
     high_phi_list: length m numpy array
-    Ditto, for phi coordinates
+        Ditto, for phi coordinates
 
     high_energy_list: length m numpy array
-    Ditto for energies
+        Ditto for energies
 
     high_theta_mat: m x m array
-    Ditto for energy barrier theta coordinate
+        Ditto for energy barrier theta coordinate
 
     high_phi_mat: m x m array
-    Ditto for energy barrier phi coordinate
+        Ditto for energy barrier phi coordinate
 
     high_barriers: m x m array
-    Ditto for energy barriers
+        Ditto for energy barriers
 
     high_labels: 1001 x 1001 array
-    Labels for high temperature/field energy barriers
+        Labels for high temperature/field energy barriers
 
     Returns
     -------
 
     thetas_new: length m numpy array
-    Reindexed high_theta_list
+        Reindexed high_theta_list
 
     phis_new: length m numpy array
-    Reindexed high_phi_list
+        Reindexed high_phi_list
 
     energy_list_new: length m numpy array
-    Reindexed high_energy_list
+        Reindexed high_energy_list
 
     theta_mat_new: m x m array
-    Reindexed high_theta_mat
+        Reindexed high_theta_mat
 
     phi_mat_new: m x m array
-    Reindexed high_phi_mat
+        Reindexed high_phi_mat
 
     barriers_new: m x m array
-    Reindexed high_barriers
+        Reindexed high_barriers
 
     labels_new: 1001 x 1001 array
-    Reindexed high_labels
+        Reindexed high_labels
     """
 
     thetas, phis, blank = energy_surface(
@@ -954,13 +961,10 @@ def smart_sort(
     )
     # If the indices are already lost, they have inf theta, so ignore em
     lost_indices = lost_indices[~np.isinf(low_theta_list[lost_indices])]
-    
-    
 
-    
     delete_splits(new_indices, old_indices, high_energy_list)
-    
-    #if len(lost_indices) == 0:
+
+    # if len(lost_indices) == 0:
     #    cos_dist = np.full((len(high_theta_list), len(low_theta_list)), -np.inf)
     #    for i in range(len(high_theta_list)):
     #        for j in range(len(low_theta_list)):
@@ -969,7 +973,7 @@ def smart_sort(
     #            cos_dist[i, j] = np.dot(xyz_new, xyz_old)
     #            if np.isnan(cos_dist[i,j]):
     #                cos_dist[i,j] = np.nan
-    #                
+    #
     #        old_j = new_indices[i]
     #        new_j = np.where(cos_dist[i]==np.amax(cos_dist[i]))[0]
     #        print(old_j,new_j)
@@ -1055,40 +1059,40 @@ def find_T_barriers(TMx, alignment, PRO, OBL, T_spacing=1):
     (20 C) to Tc. Todo: Write one of these for Hysteresis. This
     function could also easily be parallelized using multiprocessing.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     T_spacing: float
-    Spacing of temperature steps (Degrees C)
+        Spacing of temperature steps (Degrees C)
 
     Returns
     -------
     theta_lists, phi lists: numpy arrays
-    Arrays of the minimum energy directions in the SD energy surface
+        Arrays of the minimum energy directions in the SD energy surface
 
     min_energy_lists: numpy array
-    Minimum energy at the minimum
+        Minimum energy at the minimum
 
     theta_mats,phi_mats: numpy arrays
-    Arrays of the directions associated with the energy barriers.
+        Arrays of the directions associated with the energy barriers.
 
     energy_mats: numpy array
-    Matrix of energy barriers between state i and state j.
+        Matrix of energy barriers between state i and state j.
 
     Ts: numpy array
-    List of temperatures.
+        List of temperatures.
     """
     Tc = (
         3.7237e02 * (TMx / 100) ** 3
@@ -1176,15 +1180,15 @@ def get_antipode_order(theta_list, phi_list):
     Calculates the nearest neighbor between a set of LEM states and the
     set of LEM states located in an antipodal orientation.
 
-    Inputs
+    Parameters
     ------
     theta_list,phi_list: numpy arrays
-    Directions of minima on energy surface at first temperature.
+        Directions of minima on energy surface at first temperature.
 
     Returns
     -------
     antipode_indices: numpy array
-    indices of numpy arrays
+        indices of numpy arrays
     """
     old_len = len(theta_list)  # number of old minima
     antipode_order = []
@@ -1215,51 +1219,51 @@ def make_antipode_array(
     and calculates the barriers for a range of antipodal fields. This works
     because all other anisotropies are axisymmetric.
 
-    Inputs
+    Parameters
     ------
     Bs: list
-    List of field strengths
+        List of field strengths
 
     theta_lists: list
-    List of state theta coordinates at each field
+        List of state theta coordinates at each field
 
     phi_lists: list
-    List of state phi coordinates at each field
+        List of state phi coordinates at each field
 
     min_energy_lists: list
-    List of state energies at each field
+        List of state energies at each field
 
     theta_mats: list
-    List of barrier theta coordinates at each field
+        List of barrier theta coordinates at each field
 
     phi_mats: list
-    List of barrier phi coordinates at each field
+        List of barrier phi coordinates at each field
 
     energy_mats: list
-    List of barrier energies at each field
+        List of barrier energies at each field
 
     Returns
     -------
     Bs_new: list
-    List of field strengths
+        List of field strengths
 
     theta_lists_new: list
-    List of state theta coordinates at each field
+        List of state theta coordinates at each field
 
     phi_lists_new: list
-    List of state phi coordinates at each field
+        List of state phi coordinates at each field
 
     min_energy_lists_new: list
-    List of state energies at each field
+        List of state energies at each field
 
     theta_mats_new: list
-    List of barrier theta coordinates at each field
+        List of barrier theta coordinates at each field
 
     phi_mats_new: list
-    List of barrier phi coordinates at each field
+        List of barrier phi coordinates at each field
 
     energy_mats_new: list
-    List of barrier energies at each field
+        List of barrier energies at each field
 
     """
     theta_lists_new = deepcopy(theta_lists)
@@ -1311,49 +1315,49 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
     from zero-field to B_max. This function could also easily be
     parallelized using multiprocessing.
 
-    Inputs
+    Parameters
     ------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     B_dir: length 3 array of floats
-    Cartesian direction (unit vector) of field.
+        Cartesian direction (unit vector) of field.
 
     B_max: float
-    Maximum field (T).
+        Maximum field (T).
 
     B_spacing: float
-    Spacing of field steps (T)
+        Spacing of field steps (T)
 
     T: float
-    Temperature (Degrees C) - must be between 0 and 80.
+        Temperature (Degrees C) - must be between 0 and 80.
 
     Returns
     -------
     theta_lists, phi lists: numpy arrays
-    Arrays of the minimum energy directions in the SD energy surface
+        Arrays of the minimum energy directions in the SD energy surface
 
     min_energy_lists: numpy array
-    Minimum energy at the minimum
+        Minimum energy at the minimum
 
     theta_mats,phi_mats: numpy arrays
-    Arrays of the directions associated with the energy barriers.
+        Arrays of the directions associated with the energy barriers.
 
     energy_mats: numpy array
-    Matrix of energy barriers between state i and state j.
+        Matrix of energy barriers between state i and state j.
 
     Ts: numpy array
-    List of temperatures.
+        List of temperatures.
     """
 
     theta_lists = []
@@ -1453,24 +1457,24 @@ def energy_spline(x, y):
     """
     Creates a piecewise scalar B-Spline from a set of x,y data.
 
-    Inputs
+    Parameters
     ------
     x: numpy array
-    Input x data for cubic spline (usually temperature)
+        Input x data for cubic spline (usually temperature)
 
     y: numpy array
-    Input y data for cubic spline (usually energy or magnetization)
+        Input y data for cubic spline (usually energy or magnetization)
 
     Returns
     -------
     t: numpy array
-    Cubic spline knot positions
+        Cubic spline knot positions
 
     c: numpy array
-    B-Spline coefficients
+        B-Spline coefficients
 
     k: numpy array
-    Polynomial degrees
+        Polynomial degrees
     """
     x_fin = x[~np.isinf(y)]
     y_fin = y[~np.isinf(y)]
@@ -1497,24 +1501,24 @@ def direction_spline(x, y):
     """
     Creates a piecewise 3D unit vector B-Spline from a set of x,y data.
 
-    Inputs
+    Parameters
     ------
     x: numpy array
-    Input x data for cubic spline (usually temperature)
+        Input x data for cubic spline (usually temperature)
 
     y: numpy array of 3D unit vectors.
-    Input y data for cubic spline (usually a direction)
+        Input y data for cubic spline (usually a direction)
 
     Returns
     -------
     t: numpy array
-    Cubic spline knot positions
+        Cubic spline knot positions
 
     c: numpy array
-    B-Spline coefficients
+        B-Spline coefficients
 
     k: numpy array
-    Polynomial degrees
+        Polynomial degrees
     """
     x_fin = x[~np.any(np.isinf(y), axis=1)]
     y_fin = y[~np.any(np.isinf(y), axis=1)]
@@ -1548,24 +1552,24 @@ def energy_result(t, c, k, T):
     Calculates an energy from a temperature and a set of spline
     coefficients.
 
-    Inputs
+    Parameters
     ------
     t: numpy array
-    Cubic spline knot positions
+        Cubic spline knot positions
 
     c: numpy array
-    B-Spline coefficients
+        B-Spline coefficients
 
     k: numpy array
-    Polynomial degrees
+        Polynomial degrees
 
     T: float
-    Temperature (degrees C).
+        Temperature (degrees C).
 
     Returns
     -------
     result: numpy array or float
-    Energy at that temperature.
+        Energy at that temperature.
     """
     result = BSpline(t, c, k, extrapolate=False)(T)
     result = np.nan_to_num(result, nan=np.inf)
@@ -1577,24 +1581,24 @@ def direction_result(t, c, k, T):
     Calculates a direction from a temperature and a set of spline
     coefficients.
 
-    Inputs
+    Parameters
     ------
     t: numpy array
-    Cubic spline knot positions
+        Cubic spline knot positions
 
     c: numpy array
-    B-Spline coefficients
+        B-Spline coefficients
 
     k: numpy array
-    Polynomial degrees
+        Polynomial degrees
 
     T: float
-    Temperature (degrees C).
+        Temperature (degrees C).
 
     Returns
     -------
     direction: numpy array or float
-    Direction at that temperature.
+        Direction at that temperature.
     """
     direction = BSpline(t, c, k, extrapolate=False)(T)
     direction = np.array(xyz2angle(direction.T)).T
@@ -1615,23 +1619,23 @@ class GEL:
     2. The run through of temperatures should be parallelized for much
     quicker object creation.
 
-    Input Attributes
+    Parameters
     ----------------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     T_spacing: float
-    Spacing of temperature steps (Degrees C)
+        Spacing of temperature steps (Degrees C)
     """
 
     def __init__(self, TMx, alignment, PRO, OBL, T_spacing=1):
@@ -1682,10 +1686,10 @@ class GEL:
         """
         Saves GEL object to file.
 
-        Inputs
+        Parameters
         ------
         fname: string
-        Filename
+            Filename
 
         Returns
         -------
@@ -1706,15 +1710,15 @@ class GEL:
         Gets directions and energies associated with LEM states and
         barriers for a grain as a function of temperature.
 
-        Inputs
+        Parameters
         ------
         T: int, float or numpy array
-        Temperature(s) (degrees C)
+            Temperature(s) (degrees C)
 
         Returns
         -------
         params: dict
-        Dictionary of arrays for directions and energies.
+            Dictionary of arrays for directions and energies.
         """
         rot_mat, k1, k2, Ms = get_material_parms(self.TMx, self.alignment, T)
         min_dir = []
@@ -1781,34 +1785,34 @@ class HEL:
     2. The run through of temperatures should be parallelized for much
     quicker object creation.
 
-    Input Attributes
+    Parameters
     ----------------
     TMx: float
-    Titanomagnetite composition (0 - 100)
+        Titanomagnetite composition (0 - 100)
 
     alignment: str
-    Alignment of magnetocrystalline and shape axis. Either 'hard' or
-    'easy' magnetocrystalline always aligned with shape easy.
+        Alignment of magnetocrystalline and shape axis. Either 'hard' or
+        'easy' magnetocrystalline always aligned with shape easy.
 
     PRO: float
-    Prolateness of ellipsoid (major / intermediate axis)
+        Prolateness of ellipsoid (major / intermediate axis)
 
     OBL: float
-    Oblateness of ellipsoid (intermediae / minor axis)
+        Oblateness of ellipsoid (intermediae / minor axis)
 
     B_dir: length 3 array
-    Unit vector of field direction
+        Unit vector of field direction
 
     B_max: float
-    Maximum field (Tesla)
+        Maximum field (Tesla)
 
     B_spacing: float
-    Spacing of field steps (Tesla)
+        Spacing of field steps (Tesla)
     """
 
     def __init__(self, TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing=0.001, T=20):
         self.d_min = calc_d_min(TMx, alignment, PRO, OBL)
-        B_dir = rot_mat @ np.array([1.,0.,0.])
+        B_dir = rot_mat @ np.array([1.0, 0.0, 0.0])
         (
             theta_lists,
             phi_lists,
@@ -1902,10 +1906,10 @@ class HEL:
         """
         Saves GEL object to file.
 
-        Inputs
+        Parameters
         ------
         fname: string
-        Filename
+            Filename
 
         Returns
         -------
@@ -1926,15 +1930,15 @@ class HEL:
         Gets directions and energies associated with LEM states and
         barriers for a grain as a function of field.
 
-        Inputs
+        Parameters
         ------
         B: int, float or numpy array
-        External Field (T)
+            External Field (T)
 
         Returns
         -------
         params: dict
-        Dictionary of arrays for directions and energies.
+            Dictionary of arrays for directions and energies.
         """
         rot_mat, k1, k2, Ms = get_material_parms(self.TMx, self.alignment, self.T)
         min_dir = []
@@ -2025,11 +2029,11 @@ class HELs:
 
         if type(rot_mats) == type(None):
             rot_mats = fib_hypersphere(n_dirs)
-    
+
         HEL_list = []
         B_dirs = []
         for rot_mat in rot_mats:
-            B_dirs.append(rot_mat@np.array([1,0,0]))
+            B_dirs.append(rot_mat @ np.array([1, 0, 0]))
             HEL_list.append(HEL(TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing, T))
         self.HEL_list = HEL_list
         self.B_dirs = B_dirs
@@ -2042,10 +2046,10 @@ class HELs:
         """
         Saves GEL object to file.
 
-        Inputs
+        Parameters
         ------
         fname: string
-        Filename
+            Filename
 
         Returns
         -------
@@ -2061,22 +2065,22 @@ def uniaxial_relaxation_time(d, T, K):
     Calculates the Neel relaxation time for an
     energy barrier at a particular temperature
 
-    Inputs
+    Parameters
     ------
     d: float
-    Equivalent spherical volume diameter of
-    particle
+        Equivalent spherical volume diameter of
+        particle
 
     T: float
-    Temperature
+        Temperature
 
     K: float
-    Energy density of energy barrier
+        Energy density of energy barrier
 
     Returns
     -------
     t: float
-    Relaxation time
+        Relaxation time
     """
     tau_0 = 1e-9
     kb = 1.380649e-23
@@ -2090,21 +2094,21 @@ def uniaxial_critical_size(K, T, t=100):
     Calculates the critical size of a particle
     assuming only a uniaxial transition time
 
-    Inputs
+    Parameters
     ------
     K: float
-    Energy barrier (J/m^3)
+        Energy barrier (J/m^3)
 
     T: float
-    Temperature energy barrier is calculated at
+        Temperature energy barrier is calculated at
 
     t: float
-    Desired timescale to target
+        Desired timescale to target
 
     Returns
     -------
     d: float
-    Grain equivalent sphere volume diameter (nm)
+        Grain equivalent sphere volume diameter (nm)
     """
     tau_0 = 1e-9
     kb = 1.380649e-23
@@ -2120,28 +2124,28 @@ def blocking_temperature(gel: GEL, d, i, j, block_t=100.0):
     with an energy barrier. Involves a minimization
     to obtain the correct time.
 
-    Inputs
+    Parameters
     ------
     gel: GEL object
-    Energy landscape of particle to be considered
+        Energy landscape of particle to be considered
 
     d: float
-    Size of particle (nm)
+        Size of particle (nm)
 
     i: int
-    index of first state in barrier
+        index of first state in barrier
 
     j: int
-    index of second state in barrier
+        index of second state in barrier
 
     block_t: float
-    Timescale at which the barrier is considered
-    'blocked'
+        Timescale at which the barrier is considered
+        'blocked'
 
     Returns
     -------
     T: float
-    Blocking temperature
+        Blocking temperature
     """
 
     def loss_func(testT):
