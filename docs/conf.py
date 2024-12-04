@@ -14,6 +14,9 @@ release = "latest"
 import os
 import sys
 print('#####PAY ATTENTION TO ME!!!!#####',os.path.abspath('./'))
+print(os.listdir('../'))
+print(os.listdir('../../'))
+print(os.listdir('../../../'))
 sys.path.insert(0, os.path.abspath("../src/sdcc"))
 
 # -- General configuration ---------------------------------------------------
