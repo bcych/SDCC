@@ -6,32 +6,33 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'sdcc-0.3.0'
-copyright = '2024, Brendan Cych'
-author = 'Brendan Cych'
-release = 'latest'
+project = "sdcc-0.3.0"
+copyright = "2024, Brendan Cych"
+author = "Brendan Cych"
+release = "latest"
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/sdcc'))
+
+sys.path.insert(0, os.path.abspath("../src/sdcc"))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinxcontrib.contentui',
-    'sphinx_copybutton',
-    'sphinx.ext.graphviz',
-    'sphinxcontrib.mermaid',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'nbsphinx'
+    "sphinxcontrib.contentui",
+    "sphinx_copybutton",
+    "sphinx.ext.graphviz",
+    "sphinxcontrib.mermaid",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "nbsphinx",
 ]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-language = 'en'
+language = "en"
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -49,5 +50,6 @@ napoleon_use_rtype = True
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_book_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_book_theme"
+html_logo = "logo_transparent.png"
+html_static_path = ["_static"]
