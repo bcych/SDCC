@@ -1,18 +1,24 @@
-name: Deploy Sphinx documentation to Pages
+name: Sphinx build
 
-on:
-  push:
-    branches: [master] # branch to trigger deployment
+on: push
 
 jobs:
-  pages:
-    runs-on: ubuntu-20.04
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
+  sphinx-build:
+    runs-on: ubuntu-latest
     steps:
-    - id: deployment
-      uses: sphinx-notes/pages@v3
+    - uses: actions/checkout@v2
+    - name: Build HTML
+      with:
+        pre-build-command: "apt install -y pandoc"
+      uses: ammaraskar/sphinx-action@0.4
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: html-docs
+        path: docs/_build/html/
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html
