@@ -17,12 +17,13 @@ print('#####PAY ATTENTION TO ME!!!!#####',os.path.abspath('./'))
 print(os.listdir('../'))
 print(os.listdir('../../'))
 print(os.listdir('../../../'))
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../"))
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinx.ext.githubpages',
     "sphinxcontrib.contentui",
     "sphinx_copybutton",
     "sphinx.ext.graphviz",
