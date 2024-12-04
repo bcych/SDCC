@@ -1,0 +1,1166 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Examples &#8212; sdcc-0.3.0 latest documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/contentui.css?v=4cf5b151" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=b1def801"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/contentui.js?v=9ee86694"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'sdcc_examples';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Package Reference" href="modules.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_transparent.png" class="logo__image only-light" alt="sdcc-0.3.0 latest documentation - Home"/>
+    <img src="_static/logo_transparent.png" class="logo__image only-dark pst-js-only" alt="sdcc-0.3.0 latest documentation - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Examples</a></li>
+
+
+
+
+
+
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">Package Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html">sdcc package</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/sdcc_examples.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Examples</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Examples</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Defining-a-particle">Defining a particle</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Plotting-energy-surfaces.">Plotting energy surfaces.</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Calculating-energy-barriers">Calculating energy barriers</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Saving-energy-barriers">Saving energy barriers</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualizing-energy-barriers-with-temperature">Visualizing energy barriers with temperature</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Treatment-routines">Treatment routines</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Running-simulations-with-the-SDCC">Running simulations with the SDCC</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Viscous-relaxation-time">Viscous relaxation time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Assemblages-of-grains.">Assemblages of grains.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Paleointensity-Experiments">Paleointensity Experiments</a></li>
+</ul>
+</li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import warnings
+warnings.filterwarnings(&#39;ignore&#39;)
+</pre></div>
+</div>
+</div>
+<section id="Examples">
+<h1>Examples<a class="headerlink" href="#Examples" title="Link to this heading">#</a></h1>
+<p>This notebook contains examples of how to use the SDCC to calculate material properties of particles.</p>
+</section>
+<section id="Defining-a-particle">
+<h1>Defining a particle<a class="headerlink" href="#Defining-a-particle" title="Link to this heading">#</a></h1>
+<p>A particle in the SDCC is defined by a number of parameters:</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">TMx</span></code> is the % titanomagnetite in the composition</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">PRO</span></code> is the prolateness of the ellipsoid geometry (major axis/intermediate axis)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">OBL</span></code> is the oblateness of the ellipsoid geometry (intermediate axis/minor axis)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">alignment</span></code> is the direction of the elongation, either <code class="docutils literal notranslate"><span class="pre">easy</span></code> for along an easy axis or <code class="docutils literal notranslate"><span class="pre">hard</span></code> for along a hard axis.</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">T</span></code> is the temperature at which the surface is being evaluated (optional)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ext_field</span></code> is the external field - <code class="docutils literal notranslate"><span class="pre">[theta,phi,intensity</span> <span class="pre">(T)]</span></code> (optional)</div>
+</div>
+<p>Other magnetic minerals and shapes will be available in the future.</p>
+<p>Here, we’re going to define a particle as a sphere of magnetite:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>TMx = 0
+alignment = &#39;hard&#39;
+PRO = 1.00
+OBL = 1.00
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plotting-energy-surfaces.">
+<h1>Plotting energy surfaces.<a class="headerlink" href="#Plotting-energy-surfaces." title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">sdcc.plotting</span></code> module has several plots for different types of results the SDCC can generate. One of the quickest operations in the SDCC is to plot an energy surface. The <code class="docutils literal notranslate"><span class="pre">plot_energy_surface</span></code> function can be used to quickly do this for a particle in an equirectangular projection. Note that the coordinates <span class="math notranslate nohighlight">\(\theta\)</span> and <span class="math notranslate nohighlight">\(\phi\)</span> used in this plot correspond to a convention similar to declination and inclination, and not to typical spherical coordinates.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import plot_energy_surface
+plot_energy_surface(TMx,alignment,PRO,OBL);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_5_0.png" src="_images/sdcc_examples_5_0.png" />
+</div>
+</div>
+<p>A more useful projection would be to use upper and lower hemisphere stereographic projections, which can be used by passing the argument <code class="docutils literal notranslate"><span class="pre">projection</span> <span class="pre">=</span> <span class="pre">'stereo'</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_energy_surface(TMx,alignment,PRO,OBL,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_7_0.png" src="_images/sdcc_examples_7_0.png" />
+</div>
+</div>
+<p>The SDCC can rapidly calculate energy surfaces for particles with different parameters. For example, we can calculate the energy surface for an elongate ellipsoid by increasing the <code class="docutils literal notranslate"><span class="pre">PRO</span></code> parameter. The SDCC is set up so the major axis is always along <span class="math notranslate nohighlight">\(x\)</span> (or North in the stereographic projection). The minor axis is always along <span class="math notranslate nohighlight">\(z\)</span> (or up) and the intermediate axis is always along <span class="math notranslate nohighlight">\(y\)</span> (or East).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>PRO = 3.00
+plot_energy_surface(TMx,alignment,PRO,OBL,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_9_0.png" src="_images/sdcc_examples_9_0.png" />
+</div>
+</div>
+<p>Alternatively, we could change the titanomagnetite composition to see a change in magnetocrystalline anisotropy</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>PRO = 1.00
+TMx = 55
+plot_energy_surface(TMx,alignment,PRO,OBL,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_11_0.png" src="_images/sdcc_examples_11_0.png" />
+</div>
+</div>
+<p>We have not yet changed the temperature or external field. These can be changed using the optional <code class="docutils literal notranslate"><span class="pre">T</span></code> and <code class="docutils literal notranslate"><span class="pre">ext_field</span></code> arguments. Changing the temperature does not change the shape of the surface for magnetocrystalline particles, but note the change in the scale on the colorbar compared to our first image.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>TMx = 0
+T = 100
+plot_energy_surface(TMx,alignment,PRO,OBL,T = T,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_13_0.png" src="_images/sdcc_examples_13_0.png" />
+</div>
+</div>
+<p>Changing the external field will show a difference between the upper and lower hemisphere projections (as the field differs between the two).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ext_field = [0,90,2e-3] #Dec 0, inc 90 (vertically up), 2 mT field
+plot_energy_surface(TMx,alignment,PRO,OBL,ext_field = ext_field,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_15_0.png" src="_images/sdcc_examples_15_0.png" />
+</div>
+</div>
+<p>Finally, we can rotate the magnetocrystalline directions using the <code class="docutils literal notranslate"><span class="pre">alignment</span></code> argument.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>alignment = &#39;easy&#39;
+plot_energy_surface(TMx,alignment,PRO,OBL,projection = &#39;stereo&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_17_0.png" src="_images/sdcc_examples_17_0.png" />
+</div>
+</div>
+</section>
+<section id="Calculating-energy-barriers">
+<h1>Calculating energy barriers<a class="headerlink" href="#Calculating-energy-barriers" title="Link to this heading">#</a></h1>
+<p>Functions in the <code class="docutils literal notranslate"><span class="pre">barriers</span></code> module are used to calculate energy barriers. Let’s take the cubic magnetite particle from before.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>TMx = 0
+alignment = &#39;easy&#39;
+PRO = 1.00
+OBL = 1.00
+</pre></div>
+</div>
+</div>
+<p>We can calculate the LEM states and energy barriers using the <code class="docutils literal notranslate"><span class="pre">find_all_barriers()</span></code> function. This will output the <span class="math notranslate nohighlight">\(\theta\)</span> and <span class="math notranslate nohighlight">\(\phi\)</span> coordinates of the barriers as well as the energies.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.barriers import find_all_barriers
+lem_t, lem_p, lem_e, bar_t, bar_p, bar_e = find_all_barriers(TMx, alignment, PRO, OBL)
+</pre></div>
+</div>
+</div>
+<p>This produces a large number of arrays - a good way to visualize the LEM states and energy barriers is using the <code class="docutils literal notranslate"><span class="pre">plotting.plot_minima()</span></code> and <code class="docutils literal notranslate"><span class="pre">plotting.plot_barriers()</span></code> functions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import plot_minima, plot_barriers
+plot_energy_surface(TMx, alignment, PRO, OBL, projection = &#39;stereo&#39;)
+plot_minima(lem_t, lem_p, projection = &#39;stereo&#39;)
+plot_barriers(bar_t, bar_p, projection = &#39;stereo&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_23_0.png" src="_images/sdcc_examples_23_0.png" />
+</div>
+</div>
+<p>You may notice that there are some spurious energy barriers near energy maxima. These won’t affect our results, as the relaxation times of these spurious barriers are far larger than those of the smaller barriers, which will dominate our results.</p>
+<p>We can also visualize the energy barriers using the <code class="docutils literal notranslate"><span class="pre">energy_matrix_plot</span></code> function. This function graphically displays the value of the energy barriers between the <span class="math notranslate nohighlight">\(i\)</span>th and <span class="math notranslate nohighlight">\(j\)</span>th state in a matrix.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[62]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import energy_matrix_plot
+energy_matrix_plot(bar_e)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_25_0.png" src="_images/sdcc_examples_25_0.png" />
+</div>
+</div>
+<p>The spurious barriers clearly come up as lighter colors and are 3 - 4 x larger. Given that relaxation time scales with exp(barrier), these will have far longer relaxation times and so will have a minimal effect on our overall relaxation rate.</p>
+</section>
+<section id="Saving-energy-barriers">
+<h1>Saving energy barriers<a class="headerlink" href="#Saving-energy-barriers" title="Link to this heading">#</a></h1>
+<p>We can save the energy barriers between states at all temperatures using the GrainEnergyLandcape or GEL (<code class="docutils literal notranslate"><span class="pre">barriers.GEL</span></code>) object. Saving one of these objects requires a large number of calculations at each temperature and so may take several minutes. Below is code for saving an elongate magnetite particle to a GEL object, although we comment this out to save time.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.barriers import GEL
+TMx = 0
+alignment = &#39;hard&#39;
+PRO = 2.50
+OBL = 1.00
+
+#thermParticle = GEL.get_params(TMx,alignment,PRO,OBL)
+</pre></div>
+</div>
+</div>
+<p>GEL objects can be saved to file using the .to_file() argument. This saves them using the <code class="docutils literal notranslate"><span class="pre">pickle</span></code> file format. We can load saved GEL files using the <code class="docutils literal notranslate"><span class="pre">pickle</span></code> module. A large number of precomputed GEL files are available in the <code class="docutils literal notranslate"><span class="pre">particles</span></code> folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[81]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import pickle
+#GEL.to_file(&#39;test.gel&#39;)
+with open(&#39;../particles/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;, &#39;rb&#39;) as f:
+    thermParticle=pickle.load(f)
+</pre></div>
+</div>
+</div>
+<p>Similarly a <code class="docutils literal notranslate"><span class="pre">HELs</span></code> object exists for high-field experiments. These objects need to compute energy barriers in a range of field strengths and field orientations. In some cases, they may take hours to create, but can again be easily saved. <code class="docutils literal notranslate"><span class="pre">HELs</span></code> objects also require you to input a maximum field (in Tesla).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[72]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.barriers import HELs
+#hystParticle = HELs(TMx, alignment, PRO, OBL, B_max = 0.3)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Visualizing-energy-barriers-with-temperature">
+<h1>Visualizing energy barriers with temperature<a class="headerlink" href="#Visualizing-energy-barriers-with-temperature" title="Link to this heading">#</a></h1>
+<p>The change in relaxation time with temperature of a <code class="docutils literal notranslate"><span class="pre">GEL</span></code> object can be visualized with a Pullaiah curve (Pullaiah et. al., 1975). In the SDCC, we can plot these using the <code class="docutils literal notranslate"><span class="pre">plotting.plot_pullaiah_curves()</span></code> function. To draw a pullaiah curve, we need to specify a size, and we need to give the indices of the energy barrier</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import plot_pullaiah_curves
+sizes = [20] # Pullaiah curve size
+i = 0 # state 0
+j = 1 # state 1
+
+plot_pullaiah_curves(thermParticle, sizes, 0, 1, color=&#39;r&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_34_0.png" src="_images/sdcc_examples_34_0.png" />
+</div>
+</div>
+<p>We can plot more curves by specifying more sizes (note this may take a few seconds to run).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sizes = [17,18,19,20,21,22,23,24,25,26,28,30,32,35,38,41,45,50,60]
+plot_pullaiah_curves(thermParticle, sizes, 0, 1, color=&#39;k&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_36_0.png" src="_images/sdcc_examples_36_0.png" />
+</div>
+</div>
+</section>
+<section id="Treatment-routines">
+<h1>Treatment routines<a class="headerlink" href="#Treatment-routines" title="Link to this heading">#</a></h1>
+<p>Any model being run using the <code class="docutils literal notranslate"><span class="pre">simulations</span></code> package first requires a set of treatment steps using the <code class="docutils literal notranslate"><span class="pre">sdcc.treatment</span></code> module. Let’s run a relaxation time experiment using the <code class="docutils literal notranslate"><span class="pre">relaxation_time()</span></code> function. We need to specify a field direction (in cartesian coordinates) and field strength (in µT).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[91]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.simulation import relaxation_time
+B_dir = [1,0,0] #Field direction - along x here
+B_str = 40 #Field strength - 40uT
+relax_routine = relaxation_time(gel_test, B_dir,B_str)
+</pre></div>
+</div>
+</div>
+<p>Internally, a routine in the SDCC is broken into a list of sdcc.simulation.TreatmentStep objects. We can see these if we print our relaxation time routine.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>relax_routine
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Cooling from 579 to 20°C
+         in 40 μT field,
+ VRM acquisition at 20°C
+         in 0 μT field]
+</pre></div></div>
+</div>
+<p>Each of these sub steps has a set of temperature, time and field steps. More complicated routines can be constructed from these, for example a Thellier - Coe experiment. Note that for these experiments, we need to specify both an ancient and lab field, as we need to simulate the history of the pre-history of the particle before the experiment.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[101]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.treatment import coe_experiment
+from sdcc.barriers import uniaxial_critical_size
+
+B_anc = 30 #ancient field strength
+B_ancdir = [0,0,1] #ancient field direction
+temp_steps = [100,200,300,350,400,450,500,520,540,560,579] #Temperature steps for coe experiment
+
+coe_routine = coe_experiment(temp_steps,B_anc,B_str,B_ancdir,B_dir)
+</pre></div>
+</div>
+</div>
+<p>A good way of visualizing an experimental treatment is to make a temperature-time plot of the steps. The <code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_routine()</span></code> function can do this. Blue lines represent cooling steps, red lines heating steps and purple lines have constant temperature. Dashed lines represent zero-field experiments and solid lines represent in-field experiments.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[104]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import plot_routine
+plot_routine(coe_routine)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_44_0.png" src="_images/sdcc_examples_44_0.png" />
+</div>
+</div>
+</section>
+<section id="Running-simulations-with-the-SDCC">
+<h1>Running simulations with the SDCC<a class="headerlink" href="#Running-simulations-with-the-SDCC" title="Link to this heading">#</a></h1>
+<p>Simulations in the sdcc are run using the <code class="docutils literal notranslate"><span class="pre">simulations</span></code> module. Note that these can be intensive micromagnetic models that may take some time to run.</p>
+<p>Each simulation requires an object to store the energy barriers, a treatment routine, and a particle size to run the simulation at.</p>
+<section id="Viscous-relaxation-time">
+<h2>Viscous relaxation time<a class="headerlink" href="#Viscous-relaxation-time" title="Link to this heading">#</a></h2>
+<p>Our first simulation is to simulate a viscous relaxation to obtain a paleomagnetic relaxation time. Our energy barriers and routine were set up earlier - but we’ll set them up again for the purposes of the example. We’re going to run a relaxation time experiment on a 21 nm prolate magnetite particle with a prolateness of 2.50, elongated along the hard axis.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[116]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import pickle
+from sdcc.simulation import relaxation_time
+
+# Read in GEL file for particle
+with open(&#39;../particles/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;, &#39;rb&#39;) as f:
+    thermParticle=pickle.load(f)
+
+# Set up treatment routine
+B_dir = [1,0,0] #Field direction - along x here
+B_str = 40 #Field strength - 40uT
+relax_routine = relaxation_time(gel_test, B_dir,B_str)
+
+# Set up particle size
+size = 21 #size in nm
+</pre></div>
+</div>
+</div>
+<p>Thermal models in the SDCC are run in a “mono dispersion” of particles in uniformly distributed orientations. For this model, we’ll simulate the viscous relaxation of the same particle in thirty different orientations. This can be done in the sdcc using the <code class="docutils literal notranslate"><span class="pre">sdcc.simulation.mono_dispersion()</span></code> function. The function outputs a set of magnetic moment vectors that correspond to each time step in each treatment step, as well as a set of probability vectors. Additionally, we need a starting
+probability of being in each LEM state as the initial condition of the model. We’re going to start in a demagnetized state. There are two states, so the probability of each is 1/2.</p>
+<p>This code (and most of the code cells going forward) may take several minutes to run as these calculations are intensive. If your computer supports parallelized computations with the sdcc - try running the <code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code> function instead for better performance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[117]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.simulation import mono_dispersion
+starting_prob = [1/2, 1/2]
+moments, probabilities = mono_dispersion(starting_prob,
+                                         size,
+                                         relax_routine,
+                                         thermParticle,
+                                         n_dirs = 30)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working on grain 30 of 30
+</pre></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">moments</span></code> here is a list with two elements. One of these elements corresponds to the initial cooling step, and the other corresponds to the heating step. Each element of the list contains an array with the magnetic moment of the ensemble at each time step.</p>
+<p>In the SDCC, we have a specially set up function (<code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_relax_experiment</span></code>) to plot the moment magnitudes at each time step, but this could be done manually.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[118]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.plotting import plot_relax_experiment
+plot_relax_experiment(moments, relax_routine)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_51_0.png" src="_images/sdcc_examples_51_0.png" />
+</div>
+</div>
+</section>
+<section id="Assemblages-of-grains.">
+<h2>Assemblages of grains.<a class="headerlink" href="#Assemblages-of-grains." title="Link to this heading">#</a></h2>
+<p>We can work with assemblages of grains by simply taking the viscous relaxation time for each grain and summing up the moments at each time step, multiplied by the number of grains. First, let’s make a gaussian distribution of sizes:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[122]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+sizes = np.arange(18,22.25,0.25)
+
+weights = np.exp(-(sizes - 20)**2/2) #Gaussian &quot;weight&quot;
+weights = weights/np.sum(fracs)*1e6 #Relative number of grains at each size
+plt.bar(sizes,weights,color=&#39;skyblue&#39;,width=0.225);
+plt.ylabel(&#39;Number of particles&#39;)
+plt.xlabel(&#39;Size (nm)&#39;);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_53_0.png" src="_images/sdcc_examples_53_0.png" />
+</div>
+</div>
+<p>We can then loop through our sizes and calculate the moments for each size individually:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m_list = []
+for size in sizes:
+    print(&#39;\n Current Size:&#39;,size)
+    moments,probs = mono_dispersion(starting_prob,
+                                    size,
+                                    relax_routine,
+                                    thermParticle,
+                                    n_dirs=30)
+    m_list.append(moments)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ Current Size: 18.0
+Working on grain 30 of 30
+ Current Size: 18.25
+Working on grain 30 of 30
+ Current Size: 18.5
+Working on grain 30 of 30
+ Current Size: 18.75
+Working on grain 30 of 30
+ Current Size: 19.0
+Working on grain 30 of 30
+ Current Size: 19.25
+Working on grain 30 of 30
+ Current Size: 19.5
+Working on grain 30 of 30
+ Current Size: 19.75
+Working on grain 30 of 30
+ Current Size: 20.0
+Working on grain 30 of 30
+ Current Size: 20.25
+Working on grain 30 of 30
+ Current Size: 20.5
+Working on grain 30 of 30
+ Current Size: 20.75
+Working on grain 30 of 30
+ Current Size: 21.0
+Working on grain 30 of 30
+ Current Size: 21.25
+Working on grain 30 of 30
+ Current Size: 21.5
+Working on grain 30 of 30
+ Current Size: 21.75
+Working on grain 30 of 30
+ Current Size: 22.0
+Working on grain 30 of 30
+</pre></div></div>
+</div>
+<p>Then we can multiply the moments by the number of particles and sum everything up.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>weighted_m_list = np.array(m_list).T * weights
+m_sum = np.sum(weighted_m_list, axis = 1)
+</pre></div>
+</div>
+</div>
+<p>Let’s plot our final result:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[128]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_relax_experiment(m_sum, relax_routine)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/sdcc_examples_59_0.png" src="_images/sdcc_examples_59_0.png" />
+</div>
+</div>
+</section>
+<section id="Paleointensity-Experiments">
+<h2>Paleointensity Experiments<a class="headerlink" href="#Paleointensity-Experiments" title="Link to this heading">#</a></h2>
+<p>To run a paleointensity experiment, we first need a distribution of particles. For this experiment, it makes sense to first come up with a blocking temperature distribution, and translate that to a size distribution. The <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.get_critical_sizes()</span></code> function can do this for us.</p>
+<p>We can then weight the distribution by its blocking temperatures. Let’s assume the blocking temperature distribution is a normal distribution with a mean of 460<span class="math notranslate nohighlight">\(^\circ\)</span>C and a standard deviation of 50<span class="math notranslate nohighlight">\(^\circ\)</span>C. We’ll weight the average magnetic moments of each of our particles by this amount.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>#from sdcc.analysis import get_critical_sizes
+Blocking_Ts = [360,385,410,435,460,485,510,535,555]
+sizes = get_critical_sizes(thermParticle, Blocking_Ts)
+
+#Gaussian Distribution
+weights = np.exp(-(np.array(Blocking_Ts) - 460)**2 / (2*50**2))
+weights /= sum(weights)
+
+#Make bar plot
+plt.bar(Blocking_Ts,coeffs,width=15,color=&#39;skyblue&#39;);
+plt.xlabel(&#39;Blocking Temperature ($^\circ$C)&#39;)
+plt.ylabel(&#39;Fraction&#39;);
+
+#Plot sizes on bar plot
+for i, size in enumerate(sizes):
+    if weights[i]&gt;0.04:
+        plt.text(Blocking_Ts[i],weights[i]-0.002,&#39;%2.1f&#39;%size+&#39; nm&#39;,ha=&#39;center&#39;,va=&#39;top&#39;,rotation=90)
+    else:
+        plt.text(Blocking_Ts[i],weights[i]+0.002,&#39;%2.1f&#39;%size+&#39; nm&#39;,ha=&#39;center&#39;,va=&#39;bottom&#39;,rotation=90)
+<br/></pre></div>
+</div>
+</div>
+<p>We can run the model with the distribution as before. Note that due to the much larger number of steps in the Coe experiment, this will likely take a couple of hours to run.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m_list = []
+for size in sizes:
+    print(&#39;\n Current Size:&#39;,size)
+    moments,probs = mono_dispersion(starting_prob,
+                                    size,
+                                    coe_routine,
+                                    thermParticle,
+                                    n_dirs=30)
+    m_list.append(moments)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ Current Size: 27.245683017354118
+Working on grain 30 of 30
+ Current Size: 28.48332083825177
+Working on grain 30 of 30
+ Current Size: 29.898056082724295
+Working on grain 17 of 30
+</pre></div></div>
+</div>
+<p>For ease of processing Thellier data to obtain Arai/Zijderveld plot data, we have the function <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.process_thellier_data()</span></code>. This applies the weights to the different grains and allows us to plot the Arai plot using <code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_arai()</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def process_thellier_data(vs_list, routine, weights):
+    steps = []
+    for step in routine:
+        if step == routine[0]:
+            steps.append(&quot;TRM&quot;)
+        elif type(step) == CoolingStep:
+            if step.field_strs[0] &gt; 0:
+                steps.append(&quot;I&quot;)
+            else:
+                steps.append(&quot;Z&quot;)
+        else:
+            steps.append(&quot;N&quot;)
+    steps = np.array(steps)
+
+    n = len(steps[steps == &quot;Z&quot;]) + 1
+
+    Zs_tot = np.empty((n, 3, len(vs_list)))
+    Is_tot = np.empty((n, 3, len(vs_list)))
+
+    for i, vs in enumerate(vs_list):
+        vs = np.array(vs, dtype=&quot;object&quot;)
+        TRM = vs[steps == &quot;TRM&quot;][0][-1]
+        Zcools = vs[steps == &quot;Z&quot;]
+        Icools = vs[steps == &quot;I&quot;]
+
+        Zs = [TRM]
+        for Z in Zcools:
+            Zs.append(Z[-1])
+
+        Is = [TRM]
+        for I in Icools:
+            Is.append(I[-1])
+
+        Zs_tot[:, :, i] = Zs
+        Is_tot[:, :, i] = Is
+
+    Zs_sum = np.flip(Zs_tot, axis=2) * weights
+    Zs_sum = np.sum(Zs_sum, axis=2)
+
+    Is_sum = np.flip(Is_tot, axis=2) * weights
+    Is_sum = np.sum(Is_sum, axis=2)
+
+    Is_sum -= Zs_sum
+
+    Zs_mag = np.linalg.norm(Zs_sum, axis=1)
+    Is_mag = np.linalg.norm(Is_sum, axis=1)
+
+    return (Zs_sum, Is_sum, Zs_mag, Is_mag)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<p>We analyze the data from the model as before</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[139]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from sdcc.treatment import CoolingStep
+steps = []
+for step in coe_routine:
+    if step == coe_routine[0]:
+        steps.append(&#39;TRM&#39;)
+    elif type(step) == CoolingStep:
+        if step.field_strs[0] &gt; 0:
+            steps.append(&#39;I&#39;)
+        else:
+            steps.append(&#39;Z&#39;)
+    else:
+        steps.append(&#39;N&#39;)
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="modules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Package Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Examples</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Defining-a-particle">Defining a particle</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Plotting-energy-surfaces.">Plotting energy surfaces.</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Calculating-energy-barriers">Calculating energy barriers</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Saving-energy-barriers">Saving energy barriers</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualizing-energy-barriers-with-temperature">Visualizing energy barriers with temperature</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Treatment-routines">Treatment routines</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Running-simulations-with-the-SDCC">Running simulations with the SDCC</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Viscous-relaxation-time">Viscous relaxation time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Assemblages-of-grains.">Assemblages of grains.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Paleointensity-Experiments">Paleointensity Experiments</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Brendan Cych
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Brendan Cych.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
