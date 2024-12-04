@@ -435,56 +435,107 @@ n_dirs=30)</p>
 <p>weighted_m_list = np.array(m_list).T * weights
 m_sum = np.sum(weighted_m_list, axis = 1)</p>
 <p>plot_relax_experiment(m_sum, relax_routine)</p>
-<p>Blocking_Ts = [360,385,410,435,460,485,510,535,555]</p>
-<p>sizes = []
-for T in Blocking_Ts:</p>
+<p>#from sdcc.analysis import get_critical_sizes
+Blocking_Ts = [360,385,410,435,460,485,510,535,555]
+sizes = get_critical_sizes(thermParticle, Blocking_Ts)</p>
+<p>#Gaussian Distribution
+weights = np.exp(-(np.array(Blocking_Ts) - 460)**2 / (2*50**2))
+weights /= sum(weights)</p>
+<p>#Make bar plot
+plt.bar(Blocking_Ts,coeffs,width=15,color=’skyblue’);
+plt.xlabel(‘Blocking Temperature ($^circ$C)’)
+plt.ylabel(‘Fraction’);</p>
+<p>#Plot sizes on bar plot
+for i, size in enumerate(sizes):</p>
 <blockquote>
-<div><p>K = gel_test.get_params(T)[‘bar_e’][0,1]
-size = uniaxial_critical_size(K,T)
-sizes.append(size)</p>
+<div><dl class="simple">
+<dt>if weights[i]&gt;0.04:</dt><dd><p>plt.text(Blocking_Ts[i],weights[i]-0.002,’%2.1f’%size+’ nm’,ha=’center’,va=’top’,rotation=90)</p>
+</dd>
+<dt>else:</dt><dd><p>plt.text(Blocking_Ts[i],weights[i]+0.002,’%2.1f’%size+’ nm’,ha=’center’,va=’bottom’,rotation=90)</p>
+</dd>
+</dl>
 </div></blockquote>
-<p>coeffs = np.exp(-(np.array(Blocking_Ts) - 460)**2 / (2*50**2))
-coeffs /= sum(coeffs)
-Zs_sum = np.flip(Zs_tot,axis=1) * coeffs
-Zs_sum = np.sum(Zs_sum,axis=1)
-Is_sum = np.flip(Is_tot,axis=1) * coeffs
-Is_sum = np.sum(Is_sum,axis=1)</p>
-<p>vs_list=[]
-for d in ds:</p>
+<p>m_list = []
+for size in sizes:</p>
 <blockquote>
-<div><p>print(d)
-start_p = [1/2,1/2]
-vs,ps = mono_dispersion(start_p,d,coe,gel_test,n_dirs=30)
-vs_list_new=[vs]
-vs_list = vs_list_new + vs_list</p>
+<div><p>print(’n Current Size:’,size)
+moments,probs = mono_dispersion(starting_prob,</p>
+<blockquote>
+<div><p>size,
+coe_routine,
+thermParticle,
+n_dirs=30)</p>
 </div></blockquote>
-<p>#Make this a function!</p>
-<p>Zs_tot = np.empty((len(coe[3::6])+1,len(ds)))
-Is_tot = np.empty((len(coe[6::6])+1,len(ds)))
-i = 0
-for vs in vs_list:</p>
+<p>m_list.append(moments)</p>
+</div></blockquote>
+<dl>
+<dt>def process_thellier_data(vs_list, routine, weights):</dt><dd><p>steps = []
+for step in routine:</p>
 <blockquote>
-<div><p>TRM = vs[0][-1]
-Zcools = vs[3::6]
-Zs = [TRM]
+<div><dl class="simple">
+<dt>if step == routine[0]:</dt><dd><p>steps.append(“TRM”)</p>
+</dd>
+<dt>elif type(step) == CoolingStep:</dt><dd><dl class="simple">
+<dt>if step.field_strs[0] &gt; 0:</dt><dd><p>steps.append(“I”)</p>
+</dd>
+<dt>else:</dt><dd><p>steps.append(“Z”)</p>
+</dd>
+</dl>
+</dd>
+<dt>else:</dt><dd><p>steps.append(“N”)</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>steps = np.array(steps)</p>
+<p>n = len(steps[steps == “Z”]) + 1</p>
+<p>Zs_tot = np.empty((n, 3, len(vs_list)))
+Is_tot = np.empty((n, 3, len(vs_list)))</p>
+<dl>
+<dt>for i, vs in enumerate(vs_list):</dt><dd><p>vs = np.array(vs, dtype=”object”)
+TRM = vs[steps == “TRM”][0][-1]
+Zcools = vs[steps == “Z”]
+Icools = vs[steps == “I”]</p>
+<p>Zs = [TRM]
 for Z in Zcools:</p>
 <blockquote>
 <div><p>Zs.append(Z[-1])</p>
 </div></blockquote>
 <p>Is = [TRM]
-Icools = vs[6::6]
 for I in Icools:</p>
 <blockquote>
 <div><p>Is.append(I[-1])</p>
 </div></blockquote>
-<p>Is = np.array(Is)
-Zs = np.array(Zs)</p>
-<p>Is = Is - Zs
-Is = np.linalg.norm(Is,axis=1)
-Zs = np.linalg.norm(Zs,axis=1)
-Zs_tot[:,i] = Zs
-Is_tot[:,i] = Is
-i += 1</p>
+<p>Zs_tot[:, :, i] = Zs
+Is_tot[:, :, i] = Is</p>
+</dd>
+</dl>
+<p>Zs_sum = np.flip(Zs_tot, axis=2) * weights
+Zs_sum = np.sum(Zs_sum, axis=2)</p>
+<p>Is_sum = np.flip(Is_tot, axis=2) * weights
+Is_sum = np.sum(Is_sum, axis=2)</p>
+<p>Is_sum -= Zs_sum</p>
+<p>Zs_mag = np.linalg.norm(Zs_sum, axis=1)
+Is_mag = np.linalg.norm(Is_sum, axis=1)</p>
+<p>return (Zs_sum, Is_sum, Zs_mag, Is_mag)</p>
+</dd>
+</dl>
+<p>from sdcc.treatment import CoolingStep
+steps = []
+for step in coe_routine:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>if step == coe_routine[0]:</dt><dd><p>steps.append(‘TRM’)</p>
+</dd>
+<dt>elif type(step) == CoolingStep:</dt><dd><dl class="simple">
+<dt>if step.field_strs[0] &gt; 0:</dt><dd><p>steps.append(‘I’)</p>
+</dd>
+<dt>else:</dt><dd><p>steps.append(‘Z’)</p>
+</dd>
+</dl>
+</dd>
+<dt>else:</dt><dd><p>steps.append(‘N’)</p>
+</dd>
+</dl>
 </div></blockquote>
 
 

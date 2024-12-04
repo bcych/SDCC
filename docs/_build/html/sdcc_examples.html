@@ -895,79 +895,160 @@ Working on grain 30 of 30
 </section>
 <section id="Paleointensity-Experiments">
 <h2>Paleointensity Experiments<a class="headerlink" href="#Paleointensity-Experiments" title="Link to this heading">#</a></h2>
-<p>We get a set of sizes from the blocking temperatures</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Blocking_Ts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">360</span><span class="p">,</span><span class="mi">385</span><span class="p">,</span><span class="mi">410</span><span class="p">,</span><span class="mi">435</span><span class="p">,</span><span class="mi">460</span><span class="p">,</span><span class="mi">485</span><span class="p">,</span><span class="mi">510</span><span class="p">,</span><span class="mi">535</span><span class="p">,</span><span class="mi">555</span><span class="p">]</span>
-
-<span class="n">sizes</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">T</span> <span class="ow">in</span> <span class="n">Blocking_Ts</span><span class="p">:</span>
-    <span class="n">K</span> <span class="o">=</span> <span class="n">gel_test</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">T</span><span class="p">)[</span><span class="s1">&#39;bar_e&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">size</span> <span class="o">=</span> <span class="n">uniaxial_critical_size</span><span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
-    <span class="n">sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Coefficients for these sizes</p>
+<p>To run a paleointensity experiment, we first need a distribution of particles. For this experiment, it makes sense to first come up with a blocking temperature distribution, and translate that to a size distribution. The <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.get_critical_sizes()</span></code> function can do this for us.</p>
+<p>We can then weight the distribution by its blocking temperatures. Let’s assume the blocking temperature distribution is a normal distribution with a mean of 460<span class="math notranslate nohighlight">\(^\circ\)</span>C and a standard deviation of 50<span class="math notranslate nohighlight">\(^\circ\)</span>C. We’ll weight the average magnetic moments of each of our particles by this amount.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">460</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">50</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-<span class="n">coeffs</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
-<span class="n">Zs_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">Zs_tot</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">coeffs</span>
-<span class="n">Zs_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Zs_sum</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">Is_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">Is_tot</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">coeffs</span>
-<span class="n">Is_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Is_sum</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#from sdcc.analysis import get_critical_sizes</span>
+<span class="n">Blocking_Ts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">360</span><span class="p">,</span><span class="mi">385</span><span class="p">,</span><span class="mi">410</span><span class="p">,</span><span class="mi">435</span><span class="p">,</span><span class="mi">460</span><span class="p">,</span><span class="mi">485</span><span class="p">,</span><span class="mi">510</span><span class="p">,</span><span class="mi">535</span><span class="p">,</span><span class="mi">555</span><span class="p">]</span>
+<span class="n">sizes</span> <span class="o">=</span> <span class="n">get_critical_sizes</span><span class="p">(</span><span class="n">thermParticle</span><span class="p">,</span> <span class="n">Blocking_Ts</span><span class="p">)</span>
+
+<span class="c1">#Gaussian Distribution</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">460</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">50</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">weights</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+
+<span class="c1">#Make bar plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">,</span><span class="n">coeffs</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Blocking Temperature ($^\circ$C)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Fraction&#39;</span><span class="p">);</span>
+
+<span class="c1">#Plot sizes on bar plot</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mf">0.04</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="mf">0.002</span><span class="p">,</span><span class="s1">&#39;</span><span class="si">%2.1f</span><span class="s1">&#39;</span><span class="o">%</span><span class="k">size</span>+&#39; nm&#39;,ha=&#39;center&#39;,va=&#39;top&#39;,rotation=90)
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mf">0.002</span><span class="p">,</span><span class="s1">&#39;</span><span class="si">%2.1f</span><span class="s1">&#39;</span><span class="o">%</span><span class="k">size</span>+&#39; nm&#39;,ha=&#39;center&#39;,va=&#39;bottom&#39;,rotation=90)
+<br/></pre></div>
+</div>
+</div>
+<p>We can run the model with the distribution as before. Note that due to the much larger number of steps in the Coe experiment, this will likely take a couple of hours to run.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Current Size:&#39;</span><span class="p">,</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">moments</span><span class="p">,</span><span class="n">probs</span> <span class="o">=</span> <span class="n">mono_dispersion</span><span class="p">(</span><span class="n">starting_prob</span><span class="p">,</span>
+                                    <span class="n">size</span><span class="p">,</span>
+                                    <span class="n">coe_routine</span><span class="p">,</span>
+                                    <span class="n">thermParticle</span><span class="p">,</span>
+                                    <span class="n">n_dirs</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">m_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>We run the model</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ Current Size: 27.245683017354118
+Working on grain 30 of 30
+ Current Size: 28.48332083825177
+Working on grain 30 of 30
+ Current Size: 29.898056082724295
+Working on grain 30 of 30
+ Current Size: 31.55568763857202
+Working on grain 30 of 30
+ Current Size: 33.561743391491746
+Working on grain 30 of 30
+ Current Size: 36.111631548396474
+Working on grain 1 of 30
+</pre></div></div>
+</div>
+<p>For ease of processing Thellier data to obtain Arai/Zijderveld plot data, we have the function <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.process_thellier_data()</span></code>. This applies the weights to the different grains and allows us to plot the Arai plot using <code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_arai()</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">vs_list</span><span class="o">=</span><span class="p">[]</span>
-<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="n">start_p</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
-    <span class="n">vs</span><span class="p">,</span><span class="n">ps</span> <span class="o">=</span> <span class="n">mono_dispersion</span><span class="p">(</span><span class="n">start_p</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">coe</span><span class="p">,</span><span class="n">gel_test</span><span class="p">,</span><span class="n">n_dirs</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-    <span class="n">vs_list_new</span><span class="o">=</span><span class="p">[</span><span class="n">vs</span><span class="p">]</span>
-    <span class="n">vs_list</span> <span class="o">=</span> <span class="n">vs_list_new</span> <span class="o">+</span> <span class="n">vs_list</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_thellier_data</span><span class="p">(</span><span class="n">vs_list</span><span class="p">,</span> <span class="n">routine</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">routine</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">routine</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TRM&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">==</span> <span class="n">CoolingStep</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">field_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;I&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="n">steps</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">Zs_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs_list</span><span class="p">)))</span>
+    <span class="n">Is_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs_list</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vs_list</span><span class="p">):</span>
+        <span class="n">vs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+        <span class="n">TRM</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="n">steps</span> <span class="o">==</span> <span class="s2">&quot;TRM&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Zcools</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="n">steps</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">]</span>
+        <span class="n">Icools</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="n">steps</span> <span class="o">==</span> <span class="s2">&quot;I&quot;</span><span class="p">]</span>
+
+        <span class="n">Zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">TRM</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">Z</span> <span class="ow">in</span> <span class="n">Zcools</span><span class="p">:</span>
+            <span class="n">Zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">Is</span> <span class="o">=</span> <span class="p">[</span><span class="n">TRM</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">I</span> <span class="ow">in</span> <span class="n">Icools</span><span class="p">:</span>
+            <span class="n">Is</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">Zs_tot</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Zs</span>
+        <span class="n">Is_tot</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Is</span>
+
+    <span class="n">Zs_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">Zs_tot</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">weights</span>
+    <span class="n">Zs_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Zs_sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">Is_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">Is_tot</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">weights</span>
+    <span class="n">Is_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Is_sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">Is_sum</span> <span class="o">-=</span> <span class="n">Zs_sum</span>
+
+    <span class="n">Zs_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Zs_sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">Is_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Is_sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">Zs_sum</span><span class="p">,</span> <span class="n">Is_sum</span><span class="p">,</span> <span class="n">Zs_mag</span><span class="p">,</span> <span class="n">Is_mag</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>We analyze the data from the model</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Make this a function!</span>
-
-<span class="n">Zs_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">coe</span><span class="p">[</span><span class="mi">3</span><span class="p">::</span><span class="mi">6</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)))</span>
-<span class="n">Is_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">coe</span><span class="p">[</span><span class="mi">6</span><span class="p">::</span><span class="mi">6</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)))</span>
-<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">for</span> <span class="n">vs</span> <span class="ow">in</span> <span class="n">vs_list</span><span class="p">:</span>
-    <span class="n">TRM</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">Zcools</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="mi">3</span><span class="p">::</span><span class="mi">6</span><span class="p">]</span>
-    <span class="n">Zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">TRM</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">Z</span> <span class="ow">in</span> <span class="n">Zcools</span><span class="p">:</span>
-        <span class="n">Zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">Is</span> <span class="o">=</span> <span class="p">[</span><span class="n">TRM</span><span class="p">]</span>
-    <span class="n">Icools</span> <span class="o">=</span> <span class="n">vs</span><span class="p">[</span><span class="mi">6</span><span class="p">::</span><span class="mi">6</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">I</span> <span class="ow">in</span> <span class="n">Icools</span><span class="p">:</span>
-        <span class="n">Is</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">Is</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Is</span><span class="p">)</span>
-    <span class="n">Zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Zs</span><span class="p">)</span>
-
-    <span class="n">Is</span> <span class="o">=</span> <span class="n">Is</span> <span class="o">-</span> <span class="n">Zs</span>
-    <span class="n">Is</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Is</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">Zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Zs</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">Zs_tot</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Zs</span>
-    <span class="n">Is_tot</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Is</span>
-    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<p>We analyze the data from the model as before</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[139]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sdcc.treatment</span> <span class="kn">import</span> <span class="n">CoolingStep</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">coe_routine</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">coe_routine</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;TRM&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">==</span> <span class="n">CoolingStep</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">field_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 </div>
