@@ -982,3 +982,34 @@ def plot_relax_experiment(vs, relax_routine, ax=None):
         va="top",
     )
     return None
+
+def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, ax = None):
+    """
+    Plots an Arai plot, and expected Arai plot line for a 
+    paleointensity experiment.
+
+    Parameters
+    ----------
+    Zs_mag, Is_mag: length n arrays
+        Zero-field and in field data for Arai plot
+
+    B_anc, B_lab: floats
+        Ancient and laboratory fields used in paleointensity simulation
+
+    Returns
+    -------
+    None
+    """
+    if ax == None:
+        fig, ax = plt.subplots()
+    ax.plot(Is_mag,Zs_mag,'k')
+    ax.plot(Is_mag,Zs_mag,'ro',markeredgecolor='k');
+    for i,T in enumerate(temp_steps):
+        if (T>=300)&(T<=560):
+            plt.text(Is_mag[i]+0.01,Zs_mag[i]+0.01,str(T))
+    ax.plot([0,B_anc/B_lab],[1,0],'g',label='Ideal line');
+    plt.ylabel('NRM/NRM0')
+    plt.xlabel('pTRM/NRM0');
+    return None
+
+

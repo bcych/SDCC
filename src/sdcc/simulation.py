@@ -1180,8 +1180,12 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
-
+    i = 1
     for hel in energy_landscape.HEL_list:
+        print(
+            "Working on grain {i} of {n}".format(i=i, n=len(energy_landdcape.HEL_list)),
+            end="\r",
+        )
         min_e = hel.get_params(0)["min_e"]
         start_p = np.zeros(len(min_e))
         start_p[~np.isinf(min_e)] = 1 / len(start_p[~np.isinf(min_e)])
@@ -1189,6 +1193,7 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
         v = np.array(v, dtype="object")
         vs.append(v)
         ps.append(p)
+        i += 1
     vs = sum(vs)
     return (vs, ps)
 
@@ -1254,3 +1259,76 @@ def parallelized_hyst_mono_dispersion(
     ps = vps[:, 1]
     vs = np.sum(vs, axis=0)
     return (vs, ps)
+
+
+def result_to_file(
+    energyLandscape,
+    size,
+    routine,
+    moments,
+    probabilities,
+    file_ext: str,
+    directory="./",
+):
+    """
+    Saves an SDCC result to file, along with information about the result
+
+    Parameters
+    ----------
+    energyLandscape: GEL, HEL or HELs object
+        The object that describes the particle energies
+
+    size: float
+        The size of the particle (in nm)
+
+    routine: list
+    The routine of treatment steps
+
+    moments: list
+        The moments output by the SDCC
+
+    probabilities: list
+        The probabilities of each state in each particle at each
+        time-step.
+
+    file_ext: str
+        The file extension - should relate to the experiment type.
+
+    Returns
+    -------
+    None
+    """
+
+    if type(energyLandscape == HELs):
+        TM = energyLandscape.HEL_list[0].TMx
+        alignment = energyLandscape.HEL_list[0].alignment
+        PRO = energyLandscape.HEL_list[0].PRO
+        OBL = energyLandscape.HEL_list[0].OBL
+    else:
+        TM = energyLandscape.TMx
+        alignment = energyLandscape.alignment
+        PRO = energyLandscape.PRO
+        OBL = energyLandscape.OBL
+    TMx = str(TM).zfill(2)
+    result = {
+        "particle": {
+            "TM": TM,
+            "alignment": alignment,
+            "PRO": PRO,
+            "OBL": OBL,
+            "size": size,
+        },
+        "routine": routine,
+        "result": {"moments": moments, "probs": probabilities},
+    }
+
+    fname = (
+        directory
+        + f'TM{TMx}_PRO_{"%1.2f"%PRO}_OBL_{"%1.2f"%OBL}_{"%3.1f"%size}nm.'
+        + file_ext
+    )
+    with open(fname, "wb") as f:
+        pickle.dump(result, f)
+        f.close()
+    print("Saved file to " + fname)
+    return None

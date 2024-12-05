@@ -43,6 +43,37 @@ def analyze_hyst_data(vs, steps, d, hels, plot=False, ax=None):
 
 
 def process_thellier_data(vs_list, routine, weights):
+    """
+    Processes data from a Thellier experiment to create Arai and
+    Zijderveld plot data.
+
+    Inputs
+    ------
+    vs_list: list
+    Set of moment vectors at every time step
+    from an experiment run with the SDCC.
+
+    routine: list
+    Routine of treatment steps used for the experiment.
+
+    weights: list or array
+    Relative contribution of each grain to the result -
+    a higher weight would mean relatively more of those
+    grains.
+
+    Returns
+    -------
+    Zs_list: array
+    Array of moment vectors for Zijderveld plot data
+
+    Is_list: array
+    In field step moment vectors (vector subtracted from
+    zero field vectors)
+
+    Zs_mag, Is_mag: array
+    Magnitudes of above vectors, normalized by the TRM
+    magnitude (Arai plot data).
+    """
     steps = []
     for step in routine:
         if step == routine[0]:
