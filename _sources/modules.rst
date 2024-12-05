@@ -1,4 +1,4 @@
-Package Reference
+sdcc
 ====
 
 .. toctree::
