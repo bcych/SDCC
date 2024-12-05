@@ -160,6 +160,7 @@
 
 
 
+
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="modules.html">Package Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">sdcc package</a></li>
 </ul>
@@ -307,6 +308,8 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.analysis">sdcc.analysis module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.get_critical_sizes"><code class="docutils literal notranslate"><span class="pre">get_critical_sizes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.process_thellier_data"><code class="docutils literal notranslate"><span class="pre">process_thellier_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.barriers">sdcc.barriers module</a><ul class="nav section-nav flex-column">
@@ -397,6 +400,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_arai"><code class="docutils literal notranslate"><span class="pre">plot_arai()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
@@ -430,6 +434,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.result_to_file"><code class="docutils literal notranslate"><span class="pre">result_to_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
 </ul>
 </li>
@@ -481,6 +486,44 @@
 <dt class="sig sig-object py" id="sdcc.analysis.analyze_hyst_data">
 <span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">analyze_hyst_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.analyze_hyst_data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.analysis.get_critical_sizes">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">get_critical_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energyLandscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Blocking_Ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.get_critical_sizes" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.analysis.process_thellier_data">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">process_thellier_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.process_thellier_data" title="Link to this definition">#</a></dt>
+<dd><p>Processes data from a Thellier experiment to create Arai and
+Zijderveld plot data.</p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading">#</a></h3>
+<p>vs_list: list
+Set of moment vectors at every time step
+from an experiment run with the SDCC.</p>
+<p>routine: list
+Routine of treatment steps used for the experiment.</p>
+<p>weights: list or array
+Relative contribution of each grain to the result -
+a higher weight would mean relatively more of those
+grains.</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Zs_list</strong> (<em>array</em>)</p></li>
+<li><p><em>Array of moment vectors for Zijderveld plot data</em></p></li>
+<li><p><strong>Is_list</strong> (<em>array</em>)</p></li>
+<li><p><em>In field step moment vectors (vector subtracted from</em></p></li>
+<li><p><em>zero field vectors)</em></p></li>
+<li><p><strong>Zs_mag, Is_mag</strong> (<em>array</em>)</p></li>
+<li><p><em>Magnitudes of above vectors, normalized by the TRM</em></p></li>
+<li><p><em>magnitude (Arai plot data).</em></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</dd></dl>
 
 </section>
 <section id="module-sdcc.barriers">
@@ -1735,6 +1778,26 @@ paths.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_arai">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_arai</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Zs_mag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Is_mag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_anc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_lab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_arai" title="Link to this definition">#</a></dt>
+<dd><p>Plots an Arai plot, and expected Arai plot line for a
+paleointensity experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Zs_mag</strong> (<em>length n arrays</em>) – Zero-field and in field data for Arai plot</p></li>
+<li><p><strong>Is_mag</strong> (<em>length n arrays</em>) – Zero-field and in field data for Arai plot</p></li>
+<li><p><strong>B_anc</strong> (<em>floats</em>) – Ancient and laboratory fields used in paleointensity simulation</p></li>
+<li><p><strong>B_lab</strong> (<em>floats</em>) – Ancient and laboratory fields used in paleointensity simulation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sdcc.plotting.plot_barriers">
 <span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_barriers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barrier_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barrier_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_barriers" title="Link to this definition">#</a></dt>
 <dd><p>Plots a set of barrier locations on an energy surface plot as
@@ -2397,6 +2460,29 @@ temperature.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="sdcc.simulation.result_to_file">
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">result_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energyLandscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.result_to_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves an SDCC result to file, along with information about the result</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energyLandscape</strong> (<a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><em>GEL</em></a><em>, </em><a class="reference internal" href="#sdcc.barriers.HEL" title="sdcc.barriers.HEL"><em>HEL</em></a><em> or </em><em>HELs object</em>) – The object that describes the particle energies</p></li>
+<li><p><strong>size</strong> (<em>float</em>) – The size of the particle (in nm)</p></li>
+<li><p><strong>routine</strong> (<em>list</em>)</p></li>
+<li><p><strong>steps</strong> (<em>The routine</em><em> of </em><em>treatment</em>)</p></li>
+<li><p><strong>moments</strong> (<em>list</em>) – The moments output by the SDCC</p></li>
+<li><p><strong>probabilities</strong> (<em>list</em>) – The probabilities of each state in each particle at each
+time-step.</p></li>
+<li><p><strong>file_ext</strong> (<em>str</em>) – The file extension - should relate to the experiment type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.thermal_treatment">
 <span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">thermal_treatment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.thermal_treatment" title="Link to this definition">#</a></dt>
 <dd><p>Function for calculating the probability of different LEM states in
@@ -2738,6 +2824,8 @@ a smoothed surface.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.analysis">sdcc.analysis module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.get_critical_sizes"><code class="docutils literal notranslate"><span class="pre">get_critical_sizes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.process_thellier_data"><code class="docutils literal notranslate"><span class="pre">process_thellier_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.barriers">sdcc.barriers module</a><ul class="nav section-nav flex-column">
@@ -2828,6 +2916,7 @@ a smoothed surface.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_arai"><code class="docutils literal notranslate"><span class="pre">plot_arai()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
@@ -2861,6 +2950,7 @@ a smoothed surface.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.result_to_file"><code class="docutils literal notranslate"><span class="pre">result_to_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
 </ul>
 </li>
