@@ -52,7 +52,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '.virtual_documents/Untitled';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '.virtual_documents/sdcc_examples';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -222,7 +222,7 @@
       
       
       
-      <li><a href="../_sources/.virtual_documents/Untitled.ipynb" target="_blank"
+      <li><a href="../_sources/.virtual_documents/sdcc_examples.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -397,7 +397,7 @@ with open(‘../particles/TM00_PRO_2.50_OBL_1.00_hard.gel’, ‘rb’) as f:</p
 <p># Set up treatment routine
 B_dir = [1,0,0] #Field direction - along x here
 B_str = 40 #Field strength - 40uT
-relax_routine = relaxation_time(gel_test, B_dir,B_str)</p>
+relax_routine = relaxation_time(thermParticle, B_dir,B_str)</p>
 <p># Set up particle size
 size = 21 #size in nm</p>
 <p>from sdcc.simulation import mono_dispersion
@@ -416,7 +416,7 @@ import matplotlib.pyplot as plt
 %matplotlib inline</p>
 <p>sizes = np.arange(18,22.25,0.25)</p>
 <p>weights = np.exp(-(sizes - 20)**2/2) #Gaussian “weight”
-weights = weights/np.sum(fracs)*1e6 #Relative number of grains at each size
+weights = weights/np.sum(weights)*1e6 #Relative number of grains at each size
 plt.bar(sizes,weights,color=’skyblue’,width=0.225);
 plt.ylabel(‘Number of particles’)
 plt.xlabel(‘Size (nm)’);</p>
@@ -486,71 +486,9 @@ size_2 = 16</p>
 moments_sp, ps_sp = hyst_mono_dispersion(size_2, hyst_routine, hystParticle)</p>
 <p>from sdcc.analysis import analyze_hyst_data
 fig,ax = plt.subplots(1,2,figsize=(12,4))
-Mrs,Ms,Bc = analyze_hyst_data(moments_sd,hyst_routine,size,hystParticle,plot=True,ax=ax[0])
-Mrs2,Ms2,Bc2 = analyze_hyst_data(moments_sp,hyst_routine,size_2,hystParticle,plot=True,ax=ax[1])
+Mrs, Ms, Bc = analyze_hyst_data(moments_sd, hyst_routine, size, hystParticle, plot=True, ax=ax[0])
+Mrs2, Ms2, Bc2 = analyze_hyst_data(moments_sp, hyst_routine, size_2, hystParticle, plot=True, ax=ax[1])
 plt.tight_layout()</p>
-<dl>
-<dt>def result_to_file(energyLandscape, size, routine, moments, probabilities, file_ext: str, directory = ‘./’):</dt><dd><p>“””
-Saves an SDCC result to file, along with information about the result</p>
-<dl class="simple">
-<dt>energyLandscape: GEL, HEL or HELs object</dt><dd><p>The object that describes the particle energies</p>
-</dd>
-<dt>size: float</dt><dd><p>The size of the particle (in nm)</p>
-</dd>
-</dl>
-<p>routine: list
-The routine of treatment steps</p>
-<dl class="simple">
-<dt>moments: list</dt><dd><p>The moments output by the SDCC</p>
-</dd>
-<dt>probabilities: list</dt><dd><p>The probabilities of each state in each particle at each
-time-step.</p>
-</dd>
-<dt>file_ext: str</dt><dd><p>The file extension - should relate to the experiment type.</p>
-</dd>
-</dl>
-<p>None
-“””</p>
-<dl class="simple">
-<dt>if type(energyLandscape == HELs):</dt><dd><p>TM = energyLandscape.HEL_list[0].TMx
-alignment = energyLandscape.HEL_list[0].alignment
-PRO = energyLandscape.HEL_list[0].PRO
-OBL = energyLandscape.HEL_list[0].OBL</p>
-</dd>
-<dt>else:</dt><dd><p>TM = energyLandscape.TMx
-alignment = energyLandscape.alignment
-PRO = energyLandscape.PRO
-OBL = energyLandscape.OBL</p>
-</dd>
-</dl>
-<p>TMx = str(TM).zfill(2)
-result = {‘particle’:{‘TM’: TM,</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>‘alignment’: alignment,
-‘PRO’: PRO,
-‘OBL’: OBL,
-‘size’: size},</p>
-</div></blockquote>
-<p>‘routine’: routine.__repr__().replace(”n”,””),
-‘result’:{‘moments’:moments,</p>
-<blockquote>
-<div><p>‘probs’:probabilities}</p>
-</div></blockquote>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<p>fname = directory + f’TM{TMx}_PRO_{“%1.2f”%PRO}_OBL_{“%1.2f”%OBL}_{“%3.1f”%size}nm.’ + file_ext
-with open(fname,’wb’) as f:</p>
-<blockquote>
-<div><p>pickle.dump(result,f)
-f.close()</p>
-</div></blockquote>
-<p>print(‘Saved file to ‘+fname)
-return(None)</p>
-</dd>
-</dl>
 <p>result_to_file(hystParticle, 16, hyst_routine, moments_sp, ps_sp, file_ext = ‘hyst’, directory = ‘../results/’)</p>
 <dl class="simple">
 <dt>with open(‘../results/TM00_PRO_2.50_OBL_1.00_16.0nm.hyst’, ‘rb’) as f:</dt><dd><p>result=pickle.load(f)</p>
@@ -560,7 +498,6 @@ return(None)</p>
 print(result[‘particle’])
 print(result[‘routine’])
 print(result[‘result’].keys())</p>
-<p>hyst_routine.</p>
 
 
                 </article>
