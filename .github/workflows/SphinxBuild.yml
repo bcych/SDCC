@@ -6,6 +6,11 @@ jobs:
   sphinx-build:
     runs-on: ubuntu-latest
     steps:
+    - uses: egor-tensin/setup-gcc@v1
+    - name: Set up GCC
+      with:
+        version: latest
+        platform: x64
     - uses: actions/checkout@v4
     - name: Build HTML
       with:
