@@ -13,7 +13,7 @@ from jax import jit, grad
 import jax.numpy as jnp
 from jax import config
 from sdcc.barriers import uniaxial_relaxation_time
-
+import matplotlib.patheffects as pe
 config.update("jax_enable_x64", True)
 
 
@@ -615,90 +615,79 @@ def plot_energy_path(
         raise KeyError("Unknown projection type: " + projection)
 
 
-def plot_minima(minima_thetas, minima_phis, projection="equirectangular"):
+def plot_minima(minima_thetas,minima_phis,projection='equirectangular',ax = None):
     """
     Plots a set of LEM states on an energy surface plot as numerals.
 
-    Parameters
+    Inputs
     ------
     minima_thetas,minima_phis: numpy arrays
-        Locations of the minima on the surface.
-
+    Locations of the minima on the surface.
+    
     projection: str
-        Either "equirectangular" or "stereonet".
-    """
-    ax = plt.gcf().get_axes()
-    for i in range(len(minima_thetas)):
-        if "equi" in projection.lower():
-            plt.text(
-                np.degrees(minima_thetas[i]),
-                np.degrees(minima_phis[i]),
-                i,
-                color="w",
-                va="center",
-                ha="center",
-            )
-        elif "stereo" in projection.lower():
-            if minima_phis[i] <= 0:
-                theta, phi = dimap(minima_thetas[i], -minima_phis[i])
-
-                ax[1].text(theta, phi, i, color="w", va="center", ha="center")
-            if minima_phis[i] >= 0:
-                theta, phi = dimap(minima_thetas[i], minima_phis[i])
-                ax[0].text(theta, phi, i, color="w", va="center", ha="center")
-
-
-def plot_barriers(barrier_thetas, barrier_phis, projection="equirectangular", ax=None):
-    """
-    Plots a set of barrier locations on an energy surface plot as
-    numerals.
-
-    Parameters
-    ------
-    barrier_thetas,barrier_phis: numpy arrays
-        Locations of the barriers on the surface.
-
-    projection: str
-        Either "equirectangular" or "stereonet".
-
-    ax: matplotlib axes
-        Axes to plot on top of.
+    Either "equirectangular" or "stereonet".
     """
     if ax == None:
-        ax = plt.gcf().get_axes()
+        ax=plt.gcf().get_axes()
+    for i in range(len(minima_thetas)):
+        if 'equi' in projection.lower():
+            plt.text(np.degrees(minima_thetas[i]),np.degrees(minima_phis[i]),i,
+            color='w',va='center',ha='center')
+        elif 'stereo' in projection.lower():
+            if minima_phis[i]<=0:
+                theta,phi=dimap(minima_thetas[i],
+                                     -minima_phis[i])
+            
+                ax[1].text(theta,phi,i,color='w',va='center',ha='center',
+                          path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+            if minima_phis[i]>=0:
+                theta,phi=dimap(minima_thetas[i],
+                                     minima_phis[i])
+                ax[0].text(theta,phi,i,color='w',va='center',ha='center',
+                          path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+
+
+def plot_barriers(barrier_thetas,barrier_phis,projection='equirectangular',ax=None):
+    """
+    Plots a set of barrier locations on an energy surface plot as 
+    numerals.
+
+    Inputs
+    ------
+    barrier_thetas,barrier_phis: numpy arrays
+    Locations of the barriers on the surface.
+    
+    projection: str
+    Either "equirectangular" or "stereonet".
+    
+    ax: matplotlib axes
+    Axes to plot on top of.
+    """
+    if ax==None:
+        ax=plt.gcf().get_axes()
     for i in range(len(barrier_thetas)):
-        for j in range(i, len(barrier_thetas)):
-            if not np.isinf(barrier_thetas[i, j]):
-                if "equi" in projection.lower():
-                    ax[0].text(
-                        np.degrees(barrier_thetas[i, j]),
-                        np.degrees(barrier_phis[i, j]),
-                        str(i) + "," + str(j),
-                        color="r",
-                        va="center",
-                        ha="center",
-                    )
-                elif "stereo" in projection.lower():
-                    if barrier_phis[i, j] <= 0:
-                        theta, phi = dimap(barrier_thetas[i, j], -barrier_phis[i, j])
-                        ax[1].text(
-                            theta,
-                            phi,
-                            str(i) + "," + str(j),
-                            color="r",
-                            va="center",
-                            ha="center",
-                        )
-                    if barrier_phis[i, j] >= 0:
-                        theta, phi = dimap(barrier_thetas[i, j], barrier_phis[i, j])
-                        ax[0].text(
-                            theta,
-                            phi,
-                            str(i) + "," + str(j),
-                            color="r",
-                            va="center",
-                            ha="center",
-                        )
+        for j in range(i,len(barrier_thetas)):
+            if not np.isinf(barrier_thetas[i,j]):
+                if 'equi' in projection.lower():
+                    ax[0].text(np.degrees(barrier_thetas[i,j]),
+                    np.degrees(barrier_phis[i,j]),str(i)+','+str(j),
+                    color='tomato',va='center',ha='center',
+                              path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+                elif 'stereo' in projection.lower():
+                    if barrier_phis[i,j]<=0:
+                        theta,phi\
+                            =dimap(barrier_thetas[i,j],
+                                         -barrier_phis[i,j])
+                        ax[1].text(theta,phi,str(i)+','+str(j),color='tomato',
+                                   va='center',ha='center',
+                                  path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+                    if barrier_phis[i,j]>=0:
+                        theta,phi\
+                            =dimap(barrier_thetas[i,j],
+                                         barrier_phis[i,j])
+                        ax[0].text(theta,phi,str(i)+','+str(j),color='tomato',
+                                   va='center',ha='center',
+                                  path_effects=[pe.withStroke(linewidth=1, foreground="black")])
 
 
 def plot_routine(steps):
@@ -758,7 +747,7 @@ def energy_matrix_plot(barriers):
 
 
 def plot_pullaiah_curves(
-    gel, ds, i, j, ax=None, plot_size=True, color="k", add_ticks=True
+    gel, ds, i, j, ax=None, plot_size=True, color="k", add_ticks=True,**kwargs
 ):
     """
     Plots Pullaiah curves for a particular energy barrier in a grain as a function
@@ -809,10 +798,11 @@ def plot_pullaiah_curves(
     Ts = np.arange(gel.T_min, gel.T_max, 1)
     for T in Ts:
         barriers = gel.get_params(T)["bar_e"]
-        if np.any(barriers[i] == 0):
-            i = np.arange(len(barriers[i]))[barriers[i] == 0][-1]
-        if np.any(barriers[j] == 0):
-            j = np.arange(len(barriers[j]))[barriers[j] == 0][-1]
+        LEMs = gel.get_params(T)["min_e"]
+        if np.isinf(LEMs[i]):
+            i = np.arange(len(barriers[i]))[barriers[i] == np.amin(barriers[i])][-1]
+        if np.isinf(LEMs[j]):
+            j = np.arange(len(barriers[j]))[barriers[j] == np.amin(barriers[j])][-1]
         ilist.append(i)
         jlist.append(j)
 
@@ -825,7 +815,7 @@ def plot_pullaiah_curves(
             relax = uniaxial_relaxation_time(d, T, barrier)
             rts.append(relax)
 
-        ax.plot(Ts, np.log10(rts), color=color, lw=1)
+        ax.plot(Ts, np.log10(rts), color=color, lw=1, **kwargs)
         logrts = np.log10(rts)
         center_rts = logrts[(logrts >= min(ts)) & (logrts <= max(ts))]
         if len(center_rts > 0):

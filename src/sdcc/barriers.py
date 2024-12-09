@@ -804,11 +804,16 @@ def mat_to_mask(theta_mat, phi_mat):
     return jnp.array(mask)
 
 
-def delete_splits(new_indices, old_indices, high_energy_list):
+def delete_splits(new_indices, old_indices, high_energy_list, high_theta_list, high_phi_list, theta_lists, phi_lists):
     """
-    Function that deletes "new" states. This is currently
-    intended behaviour but will cause problems for e.g. low-T
-    magnetite
+    Function that deletes "new" states. The function
+    differentiates between "new" states that have appeared
+    before and then disappeared due to numerical noise, so called
+    "lazarus" states, and "new" states that appear to occur from
+    a splitting of existing states - called "spurious" states,
+    as the number of states is not expected to increase with 
+    temperature.
+    
 
     Parameters
     ------
@@ -835,13 +840,31 @@ def delete_splits(new_indices, old_indices, high_energy_list):
     if len(counts[counts > 1]) > 0:
         print("warning! split occurred!")
         multiple_states = unique[counts > 1]
+        bad_states = []
+        lazarus_states = []
         for i in multiple_states:
             bad_indices = old_indices[new_indices == i]
+
             bad_energies = high_energy_list[bad_indices]
-            worst_states = bad_indices[bad_energies > min(bad_energies)]
+            is_old = []
+            for state in bad_indices:
+                where = np.where((high_theta_list[state] == theta_lists) & (high_phi_list[state] == phi_lists))
+                if len(where[1]) > 0:
+                    new_indices[state] = where[1][-1]
+                    is_old.append(True)
+                    lazarus_states.append(state)
+                else:
+                    is_old.append(False)
+            is_old = np.array(is_old)
+            worst_states = bad_indices[(bad_energies > min(bad_energies)) & (~is_old)]
             for state in worst_states:
-                old_indices = np.delete(old_indices, state)
-                new_indices = np.delete(new_indices, state)
+                bad_states.append(state)
+        
+
+        print('lazarus states:', lazarus_states)
+        print('spurious states:', bad_states)
+        old_indices = np.delete(old_indices, bad_states)
+        new_indices = np.delete(new_indices, bad_states)
     return (new_indices, old_indices)
 
 
@@ -860,6 +883,8 @@ def smart_sort(
     high_phi_mat,
     high_barriers,
     high_labels,
+    theta_lists,
+    phi_lists
 ):
     """
     Function for tracking LEM states or energy barriers as a function of temperature or field.
@@ -909,6 +934,12 @@ def smart_sort(
 
     high_labels: 1001 x 1001 array
         Labels for high temperature/field energy barriers
+
+    theta_lists: list
+        list of all previous LEM theta coordinates
+
+    phi_lists: list
+        list of all previous LEM phi coordinates
 
     Returns
     -------
@@ -962,7 +993,7 @@ def smart_sort(
     # If the indices are already lost, they have inf theta, so ignore em
     lost_indices = lost_indices[~np.isinf(low_theta_list[lost_indices])]
 
-    delete_splits(new_indices, old_indices, high_energy_list)
+    delete_splits(new_indices, old_indices, high_energy_list,high_theta_list,high_phi_list,theta_lists,phi_lists)
 
     # if len(lost_indices) == 0:
     #    cos_dist = np.full((len(high_theta_list), len(low_theta_list)), -np.inf)
@@ -1154,6 +1185,8 @@ def find_T_barriers(TMx, alignment, PRO, OBL, T_spacing=1):
                     phi_mat,
                     energy_mat,
                     labels,
+                    theta_lists,
+                    phi_lists
                 )
 
             theta_lists.append(theta_list)
@@ -1419,6 +1452,8 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
                     phi_mat,
                     energy_mat,
                     labels,
+                    theta_lists,
+                    phi_lists
                 )
 
             theta_lists.append(theta_list)
