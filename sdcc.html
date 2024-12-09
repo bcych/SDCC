@@ -716,10 +716,14 @@ between two minima.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.barriers.delete_splits">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">delete_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_energy_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.delete_splits" title="Link to this definition">#</a></dt>
-<dd><p>Function that deletes “new” states. This is currently
-intended behaviour but will cause problems for e.g. low-T
-magnetite</p>
+<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">delete_splits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_energy_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_theta_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_phi_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_lists</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.delete_splits" title="Link to this definition">#</a></dt>
+<dd><p>Function that deletes “new” states. The function
+differentiates between “new” states that have appeared
+before and then disappeared due to numerical noise, so called
+“lazarus” states, and “new” states that appear to occur from
+a splitting of existing states - called “spurious” states,
+as the number of states is not expected to increase with
+temperature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1202,7 +1206,7 @@ Produces a set of labels for the array. Creates regions of
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.barriers.smart_sort">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">smart_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_theta_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_phi_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_energy_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_theta_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_phi_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_barriers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_theta_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_phi_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_energy_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_theta_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_phi_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_barriers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.smart_sort" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">smart_sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low_theta_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_phi_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_energy_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_theta_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_phi_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_barriers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_theta_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_phi_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_energy_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_theta_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_phi_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_barriers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_lists</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.smart_sort" title="Link to this definition">#</a></dt>
 <dd><p>Function for tracking LEM states or energy barriers as a function of temperature or field.
 Uses the final set of labels from the watershed algorithm to calculate what each state would
 minimize to.</p>
@@ -1223,6 +1227,8 @@ minimize to.</p>
 <li><p><strong>high_phi_mat</strong> (<em>m x m array</em>) – Ditto for energy barrier phi coordinate</p></li>
 <li><p><strong>high_barriers</strong> (<em>m x m array</em>) – Ditto for energy barriers</p></li>
 <li><p><strong>high_labels</strong> (<em>1001 x 1001 array</em>) – Labels for high temperature/field energy barriers</p></li>
+<li><p><strong>theta_lists</strong> (<em>list</em>) – list of all previous LEM theta coordinates</p></li>
+<li><p><strong>phi_lists</strong> (<em>list</em>) – list of all previous LEM phi coordinates</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1802,16 +1808,15 @@ paleointensity experiment.</p>
 <span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_barriers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barrier_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barrier_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_barriers" title="Link to this definition">#</a></dt>
 <dd><p>Plots a set of barrier locations on an energy surface plot as
 numerals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>barrier_thetas</strong> (<em>numpy arrays</em>) – Locations of the barriers on the surface.</p></li>
-<li><p><strong>barrier_phis</strong> (<em>numpy arrays</em>) – Locations of the barriers on the surface.</p></li>
-<li><p><strong>projection</strong> (<em>str</em>) – Either “equirectangular” or “stereonet”.</p></li>
-<li><p><strong>ax</strong> (<em>matplotlib axes</em>) – Axes to plot on top of.</p></li>
-</ul>
-</dd>
-</dl>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>barrier_thetas,barrier_phis: numpy arrays
+Locations of the barriers on the surface.</p>
+<p>projection: str
+Either “equirectangular” or “stereonet”.</p>
+<p>ax: matplotlib axes
+Axes to plot on top of.</p>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1876,17 +1881,15 @@ radians and str is in Tesla.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.plotting.plot_minima">
-<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_minima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minima_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minima_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_minima" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_minima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minima_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minima_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_minima" title="Link to this definition">#</a></dt>
 <dd><p>Plots a set of LEM states on an energy surface plot as numerals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>minima_thetas</strong> (<em>numpy arrays</em>) – Locations of the minima on the surface.</p></li>
-<li><p><strong>minima_phis</strong> (<em>numpy arrays</em>) – Locations of the minima on the surface.</p></li>
-<li><p><strong>projection</strong> (<em>str</em>) – Either “equirectangular” or “stereonet”.</p></li>
-</ul>
-</dd>
-</dl>
+<section id="id2">
+<h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>minima_thetas,minima_phis: numpy arrays
+Locations of the minima on the surface.</p>
+<p>projection: str
+Either “equirectangular” or “stereonet”.</p>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1906,7 +1909,7 @@ from pmagpy)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.plotting.plot_pullaiah_curves">
-<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_pullaiah_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_pullaiah_curves" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_pullaiah_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_pullaiah_curves" title="Link to this definition">#</a></dt>
 <dd><p>Plots Pullaiah curves for a particular energy barrier in a grain as a function
 of size.</p>
 <dl class="field-list simple">
