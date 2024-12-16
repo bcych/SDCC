@@ -24,13 +24,13 @@ Install the package:
 
 .. code-block:: bash
    
-   python3 -m install build
+   python3 -m install ./
 
-To test whether the installation worked, try plotting an energy surface
+To test whether the installation worked, try calculating the zeeman energy as a unit test
 
 .. code-block:: python3
-
-   from sdcc.plotting import plot_energy_surface
-   plot_energy_surface(0,'hard',1.00,1.00)
+   >>> from sdcc.energy import Ez
+   >>> Ez(0,0,1,1,1,1)
+   Array(-0.29192658, dtype=float64)
 
 If you encounter any problems with installing `jax`, check out the `jax installation page <https://jax.readthedocs.io/en/latest/installation.html>`_
