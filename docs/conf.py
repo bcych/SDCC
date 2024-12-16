@@ -6,17 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "sdcc-0.3.0"
+project = "sdcc-latest"
 copyright = "2024, Brendan Cych"
 author = "Brendan Cych"
 release = "latest"
 
 import os
 import sys
-print('#####PAY ATTENTION TO ME!!!!#####',os.path.abspath('./'))
-print(os.listdir('../'))
-print(os.listdir('../../'))
-print(os.listdir('../../../'))
 sys.path.insert(0, os.path.abspath("../src/"))
 
 # -- General configuration ---------------------------------------------------
