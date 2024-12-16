@@ -1038,7 +1038,7 @@ def plot_relax_experiment(vs, relax_routine, ax=None):
     )
     return None
 
-def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, ax = None):
+def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, temp_steps, ax = None):
     """
     Plots an Arai plot, and expected Arai plot line for a 
     paleointensity experiment.
@@ -1062,7 +1062,7 @@ def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, ax = None):
     for i,T in enumerate(temp_steps):
         if (T>=300)&(T<=560):
             plt.text(Is_mag[i]+0.01,Zs_mag[i]+0.01,str(T))
-    ax.plot([0,B_anc/B_lab],[1,0],'g',label='Ideal line');
+    ax.plot([0,B_lab/B_anc],[1,0],'g',label='Ideal line');
     plt.ylabel('NRM/NRM0')
     plt.xlabel('pTRM/NRM0');
     return None

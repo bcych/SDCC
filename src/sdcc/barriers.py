@@ -23,6 +23,7 @@ import pickle
 from scipy.interpolate import splprep, splrep, BSpline
 from sdcc.utils import fib_sphere, calc_d_min, fib_hypersphere
 from scipy.optimize import minimize
+import gc
 
 config.update("jax_enable_x64", True)
 ### GENERIC FUNCTIONS ###
@@ -804,16 +805,24 @@ def mat_to_mask(theta_mat, phi_mat):
     return jnp.array(mask)
 
 
-def delete_splits(new_indices, old_indices, high_energy_list, high_theta_list, high_phi_list, theta_lists, phi_lists):
+def delete_splits(
+    new_indices,
+    old_indices,
+    high_energy_list,
+    high_theta_list,
+    high_phi_list,
+    theta_lists,
+    phi_lists,
+):
     """
     Function that deletes "new" states. The function
     differentiates between "new" states that have appeared
     before and then disappeared due to numerical noise, so called
     "lazarus" states, and "new" states that appear to occur from
     a splitting of existing states - called "spurious" states,
-    as the number of states is not expected to increase with 
+    as the number of states is not expected to increase with
     temperature.
-    
+
 
     Parameters
     ------
@@ -848,7 +857,10 @@ def delete_splits(new_indices, old_indices, high_energy_list, high_theta_list, h
             bad_energies = high_energy_list[bad_indices]
             is_old = []
             for state in bad_indices:
-                where = np.where((high_theta_list[state] == theta_lists) & (high_phi_list[state] == phi_lists))
+                where = np.where(
+                    (high_theta_list[state] == theta_lists)
+                    & (high_phi_list[state] == phi_lists)
+                )
                 if len(where[1]) > 0:
                     new_indices[state] = where[1][-1]
                     is_old.append(True)
@@ -859,10 +871,9 @@ def delete_splits(new_indices, old_indices, high_energy_list, high_theta_list, h
             worst_states = bad_indices[(bad_energies > min(bad_energies)) & (~is_old)]
             for state in worst_states:
                 bad_states.append(state)
-        
 
-        print('lazarus states:', lazarus_states)
-        print('spurious states:', bad_states)
+        print("lazarus states:", lazarus_states)
+        print("spurious states:", bad_states)
         old_indices = np.delete(old_indices, bad_states)
         new_indices = np.delete(new_indices, bad_states)
     return (new_indices, old_indices)
@@ -884,7 +895,7 @@ def smart_sort(
     high_barriers,
     high_labels,
     theta_lists,
-    phi_lists
+    phi_lists,
 ):
     """
     Function for tracking LEM states or energy barriers as a function of temperature or field.
@@ -993,7 +1004,15 @@ def smart_sort(
     # If the indices are already lost, they have inf theta, so ignore em
     lost_indices = lost_indices[~np.isinf(low_theta_list[lost_indices])]
 
-    delete_splits(new_indices, old_indices, high_energy_list,high_theta_list,high_phi_list,theta_lists,phi_lists)
+    delete_splits(
+        new_indices,
+        old_indices,
+        high_energy_list,
+        high_theta_list,
+        high_phi_list,
+        theta_lists,
+        phi_lists,
+    )
 
     # if len(lost_indices) == 0:
     #    cos_dist = np.full((len(high_theta_list), len(low_theta_list)), -np.inf)
@@ -1072,6 +1091,10 @@ def smart_sort(
     labels_new = deepcopy(high_labels)
     for i in np.unique(high_labels):
         labels_new[high_labels == i] = new_indices[i]
+
+    del low_labels
+    del high_labels
+
     return (
         thetas_new,
         phis_new,
@@ -1186,7 +1209,7 @@ def find_T_barriers(TMx, alignment, PRO, OBL, T_spacing=1):
                     energy_mat,
                     labels,
                     theta_lists,
-                    phi_lists
+                    phi_lists,
                 )
 
             theta_lists.append(theta_list)
@@ -1453,7 +1476,7 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
                     energy_mat,
                     labels,
                     theta_lists,
-                    phi_lists
+                    phi_lists,
                 )
 
             theta_lists.append(theta_list)
@@ -1462,7 +1485,7 @@ def find_B_barriers(TMx, alignment, PRO, OBL, B_dir, B_max, B_spacing, T=20):
             min_energy_lists.append(min_energy_list)
             theta_mats.append(theta_mat)
             phi_mats.append(phi_mat)
-            labels_old = deepcopy(labels)
+            labels_old = labels[:, :]
 
     Bs, theta_lists, phi_lists, min_energy_lists, theta_mats, phi_mats, energy_mats = (
         make_antipode_array(
@@ -1518,6 +1541,7 @@ def energy_spline(x, y):
         c = np.array([np.inf, np.inf])
         k = 0
     elif np.all(y_fin == 0):
+        del pos_bar_dir
         t = np.array([min(x_fin), max(x_fin)])
         c = np.array([0.0, 0.0])
         k = 0
@@ -1936,6 +1960,28 @@ class HEL:
         self.B_dir = B_dir
         self.rot_mat = rot_mat
         self.T = T
+        del first_theta_lists
+        del first_phi_lists
+        del first_energy_lists
+        del first_theta_mats
+        del first_phi_mats
+        del first_energy_mats
+
+        del second_theta_lists
+        del second_phi_lists
+        del second_energy_lists
+        del second_theta_mats
+        del second_phi_mats
+        del second_energy_mats
+
+        del theta_lists
+        del phi_lists
+        del min_energy_lists
+        del theta_mats
+        del phi_mats
+        del energy_mats
+        gc.collect()
+        gc.collect(generation=2)
 
     def to_file(self, fname):
         """
@@ -2060,16 +2106,33 @@ class HELs:
         T=20,
         rot_mats=None,
         n_dirs=30,
+        HEL_list=None,
     ):
 
-        if type(rot_mats) == type(None):
-            rot_mats = fib_hypersphere(n_dirs)
+        if type(HEL_list) == type(None):
+            if type(rot_mats) == type(None):
+                rot_mats = fib_hypersphere(n_dirs)
+            HEL_list = []
+            B_dirs = []
+            i = 1
+            for rot_mat in rot_mats:
+                B_dirs.append(rot_mat @ np.array([1, 0, 0]))
+                print("\n", f"Working on orientation {i} of {n_dirs}")
+                HEL_list.append(
+                    HEL(TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing, T)
+                )
+                i += 1
+        else:
+            i = 1
+            B_dirs = []
+            rot_mats = []
+            for hel in HEL_list:
+                rot_mat = hel.rot_mat
+                B_dirs.append(rot_mat @ np.array([1, 0, 0]))
+                i += 1
+                rot_mats.append(rot_mat)
+            rot_mats = np.array(rot_mats)
 
-        HEL_list = []
-        B_dirs = []
-        for rot_mat in rot_mats:
-            B_dirs.append(rot_mat @ np.array([1, 0, 0]))
-            HEL_list.append(HEL(TMx, alignment, PRO, OBL, rot_mat, B_max, B_spacing, T))
         self.HEL_list = HEL_list
         self.B_dirs = B_dirs
         self.rot_mats = rot_mats

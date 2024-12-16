@@ -86,6 +86,29 @@ class CoolingStep(TreatmentStep):
     """
     Treatment Step for cooling a specimen in a known field. Assumes
     Newtonian cooling.
+
+    Parameters
+    ----------
+    t_start: float
+        Start time of step (in seconds)
+
+    T_start: float
+        Start temperature for step (degrees C)
+
+    T_end: float
+        Ambient temperature cooled to
+
+    field_str: float
+        Magnetic field strength during step (in µT)
+
+    field_dir: array
+        Magnetic field direction during step (cartesian unit vector)
+
+    char_time: float
+        Characteristic cooling time.
+
+    max_temp,char_temp: floats
+        Cooling will take char_time to cool from max_temp to char_temp
     """
 
     def __init__(
@@ -123,6 +146,26 @@ class HeatingStep(TreatmentStep):
     """
     Treatment step for heating a specimen in a known field.
     Assumes linear heating ramp.
+
+    Parameters
+    ----------
+    t_start: float
+        Start time for step (s)
+
+    T_start: float
+        Start temperature for ramp (degrees C)
+
+    T_end: float
+        Peak temperature of ramp (degrees C)
+
+    field_str: float
+        Strength of field (in µT) during step
+
+    field_dir: array
+        Direction of field (Cartesian unit vector) during step
+
+    lin_rate: float
+        Rate (degrees / s) of ramp.
     """
 
     def __init__(self, t_start, T_start, T_end, field_str, field_dir, lin_rate=1 / 3):
@@ -142,12 +185,33 @@ class HeatingStep(TreatmentStep):
 
 class HoldStep(TreatmentStep):
     """
-    Treatment step for holding a specimen in a field at constant
+    Treatment step for holding a specimen at constant field and
     temperature.
+
+    Parameters
+    ----------
+    t_start: float
+        start time of step (s)
+
+    T_start: float
+        hold temperature (degrees C)
+
+    field_str: float
+        strength of field during step (µT)
+
+    field_dir: array
+        direction of field during step (cartesian unit vector)
+
+    hold_steps: int
+        number of steps to break hold time into, unless you
+        want measurements at a particular time, leave at 2.
+
+    hold_time: float
+        length of hold time (in seconds)
     """
 
     def __init__(
-        self, t_start, T_start, field_str, field_dir, hold_steps=100, hold_time=1800.0
+        self, t_start, T_start, field_str, field_dir, hold_steps=2, hold_time=1800.0
     ):
         self.Ts = np.full(hold_steps, T_start)
         self.ts = np.linspace(0, hold_time, len(self.Ts))
@@ -167,10 +231,30 @@ class VRMStep(TreatmentStep):
     Treatment step for holding a specimen in a field at constant
     temperature with logarithmically spaced time steps (meant for VRM
     acquisitions).
+
+    Parameters
+    ----------
+    t_start: float
+        start time of step (s)
+
+    T_start: float
+        temperature of VRM acquisition (degrees C)
+
+    field_str: float
+        strength of external field (µT)
+
+    field_dir: array
+        direction of external field (cartesian unit vector)
+
+    hold_steps: int
+        number of hold steps
+
+    hold_time: float
+        time for VRM acquisition
     """
 
     def __init__(
-        self, t_start, T_start, field_str, field_dir, hold_steps=100, hold_time=1800.0
+        self, t_start, T_start, field_str, field_dir, hold_steps=100, hold_time=1e17
     ):
         self.Ts = np.full(hold_steps, T_start)
         self.ts = np.logspace(-1, np.log10(hold_time), len(self.Ts))
@@ -188,7 +272,30 @@ class VRMStep(TreatmentStep):
 class SuscStep(TreatmentStep):
     """
     Treatment step for susceptibility measurements. Field changes rather
-    than temperature.
+    than temperature. Experimental and liable to change!
+
+    Parameters
+    ----------
+    t_start: float
+        start time of step (s)
+
+    t_dur: float
+        length of susceptibility treatment (s)
+
+    freq: float
+        frequency of AC susceptibility (hz)
+
+    field_peak: float
+        maximum field amplitude (µT)
+
+    field_dir: array
+        field direction (cartesian unit vector)
+
+    n_points: int
+        number of points to evaluate susceptibility at
+
+    T: float
+        temperature susceptibility experiment conducted at
     """
 
     def __init__(
@@ -196,7 +303,7 @@ class SuscStep(TreatmentStep):
     ):
         self.Ts = np.full(n_points, T)
         self.ts = np.linspace(0, t_dur, n_points)
-        self.field_strs = field_peak * np.sin(self.Ts * freq)
+        self.field_strs = field_peak * np.sin(self.ts * freq)
         self.field_dirs = np.repeat(np.array([field_dir]), len(self.Ts), axis=0)
         self.step_type = "VRM"
         self.step_type = "Susc"
@@ -210,6 +317,33 @@ class SuscStep(TreatmentStep):
 
 
 class HystBranch(TreatmentStep):
+    """
+    Treatment step for hysteresis loop branch.
+
+    Parameters
+    ----------
+    t_start: float
+        start time of step (s)
+
+    B_start: float
+        start field of step (µT)
+
+    B_end: float
+        end field of step (µT)
+
+    B_step: float
+        field step at which measurements are made (µT)
+
+    t_step: float
+        length of time to ramp field by B_step (s)
+
+    T: float
+        temperature at which hysteresis loop measured (degrees C)
+
+    B_dir: array
+        direction of field (cartesian unit vector)
+    """
+
     def __init__(
         self, t_start, B_start, B_end, B_step=1000.0, t_step=1, T=20, B_dir=[1, 0, 0]
     ):
@@ -349,23 +483,26 @@ def relaxation_time(energy_landscape: GEL, B_dir, B):
     return steps
 
 
-def dunlop_experiment(energy_landscape: GEL, B_dir, B, pTRM_min, pTRM_max, T_steps):
-    T_max = energy_landscape.T_max
-    T_min = energy_landscape.T_min
-    TRM = CoolingStep(0, T_max, T_min, 0, B_dir)
-    TRM.field_strs[(TRM.Ts <= pTRM_max) & (TRM.Ts >= pTRM_min)] = B
-    steps = [TRM]
-    for T in T_steps:
-        heating = HeatingStep(steps[-1].ts[-1], T_min, T, 0, B_dir)
-        steps.append(heating)
-        hold = HoldStep(steps[-1].ts[-1], T, 0, B_dir)
-        steps.append(hold)
-        cooling = CoolingStep(steps[-1].ts[-1], T, T_min, 0, B_dir)
-        steps.append(cooling)
-    return steps
-
-
 def hyst_loop(B_max, B_step=0.001, **kwargs):
+    """
+    Creates a set of thermal treatment steps for a hysteresis loop
+
+    Parameters
+    ----------
+    B_max: float
+        Maximum field (in T)
+
+    B_min: float
+        Field step value (in T)
+
+    **kwargs: keyword argument dictionary
+        keyword arguments that are passed to sdcc.treatment.HystBranch
+
+    Returns
+    -------
+    steps: list of treatment.HystBranch objects
+        Set of steps for hysteresis loop
+    """
     steps = []
     steps.append(HystBranch(0, 0, B_max * 1e6, B_step * 1e6, **kwargs))
     last_t = steps[-1].ts[-1]
@@ -380,6 +517,38 @@ def hyst_loop(B_max, B_step=0.001, **kwargs):
 
 
 def overprint(TRM_mag, TRM_dir, oPrint_mag, oPrint_dir, oPrint_T, oPrint_t, gel):
+    """
+    Creates a set of thermal treatment steps for a TRM followed by a VRM overprint
+    at room temperature.
+
+    Parameters
+    ----------
+    TRM_mag: float
+        magnitude of TRM field (µT)
+
+    TRM_dir: array
+        direction of TRM field (cartesian unit vector)
+
+    oPrint_mag: float
+        magnitude of overprinting field (µT)
+
+    oprint_dir: array
+        direction of overprinting field (cartesian unit vector)
+
+    oPrint_T: float
+        temperature overprint acquired at.
+
+    oPrint_t: float
+        time over which overprint acquired
+
+    gel: SDCC.barriers.GEL object
+        Energy landscape of particle.
+
+    Returns
+    -------
+    steps: list of SDCC.treatment.ThermalStep objects
+        steps for TRM and VRM acquisitions
+    """
     T_max = gel.T_max
     T_min = gel.T_min
 
@@ -405,6 +574,20 @@ def overprint(TRM_mag, TRM_dir, oPrint_mag, oPrint_dir, oPrint_T, oPrint_t, gel)
 
 
 def thermal_demag(Ts):
+    """
+    Creates a set of thermal treatment steps for a simple thermal demagnetization
+
+    Parameters
+    ----------
+    Ts: array of floats
+        temperatures of thermal demagnetization steps (degrees C)
+
+    Returns
+    -------
+    steps: list of SDCC.treatment.ThermalStep objects
+        steps for thermal demagnetization experient
+
+    """
     NRM = HoldStep(0.0, 20.0, 0.0, np.array([1, 0, 0]), hold_steps=2, hold_time=100.0)
     steps = [NRM]
     for T in Ts:

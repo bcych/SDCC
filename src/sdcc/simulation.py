@@ -66,6 +66,7 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
 
     zeeman_energy = np.sum(xyz * field_mat, axis=0)
     zeeman_energy = zeeman_energy.at[np.isinf(phi_mat)].set(0.0)
+    zeeman_energy = zeeman_energy.at[np.isnan(zeeman_energy)].set(0.0)
     logQ = -(energy_densities.T * V - zeeman_energy) / (kb * (273 + T))
 
     logQ = np.array(logQ)
@@ -1183,7 +1184,7 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
     i = 1
     for hel in energy_landscape.HEL_list:
         print(
-            "Working on grain {i} of {n}".format(i=i, n=len(energy_landdcape.HEL_list)),
+            "Working on grain {i} of {n}".format(i=i, n=len(energy_landscape.HEL_list)),
             end="\r",
         )
         min_e = hel.get_params(0)["min_e"]
