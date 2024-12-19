@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdcc_bcych"
-version = "0.3.5"
+version = "0.3.6"
 authors = [
   { name="Brendan Cych", email="bcych@liverpool.ac.uk" },
 ]
@@ -16,7 +16,8 @@ dependencies = [
     "matplotlib",
     "scipy",
     "scikit-image",
-    "mpmath"
+    "mpmath",
+    "jax[cpu]"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,3 +28,4 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/bcych/sdcc"
 Issues = "https://github.com/bcych/sdcc/issues"
+Docs = "https://bcych.github.io/SDCC/"
