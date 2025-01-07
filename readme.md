@@ -1,5 +1,5 @@
 # Single Domain Comprehensive Calculator
-Welcome to the github repository for the Single Domain Comprehensive Calculator. This code enables you to simulate rock and paleomagnetic experiments with single domain grains.
+Welcome to the github repository for the Single Domain Comprehensive Calculator (see preprint at https://doi.org/10.22541/essoar.173499226.63395447/v1). This code enables you to simulate rock and paleomagnetic experiments with single domain grains.
 
 Installation instructions and documentation (including a worked example notebook) can be found at [https://bcych.github.io/SDCC](https://bcych.github.io/SDCC)
 
