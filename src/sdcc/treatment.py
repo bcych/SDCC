@@ -127,7 +127,8 @@ class CoolingStep(TreatmentStep):
             max_temp = T_start
         Ts = np.arange(T_start, T_end, -1, dtype="float64")
         Ts = np.append(Ts, T_end)
-        Ts[-1] += (Ts[-2] - Ts[-1]) / 2
+        if len(Ts) > 1:
+            Ts[-1] += (Ts[-2] - Ts[-1]) / 2
         self.Ts = Ts
         self.ts = temp2time(self.Ts, char_time, max_temp, char_temp, T_end)
         self.ts = self.ts - self.ts[0]

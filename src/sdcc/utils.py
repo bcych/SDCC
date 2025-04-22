@@ -3,6 +3,47 @@ import warnings
 from scipy.interpolate import griddata
 from scipy.spatial.transform import Rotation
 
+# Special Cubic directions as values for import
+oneoneones = np.array(
+    [
+        [1, 1, 1],
+        [1, 1, -1],
+        [1, -1, 1],
+        [1, -1, -1],
+        [-1, 1, 1],
+        [-1, 1, -1],
+        [-1, -1, 1],
+        [-1, -1, -1],
+    ],
+    dtype="float64",
+)
+oneoneones /= np.sqrt(3)
+
+oneonezeros = np.array(
+    [
+        [1, 1, 0],
+        [1, 0, 1],
+        [0, 1, 1],
+        [1, -1, 0],
+        [1, 0, -1],
+        [0, 1, -1],
+        [-1, 1, 0],
+        [-1, 0, 1],
+        [0, -1, 1],
+        [-1, -1, 0],
+        [-1, 0, -1],
+        [0, -1, -1],
+    ],
+    dtype="float64",
+)
+oneonezeros /= np.sqrt(2)
+
+onezerozeros = np.array(
+    [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, 0, 0], [0, -1, 0], [0, 0, -1]],
+    dtype="float64",
+)
+special_directions = [oneoneones, oneonezeros, onezerozeros]
+
 
 def fib_sphere(n=1000):
     """

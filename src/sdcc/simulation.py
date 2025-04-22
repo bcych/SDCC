@@ -3,7 +3,7 @@ import mpmath as mp
 import pickle
 import multiprocessing as mpc
 import warnings
-from sdcc.barriers import GEL, HEL, find_all_barriers
+from sdcc.barriers import GEL, HEL, HELs, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
 from sdcc.utils import fib_sphere, fib_hypersphere
 

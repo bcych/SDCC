@@ -14,14 +14,20 @@ import jax.numpy as jnp
 from jax import config
 from sdcc.barriers import uniaxial_relaxation_time
 import matplotlib.patheffects as pe
+from matplotlib.colors import BoundaryNorm
+from matplotlib.cm import ScalarMappable
+from matplotlib.ticker import MaxNLocator
+from itertools import combinations
+
 config.update("jax_enable_x64", True)
+from sdcc.utils import oneoneones, oneonezeros, onezerozeros
 
 
 def dimap(D, I):
     """
     Function to map directions  to x,y pairs in equal area projection.
     This function is reproduced from the PmagPy Project
-    (https://github.com/PmagPy/Pmagpy). 
+    (https://github.com/PmagPy/Pmagpy).
 
     Copyright (c) 2023, PmagPy contributors
     All rights reserved.
@@ -30,11 +36,11 @@ def dimap(D, I):
     modification, are permitted provided that the following conditions
     are met:
 
-    * Redistributions of source code must retain the above copyright 
+    * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
 
     * Redistributions in binary form must reproduce the above copyright
-    notice,this list of conditions and the following disclaimer in the 
+    notice,this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
 
     * Neither the name of PmagPy nor the names of its contributors may
@@ -43,14 +49,14 @@ def dimap(D, I):
 
     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
     BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
@@ -98,7 +104,7 @@ def dimap(D, I):
 def dimap_V(D, I):
     """
     Maps declinations and inclinations into equal area projections.
-    This function is a modified version of the dimap function from 
+    This function is a modified version of the dimap function from
     pmagpy (https://github.com/PmagPy/PmagPy).
 
     Copyright (c) 2023, PmagPy contributors
@@ -108,11 +114,11 @@ def dimap_V(D, I):
     modification, are permitted provided that the following conditions
     are met:
 
-    * Redistributions of source code must retain the above copyright 
+    * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
 
     * Redistributions in binary form must reproduce the above copyright
-    notice,this list of conditions and the following disclaimer in the 
+    notice,this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
 
     * Neither the name of PmagPy nor the names of its contributors may
@@ -121,14 +127,14 @@ def dimap_V(D, I):
 
     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
     BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
@@ -163,7 +169,7 @@ def plot_net(ax=None):
     """
     Draws circle and tick marks for equal area projection. Adapted
     from pmagpy (https://github.com/PmagPy/PmagPy).
-    
+
     Copyright (c) 2023, PmagPy contributors
     All rights reserved.
 
@@ -171,11 +177,11 @@ def plot_net(ax=None):
     modification, are permitted provided that the following conditions
     are met:
 
-    * Redistributions of source code must retain the above copyright 
+    * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
 
     * Redistributions in binary form must reproduce the above copyright
-    notice,this list of conditions and the following disclaimer in the 
+    notice,this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
 
     * Neither the name of PmagPy nor the names of its contributors may
@@ -184,20 +190,21 @@ def plot_net(ax=None):
 
     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE 
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
     BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
     Parameters
     ------
-        ax: axis to draw net onto
+    ax: matplotlib axis or None
+    axis to draw net onto (creates new axis if None)
 
     Returns
     -------
@@ -249,8 +256,66 @@ def plot_net(ax=None):
             Xtick.append(XY[0])
             Ytick.append(XY[1])
         ax.plot(Xtick, Ytick, "k")
+
     ax.axis("equal")
     ax.axis((-1.05, 1.05, -1.05, 1.05))
+
+
+def plot_cubeocta(ax, rot_mat=np.eye(3), kind="cube", proj="upper"):
+    """
+    Plots the edges of a cube or an octahedron on the equal area plot,
+    along the edges of the magnetocrystalline directions
+
+    Parameters
+    ----------
+    ax: matplotlib axis
+    axis to be plotted to
+
+    rot_mat: 3x3 numpy array
+    rotation matrix for magnetocrystalline directions
+
+    kind: string
+    "cube" for cube edges, "octa" for octahedron edges
+
+    proj: string
+    "upper" for upper hemisphere, "lower" for lower hemisphere
+    """
+    if kind == "cube":
+        combos = np.array(list(combinations(oneoneones, 2)))
+        marker = "w--"
+    elif kind == "octa":
+        combos = np.array(list(combinations(onezerozeros, 2)))
+        marker = "r"
+    else:
+        raise ValueError("kind must be cube or octa")
+    combo_sums = np.sum(combos, axis=1)
+    combo_sums = np.transpose(combo_sums.T / np.linalg.norm(combo_sums, axis=1))
+    idxs = []
+    combo_filter = (
+        (np.isclose(oneonezeros[:, None], combo_sums)).any(axis=0).all(axis=1)
+    )
+    combos = combos[combo_filter]
+    for combo in combos:
+        lerp = np.linspace(combo[0], combo[1], 100)
+        lerp = lerp.T / np.linalg.norm(lerp, axis=1)
+        Xs = []
+        Ys = []
+        for l in lerp.T:
+            D, I = xyz2angle(rot_mat @ l)
+            if proj == "upper":
+                if I >= 0:
+                    X, Y = dimap(D, I)
+                    Xs.append(X)
+                    Ys.append(-Y)
+            elif proj == "lower":
+                if I <= 0:
+                    X, Y = dimap(D, I)
+                    Xs.append(X)
+                    Ys.append(-Y)
+            else:
+                raise ValueError("proj must be upper or lower")
+
+        ax.plot(Xs, Ys, marker, zorder=1.5, lw=1)
 
 
 def plot_energy_surface(
@@ -263,6 +328,7 @@ def plot_energy_surface(
     levels=10,
     n_points=100,
     projection="equirectangular",
+    cubic_dirs=False,
     ax=None,
 ):
     """
@@ -312,9 +378,11 @@ def plot_energy_surface(
         k1, k2, rot_mat, Ms, LMN, ext_field=ext_field, n_points=n_points
     )
 
+    energies -= np.amin(energies)
+
     # If equidimensional, plot an equidimensional plot
     if "equi" in projection.lower():
-        if ax == None:
+        if type(ax) == type(None):
             fig, ax = plt.subplots()
         ax.contour(
             np.degrees(thetas),
@@ -333,13 +401,13 @@ def plot_energy_surface(
             antialiased=True,
             linewidths=0.2,
         )
-        plt.colorbar(contourf, label="Energy Density (Jm$^{-3}$)", ax=ax)
+        plt.colorbar(contourf, label="$\Delta$ Energy Density (Jm$^{-3}$)", ax=ax)
         ax.set_xlabel(r"$\theta$", fontsize=14)
         ax.set_ylabel("$\phi$", fontsize=14)
 
     # If stereonet, plot on two stereonets (upper, lower)
     elif "stereo" in projection.lower():
-        if ax == None:
+        if type(ax) == type(None):
             fig = plt.figure(figsize=(9, 4))
             grid = fig.add_gridspec(100, 20)
             ax1 = fig.add_subplot(grid[:, :9])
@@ -347,6 +415,9 @@ def plot_energy_surface(
             ax3 = fig.add_subplot(grid[5:95, 18:])
             ax = [ax1, ax2, ax3]
         plot_net(ax[0])
+        if cubic_dirs:
+            plot_cubeocta(ax[0], rot_mat, "octa", "upper")
+:wq            plot_cubeocta(ax[0], rot_mat, "cube", "upper")
         vmin = np.amin(energies)
         vmax = np.amax(energies)
         xs, ys = dimap(thetas[phis >= 0].flatten(), phis[phis >= 0].flatten()).T
@@ -360,6 +431,9 @@ def plot_energy_surface(
             antialiased=True,
         )
         plot_net(ax[1])
+        if cubic_dirs:
+            plot_cubeocta(ax[1], rot_mat, "octa", "lower")
+            plot_cubeocta(ax[1], rot_mat, "cube", "lower")
         xs, ys = dimap(thetas[phis <= 0].flatten(), phis[phis <= 0].flatten()).T
         lower = ax[1].tricontourf(
             xs,
@@ -371,7 +445,10 @@ def plot_energy_surface(
             antialiased=True,
         )
         ax[2].axis("off")
-        plt.colorbar(lower, ax=ax[2], label="Energy Density (Jm$^{-3}$)")
+        bounds = MaxNLocator(levels + 1).tick_values(vmin, vmax)
+        norm = BoundaryNorm(bounds, 256)
+        mappable = ScalarMappable(norm=norm, cmap="viridis")
+        plt.colorbar(mappable, ax=ax[2], label="$\Delta$ Energy Density (Jm$^{-3}$)")
     # Otherwise raise an error
     else:
         raise KeyError("Unknown projection type: " + projection)
@@ -711,7 +788,7 @@ def plot_energy_path(
         raise KeyError("Unknown projection type: " + projection)
 
 
-def plot_minima(minima_thetas,minima_phis,projection='equirectangular',ax = None):
+def plot_minima(minima_thetas, minima_phis, projection="equirectangular", ax=None):
     """
     Plots a set of LEM states on an energy surface plot as numerals.
 
@@ -719,71 +796,106 @@ def plot_minima(minima_thetas,minima_phis,projection='equirectangular',ax = None
     ------
     minima_thetas,minima_phis: numpy arrays
     Locations of the minima on the surface.
-    
+
     projection: str
     Either "equirectangular" or "stereonet".
     """
     if ax == None:
-        ax=plt.gcf().get_axes()
+        ax = plt.gcf().get_axes()
     for i in range(len(minima_thetas)):
-        if 'equi' in projection.lower():
-            plt.text(np.degrees(minima_thetas[i]),np.degrees(minima_phis[i]),i,
-            color='w',va='center',ha='center')
-        elif 'stereo' in projection.lower():
-            if minima_phis[i]<=0:
-                theta,phi=dimap(minima_thetas[i],
-                                     -minima_phis[i])
-            
-                ax[1].text(theta,phi,i,color='w',va='center',ha='center',
-                          path_effects=[pe.withStroke(linewidth=1, foreground="black")])
-            if minima_phis[i]>=0:
-                theta,phi=dimap(minima_thetas[i],
-                                     minima_phis[i])
-                ax[0].text(theta,phi,i,color='w',va='center',ha='center',
-                          path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+        if "equi" in projection.lower():
+            plt.text(
+                np.degrees(minima_thetas[i]),
+                np.degrees(minima_phis[i]),
+                i,
+                color="w",
+                va="center",
+                ha="center",
+            )
+        elif "stereo" in projection.lower():
+            if minima_phis[i] <= 0:
+                theta, phi = dimap(minima_thetas[i], -minima_phis[i])
+
+                ax[1].text(
+                    theta,
+                    phi,
+                    i,
+                    color="w",
+                    va="center",
+                    ha="center",
+                    path_effects=[pe.withStroke(linewidth=1, foreground="black")],
+                )
+            if minima_phis[i] >= 0:
+                theta, phi = dimap(minima_thetas[i], minima_phis[i])
+                ax[0].text(
+                    theta,
+                    phi,
+                    i,
+                    color="w",
+                    va="center",
+                    ha="center",
+                    path_effects=[pe.withStroke(linewidth=1, foreground="black")],
+                )
 
 
-def plot_barriers(barrier_thetas,barrier_phis,projection='equirectangular',ax=None):
+def plot_barriers(barrier_thetas, barrier_phis, projection="equirectangular", ax=None):
     """
-    Plots a set of barrier locations on an energy surface plot as 
+    Plots a set of barrier locations on an energy surface plot as
     numerals.
 
     Inputs
     ------
     barrier_thetas,barrier_phis: numpy arrays
     Locations of the barriers on the surface.
-    
+
     projection: str
     Either "equirectangular" or "stereonet".
-    
+
     ax: matplotlib axes
     Axes to plot on top of.
     """
-    if ax==None:
-        ax=plt.gcf().get_axes()
+    if ax == None:
+        ax = plt.gcf().get_axes()
     for i in range(len(barrier_thetas)):
-        for j in range(i,len(barrier_thetas)):
-            if not np.isinf(barrier_thetas[i,j]):
-                if 'equi' in projection.lower():
-                    ax[0].text(np.degrees(barrier_thetas[i,j]),
-                    np.degrees(barrier_phis[i,j]),str(i)+','+str(j),
-                    color='tomato',va='center',ha='center',
-                              path_effects=[pe.withStroke(linewidth=1, foreground="black")])
-                elif 'stereo' in projection.lower():
-                    if barrier_phis[i,j]<=0:
-                        theta,phi\
-                            =dimap(barrier_thetas[i,j],
-                                         -barrier_phis[i,j])
-                        ax[1].text(theta,phi,str(i)+','+str(j),color='tomato',
-                                   va='center',ha='center',
-                                  path_effects=[pe.withStroke(linewidth=1, foreground="black")])
-                    if barrier_phis[i,j]>=0:
-                        theta,phi\
-                            =dimap(barrier_thetas[i,j],
-                                         barrier_phis[i,j])
-                        ax[0].text(theta,phi,str(i)+','+str(j),color='tomato',
-                                   va='center',ha='center',
-                                  path_effects=[pe.withStroke(linewidth=1, foreground="black")])
+        for j in range(i, len(barrier_thetas)):
+            if not np.isinf(barrier_thetas[i, j]):
+                if "equi" in projection.lower():
+                    ax[0].text(
+                        np.degrees(barrier_thetas[i, j]),
+                        np.degrees(barrier_phis[i, j]),
+                        str(i) + "," + str(j),
+                        color="tomato",
+                        va="center",
+                        ha="center",
+                        path_effects=[pe.withStroke(linewidth=1, foreground="black")],
+                    )
+                elif "stereo" in projection.lower():
+                    if barrier_phis[i, j] <= 0:
+                        theta, phi = dimap(barrier_thetas[i, j], -barrier_phis[i, j])
+                        ax[1].text(
+                            theta,
+                            phi,
+                            str(i) + "," + str(j),
+                            color="tomato",
+                            va="center",
+                            ha="center",
+                            path_effects=[
+                                pe.withStroke(linewidth=1, foreground="black")
+                            ],
+                        )
+                    if barrier_phis[i, j] >= 0:
+                        theta, phi = dimap(barrier_thetas[i, j], barrier_phis[i, j])
+                        ax[0].text(
+                            theta,
+                            phi,
+                            str(i) + "," + str(j),
+                            color="tomato",
+                            va="center",
+                            ha="center",
+                            path_effects=[
+                                pe.withStroke(linewidth=1, foreground="black")
+                            ],
+                        )
 
 
 def plot_routine(steps):
@@ -843,7 +955,7 @@ def energy_matrix_plot(barriers):
 
 
 def plot_pullaiah_curves(
-    gel, ds, i, j, ax=None, plot_size=True, color="k", add_ticks=True,**kwargs
+    gel, ds, i, j, ax=None, plot_size=True, color="k", add_ticks=True, **kwargs
 ):
     """
     Plots Pullaiah curves for a particular energy barrier in a grain as a function
@@ -1069,9 +1181,10 @@ def plot_relax_experiment(vs, relax_routine, ax=None):
     )
     return None
 
-def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, temp_steps, ax = None):
+
+def plot_arai(Zs_mag, Is_mag, B_anc, B_lab, temp_steps, ax=None):
     """
-    Plots an Arai plot, and expected Arai plot line for a 
+    Plots an Arai plot, and expected Arai plot line for a
     paleointensity experiment.
 
     Parameters
@@ -1088,14 +1201,12 @@ def plot_arai(Zs_mag,Is_mag, B_anc, B_lab, temp_steps, ax = None):
     """
     if ax == None:
         fig, ax = plt.subplots()
-    ax.plot(Is_mag,Zs_mag,'k')
-    ax.plot(Is_mag,Zs_mag,'ro',markeredgecolor='k');
-    for i,T in enumerate(temp_steps):
-        if (T>=300)&(T<=560):
-            plt.text(Is_mag[i]+0.01,Zs_mag[i]+0.01,str(T))
-    ax.plot([0,B_lab/B_anc],[1,0],'g',label='Ideal line');
-    plt.ylabel('NRM/NRM0')
-    plt.xlabel('pTRM/NRM0');
+    ax.plot(Is_mag, Zs_mag, "k")
+    ax.plot(Is_mag, Zs_mag, "ro", markeredgecolor="k")
+    for i, T in enumerate(temp_steps):
+        if (T >= 300) & (T <= 560):
+            plt.text(Is_mag[i] + 0.01, Zs_mag[i] + 0.01, str(T))
+    ax.plot([0, B_lab / B_anc], [1, 0], "g", label="Ideal line")
+    plt.ylabel("NRM/NRM0")
+    plt.xlabel("pTRM/NRM0")
     return None
-
-
