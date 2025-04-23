@@ -532,7 +532,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
 
 
 def parallelized_mono_dispersion(
-    start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False, cpu_count=0
+    start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False, cpu_count=0, ctx=None
 ):
     """
     Gets the state vectors and average magnetization vectors at each
@@ -563,6 +563,13 @@ def parallelized_mono_dispersion(
 
     cpu_count: int
         Number of cores to parallelize with, if 0 chooses available cores
+
+    ctx: None or str
+        context used for multiprocessing. If working with None, then don't
+        change this. Otherwise, set to "spawn" and call this function in a
+        python script inside an `if __name__ == "__main__"` statement. Note:
+        if set to spawn, multiprocessing will not work in a jupyter notebook
+
     Returns
     -------
     vs: numpy array
@@ -584,9 +591,13 @@ def parallelized_mono_dispersion(
         eq = np.full(len(steps), eq)
     else:
         pass
+    if type(ctx) != type(None):
+        context = mpc.get_context(ctx)
+    else:
+        context = mpc
     if cpu_count == 0:
-        cpu_count = mpc.cpu_count()
-    pool = mpc.Pool(cpu_count)
+        cpu_count = context.cpu_count()
+    pool = context.Pool(cpu_count)
     objs = np.array(
         [
             pool.apply_async(
@@ -1203,7 +1214,7 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
 
 
 def parallelized_hyst_mono_dispersion(
-    start_p, d, steps, energy_landscape: GEL, eq=False, cpu_count = 0
+    start_p, d, steps, energy_landscape, eq=False, cpu_count=0, ctx=None
 ):
     """
     Gets the state vectors and average magnetization vectors at each
@@ -1231,10 +1242,16 @@ def parallelized_hyst_mono_dispersion(
 
     eq: bool
         If True, ignore time steps and run magnetization to equilibrium.
-    
+
     cpu_count: int
         Number of cores to parallelize with, if 0 chooses available cores
-    
+
+    ctx: None or str
+        context used for multiprocessing. If working with None, then don't
+        change this. Otherwise, set to "spawn" and call this function in a
+        python script inside an `if __name__ == "__main__"` statement. Note:
+        if set to spawn, multiprocessing will not work in a jupyter notebook
+
     Returns
     -------
     vs: numpy array
@@ -1249,17 +1266,20 @@ def parallelized_hyst_mono_dispersion(
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
-    
 
+    if type(ctx) != type(None):
+        context = mpc.get_context(ctx)
+    else:
+        context = mpc
     if cpu_count == 0:
-        cpu_count = mpc.cpu_count()
+        cpu_count = context.cpu_count()
 
-    pool = mpc.Pool(cpu_count)
+    pool = context.Pool(cpu_count)
     objs = np.array(
         [
             pool.apply_async(
                 mono_hyst_direction,
-                args=(start_p, d, steps, energy_landscape, eq),
+                args=(start_p, d, steps, hel, eq),
             )
             for hel in energy_landscape.HEL_list
         ]
