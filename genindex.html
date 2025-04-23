@@ -303,6 +303,7 @@ document.write(`
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -316,6 +317,10 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.plotting._descent_update">_descent_update() (in module sdcc.plotting)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.simulation._update_p_vector">_update_p_vector() (in module sdcc.simulation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -351,6 +356,8 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.utils.calc_d_min">calc_d_min() (in module sdcc.utils)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.simulation.calc_relax_time">calc_relax_time() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.energy.calculate_anisotropies">calculate_anisotropies() (in module sdcc.energy)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.coe_experiment">coe_experiment() (in module sdcc.treatment)</a>
@@ -362,6 +369,8 @@ document.write(`
       <li><a href="sdcc.html#sdcc.barriers.construct_energy_mat_fast">construct_energy_mat_fast() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.CoolingStep">CoolingStep (class in sdcc.treatment)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.critical_size">critical_size() (in module sdcc.simulation)</a>
 </li>
       <li><a href="sdcc.html#sdcc.materials.CubicAnisotropy">CubicAnisotropy (class in sdcc.materials)</a>
 </li>
@@ -413,6 +422,8 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.energy.energy_xyz">energy_xyz() (in module sdcc.energy)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.simulation.eq_ps">eq_ps() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.materials.Material.exch_len">exch_len() (sdcc.materials.Material method)</a>
 </li>
       <li><a href="sdcc.html#sdcc.energy.Ez">Ez() (in module sdcc.energy)</a>
@@ -441,6 +452,8 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.barriers.fix_minima">fix_minima() (in module sdcc.barriers)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.simulation.full_crit_size">full_crit_size() (in module sdcc.simulation)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -451,14 +464,16 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.barriers.get_antipode_order">get_antipode_order() (in module sdcc.barriers)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.simulation.get_avg_vectors">get_avg_vectors() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.analysis.get_critical_sizes">get_critical_sizes() (in module sdcc.analysis)</a>
 </li>
       <li><a href="sdcc.html#sdcc.energy.get_material_parms">get_material_parms() (in module sdcc.energy)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.barriers.get_min_regions">get_min_regions() (in module sdcc.barriers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.barriers.get_minima">get_minima() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.GEL.get_params">get_params() (sdcc.barriers.GEL method)</a>
@@ -468,6 +483,10 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="sdcc.html#sdcc.plotting.gradient_descent">gradient_descent() (in module sdcc.plotting)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.grain_hyst_vectors">grain_hyst_vectors() (in module sdcc.simulation)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.grain_vectors">grain_vectors() (in module sdcc.simulation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -481,11 +500,15 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.barriers.HELs">HELs (class in sdcc.barriers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.treatment.HoldStep">HoldStep (class in sdcc.treatment)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.treatment.hyst_loop">hyst_loop() (in module sdcc.treatment)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.hyst_mono_dispersion">hyst_mono_dispersion() (in module sdcc.simulation)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.hyst_treatment">hyst_treatment() (in module sdcc.simulation)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.HystBranch">HystBranch (class in sdcc.treatment)</a>
 </li>
@@ -533,6 +556,8 @@ document.write(`
 </li>
         <li><a href="sdcc.html#module-sdcc.plotting">sdcc.plotting</a>
 </li>
+        <li><a href="sdcc.html#module-sdcc.simulation">sdcc.simulation</a>
+</li>
         <li><a href="sdcc.html#module-sdcc.treatment">sdcc.treatment</a>
 </li>
         <li><a href="sdcc.html#module-sdcc.utils">sdcc.utils</a>
@@ -540,6 +565,12 @@ document.write(`
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.simulation.mono_direction">mono_direction() (in module sdcc.simulation)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.mono_dispersion">mono_dispersion() (in module sdcc.simulation)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.mono_hyst_direction">mono_hyst_direction() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.materials.Material.Ms">Ms() (sdcc.materials.Material method)</a>
 </li>
   </ul></td>
@@ -556,6 +587,10 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.simulation.parallelized_hyst_mono_dispersion">parallelized_hyst_mono_dispersion() (in module sdcc.simulation)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.parallelized_mono_dispersion">parallelized_mono_dispersion() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.plotting.plot_arai">plot_arai() (in module sdcc.plotting)</a>
 </li>
       <li><a href="sdcc.html#sdcc.plotting.plot_barriers">plot_barriers() (in module sdcc.plotting)</a>
@@ -566,10 +601,10 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.plotting.plot_energy_surface">plot_energy_surface() (in module sdcc.plotting)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.plotting.plot_minima">plot_minima() (in module sdcc.plotting)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.plotting.plot_minima">plot_minima() (in module sdcc.plotting)</a>
+</li>
       <li><a href="sdcc.html#sdcc.plotting.plot_net">plot_net() (in module sdcc.plotting)</a>
 </li>
       <li><a href="sdcc.html#sdcc.plotting.plot_pullaiah_curves">plot_pullaiah_curves() (in module sdcc.plotting)</a>
@@ -585,10 +620,24 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.simulation.Q_matrix">Q_matrix() (in module sdcc.simulation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.simulation.relax_time_crit_size">relax_time_crit_size() (in module sdcc.simulation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.treatment.relaxation_time">relaxation_time() (in module sdcc.treatment)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.simulation.result_to_file">result_to_file() (in module sdcc.simulation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -631,13 +680,20 @@ document.write(`
         <li><a href="sdcc.html#module-sdcc.materials">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     sdcc.plotting
 
       <ul>
         <li><a href="sdcc.html#module-sdcc.plotting">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    sdcc.simulation
+
+      <ul>
+        <li><a href="sdcc.html#module-sdcc.simulation">module</a>
 </li>
       </ul></li>
       <li>
@@ -654,6 +710,8 @@ document.write(`
         <li><a href="sdcc.html#module-sdcc.utils">module</a>
 </li>
       </ul></li>
+      <li><a href="sdcc.html#sdcc.simulation.SDCCResult">SDCCResult (class in sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.barriers.segment_region">segment_region() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.smart_sort">smart_sort() (in module sdcc.barriers)</a>
@@ -674,6 +732,8 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.treatment.thermal_demag">thermal_demag() (in module sdcc.treatment)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.simulation.thermal_treatment">thermal_treatment() (in module sdcc.simulation)</a>
+</li>
       <li><a href="sdcc.html#sdcc.treatment.time2temp">time2temp() (in module sdcc.treatment)</a>
 </li>
       <li><a href="sdcc.html#sdcc.materials.TM_k1">TM_k1() (in module sdcc.materials)</a>
@@ -688,6 +748,8 @@ document.write(`
         <li><a href="sdcc.html#sdcc.barriers.HEL.to_file">(sdcc.barriers.HEL method)</a>
 </li>
         <li><a href="sdcc.html#sdcc.barriers.HELs.to_file">(sdcc.barriers.HELs method)</a>
+</li>
+        <li><a href="sdcc.html#sdcc.simulation.SDCCResult.to_file">(sdcc.simulation.SDCCResult method)</a>
 </li>
       </ul></li>
       <li><a href="sdcc.html#sdcc.treatment.TreatmentStep">TreatmentStep (class in sdcc.treatment)</a>
