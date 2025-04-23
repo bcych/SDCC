@@ -412,7 +412,26 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc-plotting-module">sdcc.plotting module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.plotting">sdcc.plotting module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting._descent_update"><code class="docutils literal notranslate"><span class="pre">_descent_update()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.dimap"><code class="docutils literal notranslate"><span class="pre">dimap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.dimap_V"><code class="docutils literal notranslate"><span class="pre">dimap_V()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_arai"><code class="docutils literal notranslate"><span class="pre">plot_arai()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_cubeocta"><code class="docutils literal notranslate"><span class="pre">plot_cubeocta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_minima"><code class="docutils literal notranslate"><span class="pre">plot_minima()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_net"><code class="docutils literal notranslate"><span class="pre">plot_net()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_pullaiah_curves"><code class="docutils literal notranslate"><span class="pre">plot_pullaiah_curves()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_relax_experiment"><code class="docutils literal notranslate"><span class="pre">plot_relax_experiment()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_routine"><code class="docutils literal notranslate"><span class="pre">plot_routine()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.simulation">sdcc.simulation module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.Q_matrix"><code class="docutils literal notranslate"><span class="pre">Q_matrix()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.SDCCResult"><code class="docutils literal notranslate"><span class="pre">SDCCResult</span></code></a><ul class="nav section-nav flex-column">
@@ -1697,8 +1716,401 @@ Vector length is lost in conversion.</p>
 <dd></dd></dl>
 
 </section>
-<section id="sdcc-plotting-module">
-<h2>sdcc.plotting module<a class="headerlink" href="#sdcc-plotting-module" title="Link to this heading">#</a></h2>
+<section id="module-sdcc.plotting">
+<span id="sdcc-plotting-module"></span><h2>sdcc.plotting module<a class="headerlink" href="#module-sdcc.plotting" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting._descent_update">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">_descent_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting._descent_update" title="Link to this definition">#</a></dt>
+<dd><p>Computes the minimum energy in a 10x10 grid around energies[i,j],
+goes to that energy, like a fast gradient descent except not using
+gradients.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.dimap">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">dimap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.dimap" title="Link to this definition">#</a></dt>
+<dd><p>Function to map directions  to x,y pairs in equal area projection.
+This function is reproduced from the PmagPy Project
+(<a class="github reference external" href="https://github.com/PmagPy/Pmagpy">PmagPy/Pmagpy</a>).</p>
+<p>Copyright (c) 2023, PmagPy contributors
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:</p>
+<ul class="simple">
+<li><p>Redistributions of source code must retain the above copyright</p></li>
+</ul>
+<p>notice, this list of conditions and the following disclaimer.</p>
+<ul class="simple">
+<li><p>Redistributions in binary form must reproduce the above copyright</p></li>
+</ul>
+<p>notice,this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.</p>
+<ul class="simple">
+<li><p>Neither the name of PmagPy nor the names of its contributors may</p></li>
+</ul>
+<p>be used to endorse or promote products derived from this software
+without specific prior written permission.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>list</em><em> or </em><em>array</em><em> of </em><em>declinations</em><em> (</em><em>as float</em><em>)</em>)</p></li>
+<li><p><strong>I</strong> (<em>list</em><em> or </em><em>array</em><em> or </em><em>inclinations</em><em> (</em><em>as float</em><em>)</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>XY</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>x, y values of directions for equal area projection [x,y]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.dimap_V">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">dimap_V</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.dimap_V" title="Link to this definition">#</a></dt>
+<dd><p>Maps declinations and inclinations into equal area projections.
+This function is a modified version of the dimap function from
+pmagpy (<a class="github reference external" href="https://github.com/PmagPy/PmagPy">PmagPy/PmagPy</a>).</p>
+<p>Copyright (c) 2023, PmagPy contributors
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:</p>
+<ul class="simple">
+<li><p>Redistributions of source code must retain the above copyright</p></li>
+</ul>
+<p>notice, this list of conditions and the following disclaimer.</p>
+<ul class="simple">
+<li><p>Redistributions in binary form must reproduce the above copyright</p></li>
+</ul>
+<p>notice,this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.</p>
+<ul class="simple">
+<li><p>Neither the name of PmagPy nor the names of its contributors may</p></li>
+</ul>
+<p>be used to endorse or promote products derived from this software
+without specific prior written permission.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>D</strong> (<em>numpy arrays</em>)</p></li>
+<li><p><strong>I</strong> (<em>numpy arrays</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>XY</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array of equal area projections</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dimap_V</span><span class="p">([</span><span class="mi">35</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">70</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">])</span>
+<span class="go">array([[0.140856382055789, 0.20116376126988 ],</span>
+<span class="go">   [0.106743548942519, 0.061628416716219],</span>
+<span class="go">   [0.310909633795401, 0.85421719834377 ]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.energy_matrix_plot">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">energy_matrix_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barriers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.energy_matrix_plot" title="Link to this definition">#</a></dt>
+<dd><p>Plots the energy barriers between states as a matrix pair-plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>barriers</strong> (<em>numpy array</em>) – Matrix of energy barriers</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.fast_path_to_min">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">fast_path_to_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.fast_path_to_min" title="Link to this definition">#</a></dt>
+<dd><p>Fast ‘gradient descent’ like function for getting energy barrier
+paths.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.gradient_descent">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">gradient_descent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xyz_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LMN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.gradient_descent" title="Link to this definition">#</a></dt>
+<dd><p>Slow gradient descent function, more accurate than fast one</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_arai">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_arai</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Zs_mag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Is_mag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_anc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_lab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_arai" title="Link to this definition">#</a></dt>
+<dd><p>Plots an Arai plot, and expected Arai plot line for a
+paleointensity experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Zs_mag</strong> (<em>length n arrays</em>) – Zero-field and in field data for Arai plot</p></li>
+<li><p><strong>Is_mag</strong> (<em>length n arrays</em>) – Zero-field and in field data for Arai plot</p></li>
+<li><p><strong>B_anc</strong> (<em>floats</em>) – Ancient and laboratory fields used in paleointensity simulation</p></li>
+<li><p><strong>B_lab</strong> (<em>floats</em>) – Ancient and laboratory fields used in paleointensity simulation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_barriers">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_barriers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barrier_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barrier_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_barriers" title="Link to this definition">#</a></dt>
+<dd><p>Plots a set of barrier locations on an energy surface plot as
+numerals.</p>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>barrier_thetas,barrier_phis: numpy arrays
+Locations of the barriers on the surface.</p>
+<p>projection: str
+Either “equirectangular” or “stereonet”.</p>
+<p>ax: matplotlib axes
+Axes to plot on top of.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_cubeocta">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_cubeocta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[1.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span> <span class="pre">[0.,</span> <span class="pre">1.,</span> <span class="pre">0.],</span> <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cube'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'upper'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_cubeocta" title="Link to this definition">#</a></dt>
+<dd><p>Plots the edges of a cube or an octahedron on the equal area plot,
+along the edges of the magnetocrystalline directions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib axis</em>)</p></li>
+<li><p><strong>to</strong> (<em>axis to be plotted</em>)</p></li>
+<li><p><strong>rot_mat</strong> (<em>3x3 numpy array</em>)</p></li>
+<li><p><strong>directions</strong> (<em>rotation matrix for magnetocrystalline</em>)</p></li>
+<li><p><strong>kind</strong> (<em>string</em>)</p></li>
+<li><p><strong>edges</strong> (<em>&quot;octa&quot; for octahedron</em>)</p></li>
+<li><p><strong>edges</strong></p></li>
+<li><p><strong>proj</strong> (<em>string</em>)</p></li>
+<li><p><strong>hemisphere</strong> (<em>&quot;lower&quot; for lower</em>)</p></li>
+<li><p><strong>hemisphere</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_energy_path">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_energy_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_perturbations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_saddles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fast'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_energy_path" title="Link to this definition">#</a></dt>
+<dd><p>Plots the path for an energy surface by first finding energy
+barriers, then doing a gradient descent from nearby regions.
+Efficiency scales with n_perturbations * n_saddles. It’s not a fast
+function either way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>mask</strong> (<em>numpy array</em>) – An array of True/False wherever the energy barriers are -&gt; this
+could probably be taken out and the function could just calculate
+where they are.</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C)</p></li>
+<li><p><strong>ext_field</strong> (<em>numpy array</em>) – Array of field_theta,field_phi,field_str where theta and phi are in
+radians and str is in Tesla.</p></li>
+<li><p><strong>n_perturbations</strong> (<em>int</em>) – number of perturbations to run from each energy barrier</p></li>
+<li><p><strong>n_saddles</strong> (<em>int</em>) – number of barriers to find paths from.</p></li>
+<li><p><strong>projection</strong> (<em>str</em>) – Either “equirectangular” or “stereonet”.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Either fast or slow</p></li>
+<li><p><strong>kwargs</strong> – arguments to pass to plot_energy_surface function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_energy_surface">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_energy_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Array([0,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">dtype=int64)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cubic_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_energy_surface" title="Link to this definition">#</a></dt>
+<dd><p>Plots an energy density surface for a single domain grain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C)</p></li>
+<li><p><strong>ext_field</strong> (<em>numpy array</em>) – Array of field_theta,field_phi,field_str where theta and phi are in
+radians and str is in Tesla.</p></li>
+<li><p><strong>levels</strong> (<em>int</em>) – Number of contour levels</p></li>
+<li><p><strong>n_points</strong> (<em>int</em>) – Number of grid points to evaluate the energy surface at.</p></li>
+<li><p><strong>projection</strong> (<em>string</em>) – Either “equirectangular” or “stereonet”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_minima">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_minima</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minima_thetas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minima_phis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'equirectangular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_minima" title="Link to this definition">#</a></dt>
+<dd><p>Plots a set of LEM states on an energy surface plot as numerals.</p>
+<section id="id2">
+<h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>minima_thetas,minima_phis: numpy arrays
+Locations of the minima on the surface.</p>
+<p>projection: str
+Either “equirectangular” or “stereonet”.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_net">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_net</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_net" title="Link to this definition">#</a></dt>
+<dd><p>Draws circle and tick marks for equal area projection. Adapted
+from pmagpy (<a class="github reference external" href="https://github.com/PmagPy/PmagPy">PmagPy/PmagPy</a>).</p>
+<p>Copyright (c) 2023, PmagPy contributors
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:</p>
+<ul class="simple">
+<li><p>Redistributions of source code must retain the above copyright</p></li>
+</ul>
+<p>notice, this list of conditions and the following disclaimer.</p>
+<ul class="simple">
+<li><p>Redistributions in binary form must reproduce the above copyright</p></li>
+</ul>
+<p>notice,this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.</p>
+<ul class="simple">
+<li><p>Neither the name of PmagPy nor the names of its contributors may</p></li>
+</ul>
+<p>be used to endorse or promote products derived from this software
+without specific prior written permission.</p>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib axis</em><em> or </em><em>None</em>)</p></li>
+<li><p><strong>None</strong><strong>)</strong> (<em>axis to draw net onto</em><em> (</em><em>creates new axis if</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_pullaiah_curves">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_pullaiah_curves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_pullaiah_curves" title="Link to this definition">#</a></dt>
+<dd><p>Plots Pullaiah curves for a particular energy barrier in a grain as a function
+of size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gel</strong> (<em>sdcc.barriers.gel object</em>) – Energy landscape that can calculate barriers as a function
+of temperature.</p></li>
+<li><p><strong>ds</strong> (<em>float</em><em> or </em><em>array</em><em> of </em><em>floats</em>) – Equivalent sphere volume diameters of grains to plot.</p></li>
+<li><p><strong>i</strong> (<em>int</em>) – Index of state we are switching from in energy barrier.</p></li>
+<li><p><strong>j</strong> (<em>int</em>) – Index of state we are switching to in energy barrier.</p></li>
+<li><p><strong>ax</strong> (<em>None</em><em> or </em><em>matplotlib axis</em>) – axis to plot data to. If no axis specified, creates
+a new figure.</p></li>
+<li><p><strong>plot_size</strong> (<em>bool</em>) – If True, plots size next to pullaiah curve as text.</p></li>
+<li><p><strong>color</strong> (<em>string</em><em> or </em><em>array</em><em> of </em><em>floats</em>) – Matplotlib color for plotting</p></li>
+<li><p><strong>add_ticks</strong> – Whether to add y ticks to plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_relax_experiment">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_relax_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_relax_experiment" title="Link to this definition">#</a></dt>
+<dd><p>Plots a VRM decay experiment for a mono-dispersion of particles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vs</strong> (<em>list</em>) – Result from mono-dispersion</p></li>
+<li><p><strong>relax_routine</strong> (<em>list</em>) – Relaxation time routine</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib axis</em>) – Axis to plot to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.plot_routine">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_routine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.plot_routine" title="Link to this definition">#</a></dt>
+<dd><p>Plots a set of thermal steps for a particular experiment or routine</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>steps</strong> (<em>list</em><em> of </em><em>treatment.TreatmentStep objects</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.plotting.update">
+<span class="sig-prename descclassname"><span class="pre">sdcc.plotting.</span></span><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LMN</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.plotting.update" title="Link to this definition">#</a></dt>
+<dd><p>Update for gradient descent function</p>
+</dd></dl>
+
 </section>
 <section id="module-sdcc.simulation">
 <span id="sdcc-simulation-module"></span><h2>sdcc.simulation module<a class="headerlink" href="#module-sdcc.simulation" title="Link to this heading">#</a></h2>
@@ -2761,7 +3173,26 @@ a smoothed surface.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc-plotting-module">sdcc.plotting module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.plotting">sdcc.plotting module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting._descent_update"><code class="docutils literal notranslate"><span class="pre">_descent_update()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.dimap"><code class="docutils literal notranslate"><span class="pre">dimap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.dimap_V"><code class="docutils literal notranslate"><span class="pre">dimap_V()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_arai"><code class="docutils literal notranslate"><span class="pre">plot_arai()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_cubeocta"><code class="docutils literal notranslate"><span class="pre">plot_cubeocta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_minima"><code class="docutils literal notranslate"><span class="pre">plot_minima()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_net"><code class="docutils literal notranslate"><span class="pre">plot_net()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_pullaiah_curves"><code class="docutils literal notranslate"><span class="pre">plot_pullaiah_curves()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_relax_experiment"><code class="docutils literal notranslate"><span class="pre">plot_relax_experiment()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.plot_routine"><code class="docutils literal notranslate"><span class="pre">plot_routine()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.plotting.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.simulation">sdcc.simulation module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.Q_matrix"><code class="docutils literal notranslate"><span class="pre">Q_matrix()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.SDCCResult"><code class="docutils literal notranslate"><span class="pre">SDCCResult</span></code></a><ul class="nav section-nav flex-column">
