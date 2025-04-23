@@ -417,7 +417,7 @@ def plot_energy_surface(
         plot_net(ax[0])
         if cubic_dirs:
             plot_cubeocta(ax[0], rot_mat, "octa", "upper")
-:wq            plot_cubeocta(ax[0], rot_mat, "cube", "upper")
+            plot_cubeocta(ax[0], rot_mat, "cube", "upper")
         vmin = np.amin(energies)
         vmax = np.amax(energies)
         xs, ys = dimap(thetas[phis >= 0].flatten(), phis[phis >= 0].flatten()).T
