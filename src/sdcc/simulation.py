@@ -532,7 +532,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
 
 
 def parallelized_mono_dispersion(
-    start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False
+    start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False, cpu_count=0
 ):
     """
     Gets the state vectors and average magnetization vectors at each
@@ -561,6 +561,8 @@ def parallelized_mono_dispersion(
     eq: bool
         If True, ignore time steps and run magnetization to equilibrium.
 
+    cpu_count: int
+        Number of cores to parallelize with, if 0 chooses available cores
     Returns
     -------
     vs: numpy array
@@ -582,8 +584,9 @@ def parallelized_mono_dispersion(
         eq = np.full(len(steps), eq)
     else:
         pass
-
-    pool = mpc.Pool(mpc.cpu_count())
+    ifcpu_count == 0:
+        cpu_count = mpc.cpu_count()
+    pool = mpc.Pool(cpu_count)
     objs = np.array(
         [
             pool.apply_async(
@@ -1200,7 +1203,7 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
 
 
 def parallelized_hyst_mono_dispersion(
-    start_p, d, steps, energy_landscape: GEL, eq=False
+    start_p, d, steps, energy_landscape: GEL, eq=False, cpu_count = 0
 ):
     """
     Gets the state vectors and average magnetization vectors at each
@@ -1228,7 +1231,10 @@ def parallelized_hyst_mono_dispersion(
 
     eq: bool
         If True, ignore time steps and run magnetization to equilibrium.
-
+    
+    cpu_count: int
+        Number of cores to parallelize with, if 0 chooses available cores
+    
     Returns
     -------
     vs: numpy array
@@ -1243,8 +1249,12 @@ def parallelized_hyst_mono_dispersion(
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
+    
 
-    pool = mpc.Pool(mpc.cpu_count())
+    if cpu_count == 0:
+        cpu_count = mpc.cpu_count()
+
+    pool = mpc.Pool(cpu_count)
     objs = np.array(
         [
             pool.apply_async(
