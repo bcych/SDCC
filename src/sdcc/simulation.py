@@ -584,7 +584,7 @@ def parallelized_mono_dispersion(
         eq = np.full(len(steps), eq)
     else:
         pass
-    ifcpu_count == 0:
+    if cpu_count == 0:
         cpu_count = mpc.cpu_count()
     pool = mpc.Pool(cpu_count)
     objs = np.array(
