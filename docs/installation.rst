@@ -24,9 +24,9 @@ Install the package:
 
 .. code-block:: bash
    
-   python3 -m install ./
+   python3 -m pip install ./
 
-To test whether the installation worked, try calculating the zeeman energy as a unit test
+To test whether the installation worked, try calculating the zeeman energy as a unit test and check whether you get the correct answer
 
 .. code-block:: python3
    >>> from sdcc.energy import Ez
