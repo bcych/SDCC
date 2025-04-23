@@ -28,7 +28,7 @@ Install the package:
 
 To test whether the installation worked, try calculating the zeeman energy as a unit test and check whether you get the correct answer
 
-.. code-block:: python3
+.. code-block:: python
 
    >>> from sdcc.energy import Ez
    >>> Ez(0,0,1,1,1,1)
