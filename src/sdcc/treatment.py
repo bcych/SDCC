@@ -693,17 +693,17 @@ def thellier_experiment(
         Either "coe", "aitken" or "izzi". Step order for experiment
 
     ptrm_checks: int
-        If 0, no pTRM checks. 
-        If > 0, include pTRM checks (Coe and Aitken only). 
-        If 1, perform pTRM check between Z and I in ZI step (IZZI only). 
+        If 0, no pTRM checks.
+        If > 0, include pTRM checks (Coe and Aitken only).
+        If 1, perform pTRM check between Z and I in ZI step (IZZI only).
         If 2, perform pTRM check after Z in IZ step (IZZI only).
-        
+
 
     Returns
     -------
     steps: list of treatment.ThermalStep objects
         Set of steps for coe experiment.
-    """n
+    """
     T_max = temp_steps[-1]
     T_min = temp_steps[0]
     steps = []
