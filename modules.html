@@ -333,7 +333,12 @@ document.write(`
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sdcc.html">sdcc package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sdcc.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc.html#sdcc-analysis-module">sdcc.analysis module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.analysis">sdcc.analysis module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.analysis.get_critical_sizes"><code class="docutils literal notranslate"><span class="pre">get_critical_sizes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.analysis.process_thellier_data"><code class="docutils literal notranslate"><span class="pre">process_thellier_data()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.barriers">sdcc.barriers module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.barriers.GEL.get_params"><code class="docutils literal notranslate"><span class="pre">GEL.get_params()</span></code></a></li>
@@ -415,9 +420,71 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc.html#sdcc-plotting-module">sdcc.plotting module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc.html#sdcc-simulation-module">sdcc.simulation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc.html#sdcc-treatment-module">sdcc.treatment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.plotting">sdcc.plotting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting._descent_update"><code class="docutils literal notranslate"><span class="pre">_descent_update()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.dimap"><code class="docutils literal notranslate"><span class="pre">dimap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.dimap_V"><code class="docutils literal notranslate"><span class="pre">dimap_V()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.energy_matrix_plot"><code class="docutils literal notranslate"><span class="pre">energy_matrix_plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.fast_path_to_min"><code class="docutils literal notranslate"><span class="pre">fast_path_to_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.gradient_descent"><code class="docutils literal notranslate"><span class="pre">gradient_descent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_arai"><code class="docutils literal notranslate"><span class="pre">plot_arai()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_barriers"><code class="docutils literal notranslate"><span class="pre">plot_barriers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_cubeocta"><code class="docutils literal notranslate"><span class="pre">plot_cubeocta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_energy_path"><code class="docutils literal notranslate"><span class="pre">plot_energy_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_energy_surface"><code class="docutils literal notranslate"><span class="pre">plot_energy_surface()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_minima"><code class="docutils literal notranslate"><span class="pre">plot_minima()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_net"><code class="docutils literal notranslate"><span class="pre">plot_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_pullaiah_curves"><code class="docutils literal notranslate"><span class="pre">plot_pullaiah_curves()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_relax_experiment"><code class="docutils literal notranslate"><span class="pre">plot_relax_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.plot_routine"><code class="docutils literal notranslate"><span class="pre">plot_routine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.plotting.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.simulation">sdcc.simulation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.Q_matrix"><code class="docutils literal notranslate"><span class="pre">Q_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.SDCCResult"><code class="docutils literal notranslate"><span class="pre">SDCCResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sdcc.html#sdcc.simulation.SDCCResult.to_file"><code class="docutils literal notranslate"><span class="pre">SDCCResult.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation._update_p_vector"><code class="docutils literal notranslate"><span class="pre">_update_p_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.calc_relax_time"><code class="docutils literal notranslate"><span class="pre">calc_relax_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.critical_size"><code class="docutils literal notranslate"><span class="pre">critical_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.eq_ps"><code class="docutils literal notranslate"><span class="pre">eq_ps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.full_crit_size"><code class="docutils literal notranslate"><span class="pre">full_crit_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.get_avg_vectors"><code class="docutils literal notranslate"><span class="pre">get_avg_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.grain_hyst_vectors"><code class="docutils literal notranslate"><span class="pre">grain_hyst_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.grain_vectors"><code class="docutils literal notranslate"><span class="pre">grain_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">hyst_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.hyst_treatment"><code class="docutils literal notranslate"><span class="pre">hyst_treatment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_direction"><code class="docutils literal notranslate"><span class="pre">mono_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_dispersion"><code class="docutils literal notranslate"><span class="pre">mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.mono_hyst_direction"><code class="docutils literal notranslate"><span class="pre">mono_hyst_direction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.result_to_file"><code class="docutils literal notranslate"><span class="pre">result_to_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.treatment">sdcc.treatment module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.CoolingStep"><code class="docutils literal notranslate"><span class="pre">CoolingStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HeatingStep"><code class="docutils literal notranslate"><span class="pre">HeatingStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HoldStep"><code class="docutils literal notranslate"><span class="pre">HoldStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.HystBranch"><code class="docutils literal notranslate"><span class="pre">HystBranch</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.SuscStep"><code class="docutils literal notranslate"><span class="pre">SuscStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.TreatmentStep"><code class="docutils literal notranslate"><span class="pre">TreatmentStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.VRMStep"><code class="docutils literal notranslate"><span class="pre">VRMStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.coe_experiment"><code class="docutils literal notranslate"><span class="pre">coe_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.hyst_loop"><code class="docutils literal notranslate"><span class="pre">hyst_loop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.make_thellier_step"><code class="docutils literal notranslate"><span class="pre">make_thellier_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.overprint"><code class="docutils literal notranslate"><span class="pre">overprint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.relaxation_time"><code class="docutils literal notranslate"><span class="pre">relaxation_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.temp2time"><code class="docutils literal notranslate"><span class="pre">temp2time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.thellier_experiment"><code class="docutils literal notranslate"><span class="pre">thellier_experiment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.thermal_demag"><code class="docutils literal notranslate"><span class="pre">thermal_demag()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.treatment.time2temp"><code class="docutils literal notranslate"><span class="pre">time2temp()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="sdcc.html#module-sdcc.utils">sdcc.utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.calc_d_min"><code class="docutils literal notranslate"><span class="pre">calc_d_min()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdcc.html#sdcc.utils.fib_hypersphere"><code class="docutils literal notranslate"><span class="pre">fib_hypersphere()</span></code></a></li>
