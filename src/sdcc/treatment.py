@@ -607,3 +607,153 @@ def thermal_demag(Ts):
             )
         )
     return steps
+
+
+def make_thellier_step(steps, T, T_max, T_min, B_str, B_dir):
+    """
+    Adds a sequence of steps in a Thellier experiment (cooling,
+    hold, heating).
+
+    Parameters
+    ------
+    steps: list of treatment.TreatmentStep objects
+    steps in the experiment so far
+
+    T: float
+        peak temperature of step
+
+    T_max: float
+        T_max parameter of original NRM step
+
+    T_min: float
+        T_min parameter of original NRM step
+
+    B_str: float
+        Field strength (microT)
+
+    B_dir: numpy array
+        Cartesian unit vector of field direction
+
+    Returns
+    ------
+    step: list of treatment.TreatmentStep objects
+    List containing steps for thellier experiment.
+    """
+    W = HeatingStep(
+        steps[-1].ts[-1] + 1e-12,
+        T_min,
+        T,
+        B_str,
+        B_dir,
+    )
+
+    H = HoldStep(
+        W.ts[-1] + 1e-12,
+        T,
+        B_str,
+        B_dir,
+    )
+
+    C = CoolingStep(
+        H.ts[-1] + 1e-12,
+        T,
+        T_min,
+        B_str,
+        B_dir,
+        max_temp=T_max,
+        char_temp=T_max - 1,
+    )
+    return [W, H, C]
+
+
+def thellier_experiment(
+    temp_steps, B_anc, B_lab, B_ancdir, B_labdir, type="coe", ptrm_checks=0, **kwargs
+):
+    """
+    Creates a set of thermal treatment steps for an IZZI-Coe experiment
+
+    Parameters
+    ------
+    temp_steps: numpy array
+        Set of temperatures for the Coe experiment
+
+    B_anc: float
+        Ancient field strength (T)
+
+    B_lab: float
+        Lab field strength (T)
+
+    B_ancdir: numpy array
+        Unit vector ancient field direction
+
+    B_labdir: numpy array
+        Unit vector lab field direction
+
+    type: string
+        Either "coe", "aitken" or "izzi". Step order for experiment
+
+    ptrm_checks: int
+        If 0, no pTRM checks. 
+        If > 0, include pTRM checks (Coe and Aitken only). 
+        If 1, perform pTRM check between Z and I in ZI step (IZZI only). 
+        If 2, perform pTRM check after Z in IZ step (IZZI only).
+        
+
+    Returns
+    -------
+    steps: list of treatment.ThermalStep objects
+        Set of steps for coe experiment.
+    """n
+    T_max = temp_steps[-1]
+    T_min = temp_steps[0]
+    steps = []
+    TRM = CoolingStep(0, T_max, T_min, B_anc, B_ancdir, **kwargs)
+    steps.append(TRM)
+    for j in range(1, len(temp_steps)):
+
+        if type == "coe":
+            steps += make_thellier_step(steps, temp_steps[j], T_max, T_min, 0, B_labdir)
+            if ptrm_checks > 0 and j > 2:
+                steps += make_thellier_step(
+                    steps, temp_steps[j - 2], T_max, T_min, B_lab, B_labdir
+                )
+            steps += make_thellier_step(
+                steps, temp_steps[j], T_max, T_min, B_lab, B_labdir
+            )
+
+        elif type == "aitken":
+            steps += make_thellier_step(
+                steps, temp_steps[j], T_max, T_min, B_lab, B_labdir
+            )
+            steps += make_thellier_step(steps, temp_steps[j], T_max, T_min, 0, B_labdir)
+            if ptrm_checks > 0 and j > 2:
+                steps += make_thellier_step(
+                    steps, temp_steps[j - 2], T_max, T_min, B_lab, B_labdir
+                )
+
+        elif type == "izzi":
+            if j % 2 == 1:
+                steps += make_thellier_step(
+                    steps, temp_steps[j], T_max, T_min, 0, B_labdir
+                )
+                if ptrm_checks == 1 and j > 1:
+                    steps += make_thellier_step(
+                        steps, temp_steps[j - 2], T_max, T_min, B_lab, B_labdir
+                    )
+                steps += make_thellier_step(
+                    steps, temp_steps[j], T_max, T_min, B_lab, B_labdir
+                )
+
+            else:
+                steps += make_thellier_step(
+                    steps, temp_steps[j], T_max, T_min, B_lab, B_labdir
+                )
+                steps += make_thellier_step(
+                    steps, temp_steps[j], T_max, T_min, 0, B_labdir
+                )
+                if ptrm_checks == 2 and j > 2:
+                    steps += make_thellier_step(
+                        steps, temp_steps[j - 2], T_max, T_min, B_lab, B_labdir
+                    )
+
+    return steps
