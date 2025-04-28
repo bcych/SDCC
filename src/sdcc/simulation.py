@@ -1330,7 +1330,7 @@ def result_to_file(
     None
     """
 
-    if type(energyLandscape == HELs):
+    if type(energyLandscape) == HELs:
         TM = energyLandscape.HEL_list[0].TMx
         alignment = energyLandscape.HEL_list[0].alignment
         PRO = energyLandscape.HEL_list[0].PRO

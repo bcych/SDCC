@@ -663,7 +663,9 @@ def make_thellier_step(steps, T, T_max, T_min, B_str, B_dir):
         max_temp=T_max,
         char_temp=T_max - 1,
     )
-    return [W, H, C]
+
+    M = HoldStep(C.ts[-1] + 1e-12, T_min, 0, B_dir, hold_time=1.0)
+    return [W, H, C, M]
 
 
 def thellier_experiment(
@@ -708,7 +710,10 @@ def thellier_experiment(
     T_min = temp_steps[0]
     steps = []
     TRM = CoolingStep(0, T_max, T_min, B_anc, B_ancdir, **kwargs)
+    # Zero field measurement step to avoid induced magnetization
+    TRM_hold = HoldStep(TRM.ts[-1] + 1e-12, T_min, 0, B_labdir, hold_time=1.0)
     steps.append(TRM)
+    steps.append(TRM_hold)
     for j in range(1, len(temp_steps)):
 
         if type == "coe":
