@@ -1660,6 +1660,7 @@ def direction_result(t, c, k, T):
         Direction at that temperature.
     """
     direction = BSpline(t, c, k, extrapolate=False)(T)
+    direction = np.clip(direction, -1.0, 1.0)
     direction = np.array(xyz2angle(direction.T)).T
     if len(direction.shape) > 1:
         direction[:, 0] = direction[:, 0] % (2 * np.pi)

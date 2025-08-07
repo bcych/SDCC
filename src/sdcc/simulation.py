@@ -6,10 +6,15 @@ import warnings
 from sdcc.barriers import GEL, HEL, HELs, find_all_barriers
 from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
 from sdcc.utils import fib_sphere, fib_hypersphere
+from jax import jit, config
+from functools import partial
+from jax.scipy.linalg import expm
 
 mp.prec = 100
 mp.mp.prec = 100
 from sdcc.treatment import relaxation_time
+
+config.update("jax_enable_x64", True)
 
 
 def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
@@ -123,6 +128,45 @@ def _update_p_vector(p_vec, Q, dt):
     return p_vec_new
 
 
+@jit
+def _update_p_vector_fast(p_vec, Q, dt):
+    """
+    Given an initial state vector, a Q matrix and a time, calculates a
+    new state vector. This is very slow due to the high floating point
+    precision which is required and could probably benefit from a C++
+    implementation. Additionally - this is very susceptible to floating
+    point errors even with the high precision when dt gets large. Using
+    mpmath's Pade approximations is slower than Taylor series and
+    doesn't seem to help much. If there's an algorithm that improves
+    this it would be extremely helpful as we're dealing with some large
+    numbers (age of Solar System) here.
+
+    Parameters
+    ------
+    p_vec: numpy array
+        Vector of relative proportions of grains in each state.
+
+    Q: numpy array
+        Rate matrix of transition times between states.
+
+    dt: float
+        Amount of time spent in these field conditions/temperature.
+
+    Returns
+    -------
+    p_vec_new: numpy array
+        New state vector after treatment applied.
+    """
+    # To get the new state vector, we use a matrix exponential.
+    dp_dt = expm(Q * dt, max_squarings=256)
+    # The old p vector is matrix multiplied with this matrix
+    p_vec_new = dp_dt @ p_vec
+    # Sometimes due to floating point errors the sum of the vector isn't
+    # Exactly 1 - this will blow up if we don't renormalize.
+    p_vec_new /= sum(p_vec_new)
+    return p_vec_new
+
+
 def thermal_treatment(
     start_t, start_p, Ts, ts, d, energy_landscape: GEL, field_strs, field_dirs, eq=False
 ):
@@ -182,10 +226,12 @@ def thermal_treatment(
 
     # Otherwise, calculate the Q matrix as normal, calculate the new state
     # vector.
-
     else:
         Q = Q_matrix(params, d, field_dir=field_dirs[0], field_str=field_strs[0])
-        old_p = _update_p_vector(start_p, Q, ts[0] - start_t)  # New state vector
+        if ts[0] == start_t:
+            old_p = start_p
+        else:
+            old_p = _update_p_vector(start_p, Q, ts[0] - start_t)  # New state vector
     # Create list of state vectors, place first one in there.
     ps = [old_p]
     # Create list of LEM state directions - put initial ones in there.
@@ -1273,15 +1319,19 @@ def parallelized_hyst_mono_dispersion(
         context = mpc
     if cpu_count == 0:
         cpu_count = context.cpu_count()
-
+    n_dirs = len(energy_landscape.HEL_list)
+    if len(np.array(start_p).shape) == 1:
+        start_p = np.repeat(np.array([start_p]),n_dirs,axis=0)
+    
     pool = context.Pool(cpu_count)
+
     objs = np.array(
         [
             pool.apply_async(
                 mono_hyst_direction,
-                args=(start_p, d, steps, hel, eq),
+                args=(start_p[i], d, steps, energy_landscape.HEL_list[i], eq),
             )
-            for hel in energy_landscape.HEL_list
+            for i in range(n_dirs)
         ]
     )
     vps = np.array([obj.get() for obj in objs], dtype="object")

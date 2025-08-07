@@ -351,7 +351,7 @@ class HystBranch(TreatmentStep):
         if B_start > B_end:
             B_step = -B_step
         self.field_strs = np.arange(B_start, B_end + B_step, B_step)
-        self.ts = np.arange(0.0, len(self.field_strs) * t_step, t_step)
+        self.ts = np.linspace(0.0, (len(self.field_strs)-1) * t_step, len(self.field_strs))
         self.field_dirs = np.repeat(np.array([B_dir]), len(self.field_strs), axis=0)
         self.Ts = np.full(len(self.field_dirs), T)
         self.ts += t_start
