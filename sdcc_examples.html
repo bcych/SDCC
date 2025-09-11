@@ -356,7 +356,7 @@ document.write(`
                 <article class="bd-article">
                   
   <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -562,7 +562,7 @@ document.write(`
 <p>You may notice that there are some spurious energy barriers near energy maxima. These won’t affect our results, as the relaxation times of these spurious barriers are far larger than those of the smaller barriers, which will dominate our results.</p>
 <p>We can also visualize the energy barriers using the <code class="docutils literal notranslate"><span class="pre">energy_matrix_plot</span></code> function. This function graphically displays the value of the energy barriers between the <span class="math notranslate nohighlight">\(i\)</span>th and <span class="math notranslate nohighlight">\(j\)</span>th state in a matrix.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[62]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">energy_matrix_plot</span>
@@ -583,7 +583,7 @@ document.write(`
 <h1>Saving energy barriers<a class="headerlink" href="#Saving-energy-barriers" title="Link to this heading">#</a></h1>
 <p>We can save the energy barriers between states at all temperatures using the GrainEnergyLandcape or GEL (<code class="docutils literal notranslate"><span class="pre">barriers.GEL</span></code>) object. Saving one of these objects requires a large number of calculations at each temperature and so may take several minutes. Below is code for saving an elongate magnetite particle to a GEL object, although we comment this out to save time.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.barriers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GEL</span>
@@ -592,25 +592,25 @@ document.write(`
 <span class="n">PRO</span> <span class="o">=</span> <span class="mf">2.50</span>
 <span class="n">OBL</span> <span class="o">=</span> <span class="mf">1.00</span>
 
-<span class="c1">#thermParticle = GEL.get_params(TMx,alignment,PRO,OBL)</span>
+<span class="c1">#thermParticle = GEL(TMx,alignment,PRO,OBL)</span>
 </pre></div>
 </div>
 </div>
 <p>GEL objects can be saved to file using the .to_file() argument. This saves them using the <code class="docutils literal notranslate"><span class="pre">pickle</span></code> file format. We can load saved GEL files using the <code class="docutils literal notranslate"><span class="pre">pickle</span></code> module. A large number of precomputed GEL files are available in the <code class="docutils literal notranslate"><span class="pre">particles</span></code> folder.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="c1">#GEL.to_file(&#39;test.gel&#39;)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../particles/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../particles/thermal/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">thermParticle</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Similarly a <code class="docutils literal notranslate"><span class="pre">HELs</span></code> object exists for high-field experiments. These objects need to compute energy barriers in a range of field strengths and field orientations. In some cases, they may take hours to create, but can again be easily saved. <code class="docutils literal notranslate"><span class="pre">HELs</span></code> objects also require you to input a maximum field (in Tesla).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[72]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.barriers</span><span class="w"> </span><span class="kn">import</span> <span class="n">HELs</span>
@@ -623,7 +623,7 @@ document.write(`
 <h1>Visualizing energy barriers with temperature<a class="headerlink" href="#Visualizing-energy-barriers-with-temperature" title="Link to this heading">#</a></h1>
 <p>The change in relaxation time with temperature of a <code class="docutils literal notranslate"><span class="pre">GEL</span></code> object can be visualized with a Pullaiah curve (Pullaiah et. al., 1975). In the SDCC, we can plot these using the <code class="docutils literal notranslate"><span class="pre">plotting.plot_pullaiah_curves()</span></code> function. To draw a pullaiah curve, we need to specify a size, and we need to give the indices of the energy barrier</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_pullaiah_curves</span>
@@ -644,7 +644,7 @@ document.write(`
 </div>
 <p>We can plot more curves by specifying more sizes (note this may take a few seconds to run).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">38</span><span class="p">,</span><span class="mi">41</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">60</span><span class="p">]</span>
@@ -664,19 +664,19 @@ document.write(`
 <h1>Treatment routines<a class="headerlink" href="#Treatment-routines" title="Link to this heading">#</a></h1>
 <p>Any model being run using the <code class="docutils literal notranslate"><span class="pre">simulations</span></code> package first requires a set of treatment steps using the <code class="docutils literal notranslate"><span class="pre">sdcc.treatment</span></code> module. Let’s run a relaxation time experiment using the <code class="docutils literal notranslate"><span class="pre">relaxation_time()</span></code> function. We need to specify a field direction (in cartesian coordinates) and field strength (in µT).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[91]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">relaxation_time</span>
 <span class="n">B_dir</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#Field direction - along x here</span>
 <span class="n">B_str</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1">#Field strength - 40uT</span>
-<span class="n">relax_routine</span> <span class="o">=</span> <span class="n">relaxation_time</span><span class="p">(</span><span class="n">gel_test</span><span class="p">,</span> <span class="n">B_dir</span><span class="p">,</span><span class="n">B_str</span><span class="p">)</span>
+<span class="n">relax_routine</span> <span class="o">=</span> <span class="n">relaxation_time</span><span class="p">(</span><span class="n">thermParticle</span><span class="p">,</span> <span class="n">B_dir</span><span class="p">,</span><span class="n">B_str</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Internally, a routine in the SDCC is broken into a list of sdcc.simulation.TreatmentStep objects. We can see these if we print our relaxation time routine.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">relax_routine</span>
@@ -684,7 +684,7 @@ document.write(`
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -697,7 +697,7 @@ document.write(`
 </div>
 <p>Each of these sub steps has a set of temperature, time and field steps. More complicated routines can be constructed from these, for example a Thellier - Coe experiment. Note that for these experiments, we need to specify both an ancient and lab field, as we need to simulate the history of the pre-history of the particle before the experiment.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[101]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.treatment</span><span class="w"> </span><span class="kn">import</span> <span class="n">coe_experiment</span>
@@ -713,7 +713,7 @@ document.write(`
 </div>
 <p>A good way of visualizing an experimental treatment is to make a temperature-time plot of the steps. The <code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_routine()</span></code> function can do this. Blue lines represent cooling steps, red lines heating steps and purple lines have constant temperature. Dashed lines represent zero-field experiments and solid lines represent in-field experiments.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[104]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_routine</span>
@@ -737,14 +737,14 @@ document.write(`
 <h2>Viscous relaxation time<a class="headerlink" href="#Viscous-relaxation-time" title="Link to this heading">#</a></h2>
 <p>Our first simulation is to simulate a viscous relaxation to obtain a paleomagnetic relaxation time. Our energy barriers and routine were set up earlier - but we’ll set them up again for the purposes of the example. We’re going to run a relaxation time experiment on a 21 nm prolate magnetite particle with a prolateness of 2.50, elongated along the hard axis.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">relaxation_time</span>
 
 <span class="c1"># Read in GEL file for particle</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../particles/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../particles/thermal/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">thermParticle</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 <span class="c1"># Set up treatment routine</span>
@@ -761,7 +761,7 @@ document.write(`
 probability of being in each LEM state as the initial condition of the model. We’re going to start in a demagnetized state. There are two states, so the probability of each is 1/2.</p>
 <p>This code (and most of the code cells going forward) may take several minutes to run as these calculations are intensive. If your computer supports parallelized computations with the sdcc - try running the <code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code> function instead for better performance.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[117]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">mono_dispersion</span>
@@ -785,7 +785,7 @@ Working on grain 30 of 30
 <p><code class="docutils literal notranslate"><span class="pre">moments</span></code> here is a list with two elements. One of these elements corresponds to the initial cooling step, and the other corresponds to the heating step. Each element of the list contains an array with the magnetic moment of the ensemble at each time step.</p>
 <p>In the SDCC, we have a specially set up function (<code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_relax_experiment</span></code>) to plot the moment magnitudes at each time step, but this could be done manually.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[118]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_relax_experiment</span>
@@ -805,7 +805,7 @@ Working on grain 30 of 30
 <h2>Assemblages of grains.<a class="headerlink" href="#Assemblages-of-grains." title="Link to this heading">#</a></h2>
 <p>We can work with assemblages of grains by simply taking the viscous relaxation time for each grain and summing up the moments at each time step, multiplied by the number of grains. First, let’s make a gaussian distribution of sizes:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -831,7 +831,7 @@ Working on grain 30 of 30
 </div>
 <p>We can then loop through our sizes and calculate the moments for each size individually:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -890,7 +890,7 @@ Working on grain 30 of 30
 </div>
 <p>Then we can multiply the moments by the number of particles and sum everything up.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">weighted_m_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m_list</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">weights</span>
@@ -900,7 +900,7 @@ Working on grain 30 of 30
 </div>
 <p>Let’s plot our final result:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[128]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_relax_experiment</span><span class="p">(</span><span class="n">m_sum</span><span class="p">,</span> <span class="n">relax_routine</span><span class="p">)</span>
@@ -920,10 +920,10 @@ Working on grain 30 of 30
 <p>To run a paleointensity experiment, we first need a distribution of particles. For this experiment, it makes sense to first come up with a blocking temperature distribution, and translate that to a size distribution. The <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.get_critical_sizes()</span></code> function can do this for us.</p>
 <p>We can then weight the distribution by its blocking temperatures. Let’s assume the blocking temperature distribution is a normal distribution with a mean of 460<span class="math notranslate nohighlight">\(^\circ\)</span>C and a standard deviation of 50<span class="math notranslate nohighlight">\(^\circ\)</span>C. We’ll weight the average magnetic moments of each of our particles by this amount.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[167]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#from sdcc.analysis import get_critical_sizes</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_critical_sizes</span>
 <span class="n">Blocking_Ts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">360</span><span class="p">,</span><span class="mi">385</span><span class="p">,</span><span class="mi">410</span><span class="p">,</span><span class="mi">435</span><span class="p">,</span><span class="mi">460</span><span class="p">,</span><span class="mi">485</span><span class="p">,</span><span class="mi">510</span><span class="p">,</span><span class="mi">535</span><span class="p">,</span><span class="mi">555</span><span class="p">]</span>
 <span class="n">sizes</span> <span class="o">=</span> <span class="n">get_critical_sizes</span><span class="p">(</span><span class="n">thermParticle</span><span class="p">,</span> <span class="n">Blocking_Ts</span><span class="p">)</span>
 
@@ -932,7 +932,7 @@ Working on grain 30 of 30
 <span class="n">weights</span> <span class="o">/=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
 
 <span class="c1">#Make bar plot</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">,</span><span class="n">coeffs</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">);</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">Blocking_Ts</span><span class="p">,</span><span class="n">weights</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">);</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Blocking Temperature ($^\circ$C)&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Fraction&#39;</span><span class="p">);</span>
 
@@ -954,7 +954,7 @@ Working on grain 30 of 30
 </div>
 <p>We can run the model with the distribution as before. Note that due to the much larger number of steps in the Coe experiment, this will likely take a couple of hours to run.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[166]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -975,7 +975,7 @@ Working on grain 30 of 30
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
- Current Size: 27.245683017354118
+ Current Size: 27.245683017354114
 Working on grain 30 of 30
  Current Size: 28.48332083825177
 Working on grain 30 of 30
@@ -986,24 +986,18 @@ Working on grain 30 of 30
  Current Size: 33.561743391491746
 Working on grain 30 of 30
  Current Size: 36.111631548396474
-Working on grain 30 of 30
- Current Size: 39.59790892283481
-Working on grain 30 of 30
- Current Size: 45.01024120632371
-Working on grain 30 of 30
- Current Size: 53.08886404462788
-Working on grain 30 of 30
+Working on grain 26 of 30
 </pre></div></div>
 </div>
 <p>For ease of processing Thellier data to obtain Arai/Zijderveld plot data, we have the function <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.process_thellier_data()</span></code>. This applies the weights to the different grains and produces Zijderveld and Arai plot data. The Arai plot data can be plotted using the function <code class="docutils literal notranslate"><span class="pre">sdcc.plotting.plot_arai()</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[214]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_arai</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_thellier_data</span>
 <span class="n">Zs</span><span class="p">,</span><span class="n">Is</span><span class="p">,</span><span class="n">Zs_mag</span><span class="p">,</span><span class="n">Is_mag</span> <span class="o">=</span> <span class="n">process_thellier_data</span><span class="p">(</span><span class="n">m_list</span><span class="p">,</span><span class="n">coe_routine</span><span class="p">,</span><span class="n">weights</span><span class="p">)</span>
-<span class="n">plot_arai</span><span class="p">(</span><span class="n">Zs_mag</span><span class="p">,</span> <span class="n">Is_mag</span><span class="p">,</span> <span class="n">B_anc</span><span class="p">,</span> <span class="n">B_str</span><span class="p">)</span>
+<span class="n">plot_arai</span><span class="p">(</span><span class="n">Zs_mag</span><span class="o">/</span><span class="n">Zs_mag</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Is_mag</span><span class="o">/</span><span class="n">Zs_mag</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">B_anc</span><span class="p">,</span> <span class="n">B_str</span><span class="p">,</span> <span class="n">temp_steps</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1019,23 +1013,22 @@ Working on grain 30 of 30
 <h2>Thermally activated hysteresis<a class="headerlink" href="#Thermally-activated-hysteresis" title="Link to this heading">#</a></h2>
 <p>To do hysteresis calculations, we need to use the <code class="docutils literal notranslate"><span class="pre">sdcc.barriers.HELs</span></code> object. Let’s import one we made earlier. This particle has the same geometry and composition as in our other simulations.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../examples/test_new.hels&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../particles/highfield/TM00_PRO_2.50_OBL_1.00_hard.hels&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">hystParticle</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>The routine for hysteresis loops is found at <code class="docutils literal notranslate"><span class="pre">sdcc.treatment.hyst_loop</span></code>. The routine requires a maximum field (<code class="docutils literal notranslate"><span class="pre">B_max</span></code>, in T) and a value for the measurement frequency as a function of field (<code class="docutils literal notranslate"><span class="pre">B_step</span></code>, default is 0.001 T = 1 mT). Let’s do the hysteresis loop and run for two sizes, 16 and 20 nm particle. To run hysteresis and other high-field simulations, we will need to use <code class="docutils literal notranslate"><span class="pre">hyst_mono_dispersion</span></code> or <code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion</span></code> as opposed to <code class="docutils literal notranslate"><span class="pre">mono_dispersion</span></code>.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.treatment</span><span class="w"> </span><span class="kn">import</span> <span class="n">hyst_loop</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">hyst_mono_dispersion</span>
 <span class="n">hyst_routine</span> <span class="o">=</span> <span class="n">hyst_loop</span><span class="p">(</span><span class="n">B_max</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
-
 <span class="n">size</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="n">size_2</span> <span class="o">=</span> <span class="mi">16</span>
 
@@ -1044,9 +1037,17 @@ Working on grain 30 of 30
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working on grain 50 of 50
+</pre></div></div>
+</div>
 <p>Hysteresis data can be analyzed (for Mrs, Ms and Bc) using the <code class="docutils literal notranslate"><span class="pre">sdcc.analysis.analyze_hyst_data()</span></code> function. This function can also be used to plot the data using the <code class="docutils literal notranslate"><span class="pre">plot</span> <span class="pre">=</span> <span class="pre">True</span></code> argument.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">analyze_hyst_data</span>
@@ -1070,11 +1071,11 @@ Working on grain 30 of 30
 <h1>Saving results to file<a class="headerlink" href="#Saving-results-to-file" title="Link to this heading">#</a></h1>
 <p>Sometimes it’s necessary to save an SDCC result to file. We can use the function <code class="docutils literal notranslate"><span class="pre">sdcc.simulation.result_to_file()</span></code> function for this. We pass in the particle energy barrier info, size, routine and results, along with a file extension and directory to save all this information in a json-like format. Note that these files can be large (10s of mb) as the results contain large arrays.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">result_to_file</span>
-<span class="n">result_to_file</span><span class="p">(</span><span class="n">hystParticle</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">hyst_routine</span><span class="p">,</span> <span class="n">moments_sp</span><span class="p">,</span> <span class="n">ps_sp</span><span class="p">,</span> <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;hyst&#39;</span><span class="p">,</span> <span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;../results/&#39;</span><span class="p">)</span>
+<span class="n">result_to_file</span><span class="p">(</span><span class="n">hystParticle</span><span class="p">,</span> <span class="n">size_2</span><span class="p">,</span> <span class="n">hyst_routine</span><span class="p">,</span> <span class="n">moments_sp</span><span class="p">,</span> <span class="n">ps_sp</span><span class="p">,</span> <span class="n">file_ext</span> <span class="o">=</span> <span class="s1">&#39;hyst&#39;</span><span class="p">,</span> <span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;../results/&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1088,7 +1089,7 @@ Saved file to ../results/TM00_PRO_2.50_OBL_1.00_16.0nm.hyst
 </div>
 <p>We can load these objects using <code class="docutils literal notranslate"><span class="pre">pickle</span></code> as we did before with the <code class="docutils literal notranslate"><span class="pre">GEL</span></code> and <code class="docutils literal notranslate"><span class="pre">HELs</span></code> objects to see what’s being stored. For the sake of truncating the output, we print only the keys of the moments/probs data as these are large arrays.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../results/TM00_PRO_2.50_OBL_1.00_16.0nm.hyst&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1106,7 +1107,7 @@ Saved file to ../results/TM00_PRO_2.50_OBL_1.00_16.0nm.hyst
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 dict_keys([&#39;particle&#39;, &#39;routine&#39;, &#39;result&#39;])
-{&#39;TM&#39;: 0, &#39;alignment&#39;: &#39;hard&#39;, &#39;PRO&#39;: 2.5, &#39;OBL&#39;: 1.0, &#39;size&#39;: 16}
+{&#39;TM&#39;: 0, &#39;alignment&#39;: &#39;hard&#39;, &#39;PRO&#39;: 2.498049532966813, &#39;OBL&#39;: 1.0, &#39;size&#39;: 16}
 [Hysteresis Branch from 0.0 mT to
 300.0 mT in steps of 1.0 mT, Hysteresis Branch from 300.0 mT to
 -300.0 mT in steps of 1.0 mT, Hysteresis Branch from -300.0 mT to
