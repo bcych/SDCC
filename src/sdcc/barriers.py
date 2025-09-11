@@ -853,7 +853,6 @@ def delete_splits(
         lazarus_states = []
         for i in multiple_states:
             bad_indices = old_indices[new_indices == i]
-
             bad_energies = high_energy_list[bad_indices]
             is_old = []
             for state in bad_indices:
@@ -1004,7 +1003,9 @@ def smart_sort(
     # If the indices are already lost, they have inf theta, so ignore em
     lost_indices = lost_indices[~np.isinf(low_theta_list[lost_indices])]
 
-    delete_splits(
+    # Delete data where indices "split" (REACTIVATED HERE)
+
+    new_indices_split, old_indices = delete_splits(
         new_indices,
         old_indices,
         high_energy_list,
@@ -1077,7 +1078,7 @@ def smart_sort(
         phi_mat_new[l, k] = high_phi_mat[j, i]
 
     # Set barriers for "lost" states to infinite
-    for i, j in product(lost_indices, new_indices):
+    for i, j in product(lost_indices, new_indices_split):
         barriers_new[j, i] = np.inf
 
     # Set outflow from "lost" states to 0s
