@@ -9,69 +9,69 @@ sdcc.analysis module
 
 .. automodule:: sdcc.analysis
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.barriers module
 --------------------
 
 .. automodule:: sdcc.barriers
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.energy module
 ------------------
 
 .. automodule:: sdcc.energy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.materials module
 ---------------------
 
 .. automodule:: sdcc.materials
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.plotting module
 --------------------
 
 .. automodule:: sdcc.plotting
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.simulation module
 ----------------------
 
 .. automodule:: sdcc.simulation
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.treatment module
 ---------------------
 
 .. automodule:: sdcc.treatment
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 sdcc.utils module
 -----------------
 
 .. automodule:: sdcc.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: sdcc
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
