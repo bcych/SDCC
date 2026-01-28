@@ -533,6 +533,11 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
     ps = []
     i = 0
 
+    if len(np.array(start_p).shape) == 1:
+        start_p = np.repeat(np.array([start_p]), n_dirs, axis=0)
+    else:
+        start_p = np.array(start_p)
+
     if isinstance(eq, bool):
         eq = np.full(len(steps), eq)
     else:
@@ -543,7 +548,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
         print("Working on grain {i} of {n}".format(i=i, n=n_dirs), end="\r")
         v_step = []
         p_step = []
-        new_start_p = start_p
+        new_start_p = start_p[i - 1]
         new_start_t = 0
         j = 0
         for step in steps:
@@ -633,6 +638,11 @@ def parallelized_mono_dispersion(
 
     rot_mats = fib_hypersphere(n_dirs)
 
+    if len(np.array(start_p).shape) == 1:
+        start_p = np.repeat(np.array([start_p]), n_dirs, axis=0)
+    else:
+        start_p = np.array(start_p)
+
     if isinstance(eq, bool):
         eq = np.full(len(steps), eq)
     else:
@@ -648,9 +658,9 @@ def parallelized_mono_dispersion(
         [
             pool.apply_async(
                 mono_direction,
-                args=(rot_mat, start_p, d, steps, energy_landscape, eq),
+                args=(rot_mats[i], start_p[i], d, steps, energy_landscape, eq),
             )
-            for rot_mat in rot_mats
+            for i in range(n_dirs)
         ]
     )
     vps = np.array([obj.get() for obj in objs], dtype="object")
@@ -1197,7 +1207,7 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
     return (v_step, p_step)
 
 
-def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
+def hyst_mono_dispersion(start_p, d, steps, energy_landscape, eq=False):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a high-field treatment for all directions in a
@@ -1241,16 +1251,20 @@ def hyst_mono_dispersion(d, steps, energy_landscape, eq=False):
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
+
+    n_dirs = len(energy_landscape.HEL_list)
+    if len(np.array(start_p).shape) == 1:
+        start_p = np.repeat(np.array([start_p]), n_dirs, axis=0)
+    else:
+        start_p = np.array(start_p)
+
     i = 1
     for hel in energy_landscape.HEL_list:
         print(
             "Working on grain {i} of {n}".format(i=i, n=len(energy_landscape.HEL_list)),
             end="\r",
         )
-        min_e = hel.get_params(0)["min_e"]
-        start_p = np.zeros(len(min_e))
-        start_p[~np.isinf(min_e)] = 1 / len(start_p[~np.isinf(min_e)])
-        v, p = mono_hyst_direction(start_p, d, steps, hel, eq=eq)
+        v, p = mono_hyst_direction(start_p[i], d, steps, hel, eq=eq)
         v = np.array(v, dtype="object")
         vs.append(v)
         ps.append(p)
@@ -1321,8 +1335,9 @@ def parallelized_hyst_mono_dispersion(
         cpu_count = context.cpu_count()
     n_dirs = len(energy_landscape.HEL_list)
     if len(np.array(start_p).shape) == 1:
-        start_p = np.repeat(np.array([start_p]),n_dirs,axis=0)
-    
+        start_p = np.repeat(np.array([start_p]), n_dirs, axis=0)
+    else:
+        start_p = np.array(start_p)
     pool = context.Pool(cpu_count)
 
     objs = np.array(
