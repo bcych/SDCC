@@ -1,5 +1,5 @@
 import numpy as np
-from sdcc.barriers import GEL
+from sdcc.particles import GEL
 
 
 def time2temp(t, t1, T0, T1, T_amb):
@@ -351,15 +351,17 @@ class HystBranch(TreatmentStep):
         if B_start > B_end:
             B_step = -B_step
         self.field_strs = np.arange(B_start, B_end + B_step, B_step)
-        self.ts = np.linspace(0.0, (len(self.field_strs)-1) * t_step, len(self.field_strs))
+        self.ts = np.linspace(
+            0.0, (len(self.field_strs) - 1) * t_step, len(self.field_strs)
+        )
         self.field_dirs = np.repeat(np.array([B_dir]), len(self.field_strs), axis=0)
         self.Ts = np.full(len(self.field_dirs), T)
         self.ts += t_start
         self.step_type = "hysteresis"
 
     def __repr__(self):
-        return f"""Hysteresis Branch from {self.field_strs[0]/1e3} mT to 
-{self.field_strs[-1]/1e3} mT in steps of {np.abs(self.field_strs[0]-self.field_strs[1])/1e3} mT"""
+        return f"""Hysteresis Branch from {self.field_strs[0] / 1e3} mT to 
+{self.field_strs[-1] / 1e3} mT in steps of {np.abs(self.field_strs[0] - self.field_strs[1]) / 1e3} mT"""
 
 
 def coe_experiment(temp_steps, B_anc, B_lab, B_ancdir, B_labdir):
@@ -715,7 +717,6 @@ def thellier_experiment(
     steps.append(TRM)
     steps.append(TRM_hold)
     for j in range(1, len(temp_steps)):
-
         if type == "coe":
             steps += make_thellier_step(steps, temp_steps[j], T_max, T_min, 0, B_labdir)
             if ptrm_checks > 0 and j > 2:

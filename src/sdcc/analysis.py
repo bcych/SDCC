@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sdcc.treatment import CoolingStep
-from sdcc.barriers import uniaxial_critical_size
+from sdcc.particles import energy_result, load_particle
+from scipy.optimize import minimize
 
 
 def analyze_hyst_data(vs, steps, d, hels, plot=False, ax=None):
@@ -11,7 +12,7 @@ def analyze_hyst_data(vs, steps, d, hels, plot=False, ax=None):
     Mrs = back_ramp[steps[1].field_strs == 0][0]
     Mrs2 = np.abs(back_ramp[steps[2].field_strs == 0][0])
     Mrs = (Mrs2 + Mrs) / 2
-    Msat = hels.HEL_list[0].get_params(0)["Ms"]
+    Msat = hels[0].Ms(steps[0].Ts[0])
 
     n = len(hels.HEL_list)
     v = 4 / 3 * np.pi * (d / 1e9 / 2) ** 3
@@ -123,6 +124,113 @@ def process_thellier_data(vs_list, routine, weights):
     return (Zs_sum, Is_sum, Zs_mag, Is_mag)
 
 
+def uniaxial_relaxation_time(d, T, K):
+    """
+    Calculates the Neel relaxation time for an
+    energy barrier at a particular temperature
+
+    Parameters
+    ------
+    d: float
+        Equivalent spherical volume diameter of
+        particle
+
+    T: float
+        Temperature
+
+    K: float
+        Energy density of energy barrier
+
+    Returns
+    -------
+    t: float
+        Relaxation time
+    """
+    tau_0 = 1e-9
+    kb = 1.380649e-23
+    V = 4 / 3 * np.pi * (d / 2 * 1e-9) ** 3
+    t = tau_0 * np.exp(K * V / (kb * (T + 273)))
+    return t
+
+
+def uniaxial_critical_size(K, T, t=100):
+    """
+    Calculates the critical size of a particle
+    assuming only a uniaxial transition time
+
+    Parameters
+    ------
+    K: float
+        Energy barrier (J/m^3)
+
+    T: float
+        Temperature energy barrier is calculated at
+
+    t: float
+        Desired timescale to target
+
+    Returns
+    -------
+    d: float
+        Grain equivalent sphere volume diameter (nm)
+    """
+    tau_0 = 1e-9
+    kb = 1.380649e-23
+    V = np.log(t / tau_0) * kb * (T + 273) / K
+    r = (V * 3 / (4 * np.pi)) ** (1 / 3)
+    d = 2 * r
+    return d * 1e9
+
+
+def blocking_temperature(gel, d, i, j, block_t=100.0):
+    """
+    Calculates the blocking temperature associated
+    with an energy barrier. Involves a minimization
+    to obtain the correct time.
+
+    Parameters
+    ------
+    gel: GEL object
+        Energy landscape of particle to be considered
+
+    d: float
+        Size of particle (nm)
+
+    i: int
+        index of first state in barrier
+
+    j: int
+        index of second state in barrier
+
+    block_t: float
+        Timescale at which the barrier is considered
+        'blocked'
+
+    Returns
+    -------
+    T: float
+        Blocking temperature
+    """
+
+    def loss_func(testT):
+        """
+        Single parameter loss function.
+        """
+        t, c, k = gel.bar_energy[i, j]
+        K = energy_result(t, c, k, testT)
+        obs_t = uniaxial_relaxation_time(d, testT, K)
+        loss = (np.log(obs_t) - np.log(block_t)) ** 2
+        return loss
+
+    Ts = np.arange(gel.T_min, gel.T_max)
+    loss = np.empty(Ts.shape)
+    for k, T in enumerate(Ts):
+        loss[k] = loss_func(T)
+    T_start = Ts[loss == min(loss)][0]
+    T_block = minimize(loss_func, T_start, method="Nelder-Mead").x[0]
+    return T_block
+
+
 def get_critical_sizes(energyLandscape, Blocking_Ts):
     sizes = []
     for T in Blocking_Ts:
@@ -130,3 +238,7 @@ def get_critical_sizes(energyLandscape, Blocking_Ts):
         size = uniaxial_critical_size(K, T)
         sizes.append(size)
     return sizes
+
+
+def load_result(fname):
+    return load_particle(fname)

@@ -3,16 +3,33 @@ import mpmath as mp
 import pickle
 import multiprocessing as mpc
 import warnings
-from sdcc.barriers import GEL, HEL, HELs, find_all_barriers
-from sdcc.energy import angle2xyz, dir_to_rot_mat, get_material_parms
-from sdcc.utils import fib_sphere, fib_hypersphere
+
+from sdcc.particles import EnergyLandscape
+from sdcc.energy import angle2xyz
+from sdcc.utils import fib_hypersphere
+
 from jax import jit, config
-from functools import partial
 from jax.scipy.linalg import expm
 
-mp.prec = 100
-mp.mp.prec = 100
-from sdcc.treatment import relaxation_time
+# Set high precision (handled for different
+# versions of mpmath)
+mp_active = False
+try:
+    mp.prec = 100
+    mp_active = True
+except AttributeError:
+    pass
+
+try:
+    mp.mp.prec = 100
+    mp_active = True
+except AttributeError:
+    pass
+
+if not mp_active:
+    raise AttributeError(
+        "Could not initialize high floating point precision, please install a working version of mpmath"
+    )
 
 config.update("jax_enable_x64", True)
 
@@ -47,7 +64,8 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     phi_mat = params["bar_dir"][:, :, 1]
     energy_densities = params["bar_e"]
     T = params["T"]
-    Ms = params["Ms"]
+    M = params["min_m"]
+    bar_M = params["bar_m"]
 
     V = 4 / 3 * np.pi * ((d / 2 * 1e-9) ** 3)
     kb = 1.380649e-23
@@ -55,9 +73,10 @@ def Q_matrix(params: dict, d, field_dir=np.array([1, 0, 0]), field_str=0.0):
     tt, pp = np.meshgrid(theta_list, phi_list)
     pp = pp.T
     xyz = angle2xyz(tt, pp)
-    xyz *= Ms * V
+    MM, mmT = np.meshgrid(M, M)
+    xyz *= MM * V
     xyz_T = angle2xyz(theta_mat, phi_mat)
-    xyz_T *= Ms * V
+    xyz_T *= bar_M * V
     xyz = xyz_T - xyz
 
     field_dir = field_dir * field_str * 1e-6
@@ -132,14 +151,9 @@ def _update_p_vector(p_vec, Q, dt):
 def _update_p_vector_fast(p_vec, Q, dt):
     """
     Given an initial state vector, a Q matrix and a time, calculates a
-    new state vector. This is very slow due to the high floating point
-    precision which is required and could probably benefit from a C++
-    implementation. Additionally - this is very susceptible to floating
-    point errors even with the high precision when dt gets large. Using
-    mpmath's Pade approximations is slower than Taylor series and
-    doesn't seem to help much. If there's an algorithm that improves
-    this it would be extremely helpful as we're dealing with some large
-    numbers (age of Solar System) here.
+    new state vector. This is a faster implementation but can have
+    precision errors which rapidly blow up. Improvements to jax expm
+    may make this viable one day.
 
     Parameters
     ------
@@ -168,7 +182,15 @@ def _update_p_vector_fast(p_vec, Q, dt):
 
 
 def thermal_treatment(
-    start_t, start_p, Ts, ts, d, energy_landscape: GEL, field_strs, field_dirs, eq=False
+    start_t,
+    start_p,
+    Ts,
+    ts,
+    d,
+    energy_landscape: EnergyLandscape,
+    field_strs,
+    field_dirs,
+    eq=False,
 ):
     """
     Function for calculating the probability of different LEM states in
@@ -233,6 +255,8 @@ def thermal_treatment(
         else:
             old_p = _update_p_vector(start_p, Q, ts[0] - start_t)  # New state vector
     # Create list of state vectors, place first one in there.
+    if len(old_p.shape) > 1:
+        old_p = old_p[:, 0]
     ps = [old_p]
     # Create list of LEM state directions - put initial ones in there.
     theta_lists = [params["min_dir"][:, 0]]
@@ -253,6 +277,8 @@ def thermal_treatment(
         else:
             Q = Q_matrix(params, d, field_dir=field_dirs[i], field_str=field_strs[i])
             new_p = _update_p_vector(ps[-1], Q, dt)
+        if len(new_p.shape) > 1:
+            new_p = new_p[:, 0]
 
         # Add state vector to list of state vectors
         ps.append(new_p)
@@ -312,14 +338,13 @@ def get_avg_vectors(ps, theta_lists, phi_lists, Ts, rot_mat, energy_landscape, d
         T = Ts[i]
 
         # Get Ms material parameter
-        Ms = energy_landscape.get_params(T)["Ms"]
+        M = energy_landscape.get_params(T)["min_m"]
 
         # Get directions associated with states
         theta_list = theta_lists[i]
         phi_list = phi_lists[i]
-
         # For SD, magnitude is V * Ms
-        vecs = angle2xyz(theta_list, phi_list) * ps[i] * Ms * V
+        vecs = angle2xyz(theta_list, phi_list) * ps[i] * M * V
         vecs = np.nan_to_num(vecs, nan=0)
         v = np.sum(vecs, axis=1)  # Grain direction
         vs.append(inv_rot @ v)  # Rotate back into constant field direction
@@ -332,7 +357,7 @@ def grain_vectors(
     Ts,
     ts,
     d,
-    energy_landscape: GEL,
+    energy_landscape: EnergyLandscape,
     rot_mat,
     field_strs,
     field_dirs,
@@ -402,7 +427,9 @@ def grain_vectors(
     return (vs, ps)
 
 
-def mono_direction(rot_mat, start_p, d, steps, energy_landscape: GEL, eq=[False]):
+def mono_direction(
+    rot_mat, start_p, d, steps, energy_landscape: EnergyLandscape, eq=[False]
+):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a
@@ -483,7 +510,9 @@ def mono_direction(rot_mat, start_p, d, steps, energy_landscape: GEL, eq=[False]
     return (v_step, p_step)
 
 
-def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False):
+def mono_dispersion(
+    start_p, d, steps, energy_landscape: EnergyLandscape, n_dirs=50, eq=False
+):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for all directions in a
@@ -523,7 +552,7 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
         List of arrays of state vectors at each time step, in each treatment
         step, for each mono-dispersion direction.
     """
-    if d > energy_landscape.d_min:
+    if d > energy_landscape.info_dict["Maximum Size"]:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
@@ -583,7 +612,14 @@ def mono_dispersion(start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=Fals
 
 
 def parallelized_mono_dispersion(
-    start_p, d, steps, energy_landscape: GEL, n_dirs=50, eq=False, cpu_count=0, ctx=None
+    start_p,
+    d,
+    steps,
+    energy_landscape: EnergyLandscape,
+    n_dirs=50,
+    eq=False,
+    cpu_count=0,
+    ctx=None,
 ):
     """
     Gets the state vectors and average magnetization vectors at each
@@ -631,7 +667,7 @@ def parallelized_mono_dispersion(
         List of arrays of state vectors at each time step, in each treatment
         step, for each mono-dispersion direction.
     """
-    if d > energy_landscape.d_min:
+    if d > energy_landscape.info_dict["Maximum Size"]:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
@@ -722,7 +758,7 @@ def eq_ps(params, field_str, field_dir, d):
     # This works very similarly to Q matrix, except we just use the
     # Relative energies of the states instead of the barriers approach!
     T = params["T"]
-    Ms = params["Ms"]
+    M = params["min_m"]
     theta_list = params["min_dir"][:, 0]
     phi_list = params["min_dir"][:, 1]
     min_energies = params["min_e"]
@@ -732,7 +768,7 @@ def eq_ps(params, field_str, field_dir, d):
     min_energies = np.array(min_energies)
     xyz = angle2xyz(theta_list, phi_list)
     for i in range(len(theta_list)):
-        zeeman_energy = np.dot(xyz[:, i], field_dir * field_str * 1e-6) * Ms
+        zeeman_energy = np.dot(xyz[:, i], field_dir * field_str * 1e-6) * M[i]
         if np.isnan(zeeman_energy):
             zeeman_energy = 0
         min_energies[i] -= zeeman_energy
@@ -743,250 +779,9 @@ def eq_ps(params, field_str, field_dir, d):
     return np.array(ps, dtype="float64")
 
 
-def calc_relax_time(start_p, d, relax_routine, energy_landscape, ts):
-    """
-    Function for calculating the relaxation time of a mono-dispersion
-    of grains. The relaxation time is calculated as the time it takes
-    for the magnetization to decay to 1/e.
-
-    Parameters
-    ------
-    start_p: numpy array
-        Starting state vector
-
-    relax_routine: list of treatment.TreatmentStep objects.
-        Steps describing a relaxation time treatment (cooling infield,
-        followed by hold at room temperature infield).
-
-    energy_landscape: barriers.GEL object
-        Object describing LEM states and energy barriers as a function of
-        temperature.
-
-    ts: numpy array
-        Array of time steps to check relaxation time at
-        N.B. this should be roughly the same as
-        relax_routine[1].ts - relax_routine[0].ts[-1]
-    """
-    # Run a parallelized mono dispersion
-    vs, ps = mono_dispersion(
-        start_p,
-        d,
-        relax_routine,
-        energy_landscape,
-        n_dirs=30,
-        eq=np.array([True, False, False]),
-    )
-    # Calculate magnitude of vector
-    mags = np.linalg.norm(vs[2], axis=1)
-    # Calculate TRMs
-    TRM = np.linalg.norm(vs[1][-1])
-    # Get relaxation time (M = TRM/e)
-    if mags[-1] <= (TRM / np.e**2):
-        relax_time = ts[mags <= (TRM / np.e**2)][0]
-    else:
-        relax_time = ts[-1]
-    return relax_time
-
-
-def relax_time_crit_size(relax_routine, energy_landscape, init_size=[5], size_incr=10):
-    """
-    Finds the critical SP size of a grain.
-
-    Parameters
-    ------
-    relax_routine: list of treatment.TreatmentStep objects.
-        Steps describing a relaxation time treatment (cooling infield,
-        followed by hold at room temperature infield).
-
-    energy_landscape: barriers.GEL object
-        Object describing LEM states and energy barriers as a function of
-        temperature.
-
-    init_size: list of ints
-        Initial grain sizes to try.
-
-    size_incr: int
-        Amount to increment size by in certain situations.
-
-    Returns
-    -------
-    d: int
-        Critical SD size in nm.
-    """
-    n_states = len(energy_landscape.get_params(energy_landscape.T_max)["min_e"])
-    start_p = np.full(n_states, 1 / n_states)
-    ts = relax_routine[2].ts - relax_routine[1].ts[-1]
-
-    relax_times = []
-    ds = []
-
-    # Run through all the possible relaxation times
-    # From energy barriers calculated
-    for d in np.ceil(init_size).astype(int):
-        if d != np.ceil(init_size[0]).astype(int):
-            if (min(relax_times) < 100) & (max(relax_times) >= 100):
-                pass
-            else:
-                print(f"Current Size {d} nm                 ")
-                relax_time = calc_relax_time(
-                    start_p, d, relax_routine, energy_landscape, ts
-                )
-                print("Relaxation time %1.1e" % relax_time)
-                relax_times.append(relax_time)
-                ds.append(d)
-        else:
-            print(f"Current Size {d} nm                 ")
-            relax_time = calc_relax_time(
-                start_p, d, relax_routine, energy_landscape, ts
-            )
-            print("Relaxation time %1.1e" % relax_time)
-            relax_times.append(relax_time)
-            ds.append(d)
-
-    # If relaxation times don't span
-    # the necessary range, step up until they do
-
-    # What stopping condition do we use for stepping?
-    if np.amax(relax_times) < 100:
-        statefun = lambda r: np.amax(r) < 100
-        state = statefun(relax_times)
-    elif np.amin(relax_times) >= 100:
-        statefun = lambda r: np.amin(r) >= 100
-        state = statefun(relax_times)
-    else:
-        state = False
-
-    # What direction do we step in?
-    if relax_time < 100:
-        sign = 1
-    else:
-        sign = -1
-
-    # Step upwards.
-    while state:
-        d += sign * int(size_incr)
-        if d <= 0:
-            d = 1
-        print(f"Current Size {d} nm                 ")
-        relax_time = calc_relax_time(start_p, d, relax_routine, energy_landscape, ts)
-        print("Relaxation time %1.1e" % relax_time)
-        relax_times.append(relax_time)
-        ds.append(d)
-        state = statefun(relax_times)
-
-    # Now we use a bisection method
-    # to find the critical size,
-    # followed by a root-finding method
-    # when close enough to resolve the
-    # relaxation time
-    continuing = True
-    while continuing:
-        d_sorted = np.array(np.sort(ds))
-        r_sorted = np.array(relax_times)[np.argsort(ds)]
-
-        d_min = d_sorted[r_sorted < 100][-1]
-        d_max = d_sorted[r_sorted >= 100][0]
-        r_min = r_sorted[r_sorted < 100][-1]
-        r_max = r_sorted[r_sorted >= 100][0]
-
-        if r_max == ts[-1] or r_min == ts[0]:
-            d = int(np.ceil((d_min + d_max) / 2))
-
-        else:
-            d = int(np.ceil(np.interp(2, np.log10(r_sorted), d_sorted)))
-
-        print(f"Current Size {d} nm                ")
-        if d in ds and (len(ds) > 2):
-            continuing = False
-        else:
-            relax_time = calc_relax_time(
-                start_p, d, relax_routine, energy_landscape, ts
-            )
-            print("Relaxation time %1.1e" % relax_time)
-            relax_times.append(relax_time)
-            ds.append(d)
-
-    return d
-
-
-def critical_size(K):
-    """
-    Calculates the critical size (nm) given an energy barrier simply
-    using the Neel relaxation time equation and nothing else.
-    """
-    tau_0 = 1e-9
-    t = 100
-    kb = 1.380649e-23
-    V = np.log(t / tau_0) * kb * 293 / K
-    r = (V * 3 / (4 * np.pi)) ** (1 / 3)
-    d = 2 * r
-    return d * 1e9
-
-
-def full_crit_size(TMx, PRO, OBL, alignment):
-    """
-        Calculate critical SD size of a grain, taking some shortcuts by
-        using Neel relaxation time in cases when there should be only one
-        energy barrier.
-
-    Parameters
-    ------
-    TMx: float
-        Titanomagnetite composition % (0 - 100)
-
-    PRO: float
-        Prolateness ratio (major axis/intermediate axis)
-
-    OBL: float
-        Oblateness ratio (intermediate axis/minor axis)
-
-    alignment: string
-        Either `easy` or `hard`. Specifies the magnetocrystalline direction
-        that should be aligned with the x direction, which for our
-        ellipsoids is the major (shape easy) axis.
-
-    Returns
-    -------
-    d: int
-        Critical SD size in nm.
-    """
-    theta_list, phi_list, min_energy_list, theta_mat, phi_mat, barriers = (
-        find_all_barriers(TMx, alignment, PRO, OBL)
-    )
-
-    if PRO == 1.00 and OBL == 1.00:
-        do_full = False
-    elif len(theta_list) == 2:
-        do_full = False
-    else:
-        do_full = True
-    if do_full:
-        Energy = GEL(TMx, alignment, PRO, OBL)
-        relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
-        relax_routine = relaxation_time(Energy, np.array([1, 0, 0]), 40)
-        # If the grain is unfeasibly large, we might not reach equilibrium
-        # And so have zero magnetization
-        # In these cases, a "pre-hold" where we force the grain to equilibrium
-        # At max temperature.
-        pre_hold = [HoldStep(0, Energy.T_max, 40, np.array([1, 0, 0]), hold_steps=2)]
-        for step in pre_hold:
-            step.ts -= 1801
-        relax_routine = pre_hold + relax_routine
-
-        barrierslist = []
-        for barrier in np.unique(np.floor(barriers[~np.isinf(barriers)] / 1000) * 1000):
-            barrierslist.append(
-                np.mean(barriers[(barriers >= barrier) & (barriers < barrier + 1000)])
-            )
-        potential_ds = critical_size(np.array(barrierslist))
-        d = relax_time_crit_size(relax_routine, Energy, init_size=potential_ds)
-        return d
-    else:
-        d = critical_size(np.array(barriers)[0, 1])
-        return d
-
-
-def hyst_treatment(start_t, start_p, Bs, ts, d, energy_landscape: HEL, eq=False):
+def hyst_treatment(
+    start_t, start_p, Bs, ts, d, energy_landscape: EnergyLandscape, eq=False
+):
     """
     Function for calculating the probability of different LEM states in
     a grain during a hysteresis experiment.
@@ -1081,7 +876,7 @@ def grain_hyst_vectors(
     Bs,
     ts,
     d,
-    energy_landscape: HEL,
+    energy_landscape: EnergyLandscape,
     rot_mat,
     eq=False,
 ):
@@ -1142,7 +937,9 @@ def grain_hyst_vectors(
     return (vs, ps)
 
 
-def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
+def mono_hyst_direction(
+    start_p, d, steps, energy_landscape: EnergyLandscape, eq=[False]
+):
     """
     Gets the state vectors and average magnetization vectors at each
     time step in a thermal treatment for a single direction in a
@@ -1185,7 +982,7 @@ def mono_hyst_direction(start_p, d, steps, energy_landscape: HEL, eq=[False]):
     new_start_p = start_p
     new_start_t = 0
     j = 0
-    rot_mat = np.array(energy_landscape.rot_mat)
+    rot_mat = np.array(energy_landscape.info_dict["Field Rotation Matrix"])
     for step in steps:
         # Get temperatures and times associated with each timestep
         ts = step.ts
@@ -1247,7 +1044,7 @@ def hyst_mono_dispersion(start_p, d, steps, energy_landscape, eq=False):
     """
     vs = []
     ps = []
-    if d > energy_landscape.HEL_list[0].d_min:
+    if d > energy_landscape.HEL_list[0].info_dict["Maximum Size"]:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
@@ -1264,7 +1061,7 @@ def hyst_mono_dispersion(start_p, d, steps, energy_landscape, eq=False):
             "Working on grain {i} of {n}".format(i=i, n=len(energy_landscape.HEL_list)),
             end="\r",
         )
-        v, p = mono_hyst_direction(start_p[i], d, steps, hel, eq=eq)
+        v, p = mono_hyst_direction(start_p[i - 1], d, steps, hel, eq=eq)
         v = np.array(v, dtype="object")
         vs.append(v)
         ps.append(p)
@@ -1322,7 +1119,7 @@ def parallelized_hyst_mono_dispersion(
         List of arrays of state vectors at each time step, in each treatment
         step, for each mono-dispersion direction.
     """
-    if d > energy_landscape.HEL_list[0].d_min:
+    if d > energy_landscape.HEL_list[0].info_dict["Maximum Size"]:
         warnings.warn(
             "WARNING: This particle may be too large to be single domain, results may be innaccurate"
         )
@@ -1394,33 +1191,16 @@ def result_to_file(
     -------
     None
     """
-
-    if type(energyLandscape) == HELs:
-        TM = energyLandscape.HEL_list[0].TMx
-        alignment = energyLandscape.HEL_list[0].alignment
-        PRO = energyLandscape.HEL_list[0].PRO
-        OBL = energyLandscape.HEL_list[0].OBL
-    else:
-        TM = energyLandscape.TMx
-        alignment = energyLandscape.alignment
-        PRO = energyLandscape.PRO
-        OBL = energyLandscape.OBL
-    TMx = str(TM).zfill(2)
+    info_dict = energyLandscape.info_dict
     result = {
-        "particle": {
-            "TM": TM,
-            "alignment": alignment,
-            "PRO": PRO,
-            "OBL": OBL,
-            "size": size,
-        },
+        "particle": info_dict,
         "routine": routine,
         "result": {"moments": moments, "probs": probabilities},
     }
 
     fname = (
         directory
-        + f'TM{TMx}_PRO_{"%1.2f"%PRO}_OBL_{"%1.2f"%OBL}_{"%3.1f"%size}nm.'
+        + f"{info_dict['Shape Class']}_{info_dict['Material']}_PRO_{info_dict['Prolateness']:1.2f}_OBL_{info_dict['Oblateness']:1.2f}_{size:3.1f}nm."
         + file_ext
     )
     with open(fname, "wb") as f:

@@ -12,7 +12,7 @@ from sdcc.treatment import TreatmentStep
 from jax import jit, grad
 import jax.numpy as jnp
 from jax import config
-from sdcc.barriers import uniaxial_relaxation_time
+from sdcc.analysis import uniaxial_relaxation_time
 import matplotlib.patheffects as pe
 from matplotlib.colors import BoundaryNorm
 from matplotlib.cm import ScalarMappable
