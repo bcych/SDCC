@@ -8,6 +8,7 @@ The Single Domain Comprehensive Calculator (SDCC) is a micromagnetics package fo
    
    installation
    sdcc_examples
+   advanced
    modules
    
 Reference
