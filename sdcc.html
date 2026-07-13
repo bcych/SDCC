@@ -16,35 +16,38 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="_static/contentui.css?v=4cf5b151" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="_static/documentation_options.js?v=b1def801"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script src="_static/contentui.js?v=9ee86694"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'sdcc';</script>
@@ -53,6 +56,7 @@
     <link rel="prev" title="sdcc" href="modules.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -68,19 +72,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -88,7 +81,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -96,8 +88,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -113,7 +105,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -143,21 +136,17 @@
     
     
     <img src="_static/logo_transparent.png" class="logo__image only-light" alt="sdcc-latest latest documentation - Home"/>
-    <script>document.write(`<img src="_static/logo_transparent.png" class="logo__image only-dark" alt="sdcc-latest latest documentation - Home"/>`);</script>
+    <img src="_static/logo_transparent.png" class="logo__image only-dark pst-js-only" alt="sdcc-latest latest documentation - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
@@ -184,9 +173,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -269,7 +263,7 @@
 
 
 <button onclick="toggleFullScreen()"
-  class="btn btn-sm btn-fullscreen-button"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
   title="Fullscreen mode"
   data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
@@ -283,25 +277,17 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
-<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
 </button>
 </div></div>
@@ -327,33 +313,21 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.analysis">sdcc.analysis module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.blocking_temperature"><code class="docutils literal notranslate"><span class="pre">blocking_temperature()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.get_critical_sizes"><code class="docutils literal notranslate"><span class="pre">get_critical_sizes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.load_result"><code class="docutils literal notranslate"><span class="pre">load_result()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.process_thellier_data"><code class="docutils literal notranslate"><span class="pre">process_thellier_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.uniaxial_critical_size"><code class="docutils literal notranslate"><span class="pre">uniaxial_critical_size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.uniaxial_relaxation_time"><code class="docutils literal notranslate"><span class="pre">uniaxial_relaxation_time()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.barriers">sdcc.barriers module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL.get_params"><code class="docutils literal notranslate"><span class="pre">GEL.get_params()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL.to_file"><code class="docutils literal notranslate"><span class="pre">GEL.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL.get_params"><code class="docutils literal notranslate"><span class="pre">HEL.get_params()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL.to_file"><code class="docutils literal notranslate"><span class="pre">HEL.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs.to_file"><code class="docutils literal notranslate"><span class="pre">HELs.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.blocking_temperature"><code class="docutils literal notranslate"><span class="pre">blocking_temperature()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.construct_energy_mat_fast"><code class="docutils literal notranslate"><span class="pre">construct_energy_mat_fast()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.delete_splits"><code class="docutils literal notranslate"><span class="pre">delete_splits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.dijkstras"><code class="docutils literal notranslate"><span class="pre">dijkstras()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.direction_result"><code class="docutils literal notranslate"><span class="pre">direction_result()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.direction_spline"><code class="docutils literal notranslate"><span class="pre">direction_spline()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.energy_result"><code class="docutils literal notranslate"><span class="pre">energy_result()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.energy_spline"><code class="docutils literal notranslate"><span class="pre">energy_spline()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_B_barriers"><code class="docutils literal notranslate"><span class="pre">find_B_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_T_barriers"><code class="docutils literal notranslate"><span class="pre">find_T_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_all_barriers"><code class="docutils literal notranslate"><span class="pre">find_all_barriers()</span></code></a></li>
@@ -368,8 +342,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.prune_energies"><code class="docutils literal notranslate"><span class="pre">prune_energies()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.segment_region"><code class="docutils literal notranslate"><span class="pre">segment_region()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.smart_sort"><code class="docutils literal notranslate"><span class="pre">smart_sort()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.uniaxial_critical_size"><code class="docutils literal notranslate"><span class="pre">uniaxial_critical_size()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.uniaxial_relaxation_time"><code class="docutils literal notranslate"><span class="pre">uniaxial_relaxation_time()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.wrap_labels"><code class="docutils literal notranslate"><span class="pre">wrap_labels()</span></code></a></li>
 </ul>
 </li>
@@ -389,27 +361,72 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.materials">sdcc.materials module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Anisotropy.make_functions"><code class="docutils literal notranslate"><span class="pre">Anisotropy.make_functions()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.CubicAnisotropy"><code class="docutils literal notranslate"><span class="pre">CubicAnisotropy</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Aex"><code class="docutils literal notranslate"><span class="pre">Material.Aex()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Kd"><code class="docutils literal notranslate"><span class="pre">Material.Kd()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Ms"><code class="docutils literal notranslate"><span class="pre">Material.Ms()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.anisotropy_constants"><code class="docutils literal notranslate"><span class="pre">Material.anisotropy_constants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.exch_len"><code class="docutils literal notranslate"><span class="pre">Material.exch_len()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.mesh_sizing"><code class="docutils literal notranslate"><span class="pre">Material.mesh_sizing()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.min_exch_len"><code class="docutils literal notranslate"><span class="pre">Material.min_exch_len()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.SolidSolution"><code class="docutils literal notranslate"><span class="pre">SolidSolution</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.SolidSolution.composition"><code class="docutils literal notranslate"><span class="pre">SolidSolution.composition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM"><code class="docutils literal notranslate"><span class="pre">TM</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.Aex"><code class="docutils literal notranslate"><span class="pre">TM.Aex()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.Ms"><code class="docutils literal notranslate"><span class="pre">TM.Ms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.anisotropy_constants"><code class="docutils literal notranslate"><span class="pre">TM.anisotropy_constants()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k1"><code class="docutils literal notranslate"><span class="pre">TM_k1()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.particles">sdcc.particles module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.DomainStructure"><code class="docutils literal notranslate"><span class="pre">DomainStructure</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.DomainStructure.calc_alt_dirs"><code class="docutils literal notranslate"><span class="pre">DomainStructure.calc_alt_dirs()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.Ms"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.Ms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.get_params_B"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.get_params_B()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.get_params_T"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.get_params_T()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.to_file"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition"><code class="docutils literal notranslate"><span class="pre">EnergyTransition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition.find_alt_bdirs"><code class="docutils literal notranslate"><span class="pre">EnergyTransition.find_alt_bdirs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition.find_connectivity"><code class="docutils literal notranslate"><span class="pre">EnergyTransition.find_connectivity()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.GEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">GEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">HEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELM"><code class="docutils literal notranslate"><span class="pre">HELM</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELs.to_file"><code class="docutils literal notranslate"><span class="pre">HELs.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldGEL"><code class="docutils literal notranslate"><span class="pre">OldGEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldGEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldGEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldHEL"><code class="docutils literal notranslate"><span class="pre">OldHEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldHEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldHEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldSMELT"><code class="docutils literal notranslate"><span class="pre">OldSMELT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldSMELT.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldSMELT.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.SMELT"><code class="docutils literal notranslate"><span class="pre">SMELT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.SMELT.Ms_func"><code class="docutils literal notranslate"><span class="pre">SMELT.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.direction_result"><code class="docutils literal notranslate"><span class="pre">direction_result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.direction_spline"><code class="docutils literal notranslate"><span class="pre">direction_spline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.energy_result"><code class="docutils literal notranslate"><span class="pre">energy_result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.energy_spline"><code class="docutils literal notranslate"><span class="pre">energy_spline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.load_particle"><code class="docutils literal notranslate"><span class="pre">load_particle()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.plotting">sdcc.plotting module</a><ul class="nav section-nav flex-column">
@@ -440,10 +457,7 @@ document.write(`
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation._update_p_vector"><code class="docutils literal notranslate"><span class="pre">_update_p_vector()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation._update_p_vector_fast"><code class="docutils literal notranslate"><span class="pre">_update_p_vector_fast()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.calc_relax_time"><code class="docutils literal notranslate"><span class="pre">calc_relax_time()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.critical_size"><code class="docutils literal notranslate"><span class="pre">critical_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.eq_ps"><code class="docutils literal notranslate"><span class="pre">eq_ps()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.full_crit_size"><code class="docutils literal notranslate"><span class="pre">full_crit_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.get_avg_vectors"><code class="docutils literal notranslate"><span class="pre">get_avg_vectors()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.grain_hyst_vectors"><code class="docutils literal notranslate"><span class="pre">grain_hyst_vectors()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.grain_vectors"><code class="docutils literal notranslate"><span class="pre">grain_vectors()</span></code></a></li>
@@ -454,7 +468,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.mono_hyst_direction"><code class="docutils literal notranslate"><span class="pre">mono_hyst_direction()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.result_to_file"><code class="docutils literal notranslate"><span class="pre">result_to_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
 </ul>
@@ -510,8 +523,39 @@ document.write(`
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="sdcc.analysis.blocking_temperature">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">blocking_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.blocking_temperature" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the blocking temperature associated
+with an energy barrier. Involves a minimization
+to obtain the correct time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gel</strong> (<em>GEL object</em>) – Energy landscape of particle to be considered</p></li>
+<li><p><strong>d</strong> (<em>float</em>) – Size of particle (nm)</p></li>
+<li><p><strong>i</strong> (<em>int</em>) – index of first state in barrier</p></li>
+<li><p><strong>j</strong> (<em>int</em>) – index of second state in barrier</p></li>
+<li><p><strong>block_t</strong> (<em>float</em>) – Timescale at which the barrier is considered
+‘blocked’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>T</strong> – Blocking temperature</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sdcc.analysis.get_critical_sizes">
 <span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">get_critical_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energyLandscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Blocking_Ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.get_critical_sizes" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.analysis.load_result">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">load_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.load_result" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -547,167 +591,73 @@ grains.</p>
 </section>
 </dd></dl>
 
-</section>
-<section id="module-sdcc.barriers">
-<span id="sdcc-barriers-module"></span><h2>sdcc.barriers module<a class="headerlink" href="#module-sdcc.barriers" title="Link to this heading">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="sdcc.barriers.GEL">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">GEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.GEL" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class for storing energy barrier results at all temperatures for a
-given grain geometry and composition.</p>
-<p>Todo:
-1. This should inherit from some base class shared with Hysteresis.
-2. The run through of temperatures should be parallelized for much
-quicker object creation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
-<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
-‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
-<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
-<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
-<li><p><strong>T_spacing</strong> (<em>float</em>) – Spacing of temperature steps (Degrees C)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.barriers.GEL.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.GEL.get_params" title="Link to this definition">#</a></dt>
-<dd><p>Gets directions and energies associated with LEM states and
-barriers for a grain as a function of temperature.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>T</strong> (<em>int</em><em>, </em><em>float</em><em> or </em><em>numpy array</em>) – Temperature(s) (degrees C)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>params</strong> – Dictionary of arrays for directions and energies.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.barriers.GEL.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.GEL.to_file" title="Link to this definition">#</a></dt>
-<dd><p>Saves GEL object to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – Filename</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="sdcc.barriers.HEL">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">HEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.HEL" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class for storing energy barrier results at all field strengths for a
-given grain geometry, composition and field direction.</p>
-<p>Todo:
-1. This should inherit from some base class shared with GEL.
-2. The run through of temperatures should be parallelized for much
-quicker object creation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
-<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
-‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
-<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
-<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
-<li><p><strong>B_dir</strong> (<em>length 3 array</em>) – Unit vector of field direction</p></li>
-<li><p><strong>B_max</strong> (<em>float</em>) – Maximum field (Tesla)</p></li>
-<li><p><strong>B_spacing</strong> (<em>float</em>) – Spacing of field steps (Tesla)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.barriers.HEL.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.HEL.get_params" title="Link to this definition">#</a></dt>
-<dd><p>Gets directions and energies associated with LEM states and
-barriers for a grain as a function of field.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>B</strong> (<em>int</em><em>, </em><em>float</em><em> or </em><em>numpy array</em>) – External Field (T)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>params</strong> – Dictionary of arrays for directions and energies.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.barriers.HEL.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.HEL.to_file" title="Link to this definition">#</a></dt>
-<dd><p>Saves GEL object to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – Filename</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="sdcc.barriers.HELs">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">HELs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HEL_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.HELs" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.barriers.HELs.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.HELs.to_file" title="Link to this definition">#</a></dt>
-<dd><p>Saves GEL object to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – Filename</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.blocking_temperature">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">blocking_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.blocking_temperature" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the blocking temperature associated
-with an energy barrier. Involves a minimization
-to obtain the correct time.</p>
+<dt class="sig sig-object py" id="sdcc.analysis.uniaxial_critical_size">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">uniaxial_critical_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.uniaxial_critical_size" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the critical size of a particle
+assuming only a uniaxial transition time</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gel</strong> (<em>GEL object</em>) – Energy landscape of particle to be considered</p></li>
-<li><p><strong>d</strong> (<em>float</em>) – Size of particle (nm)</p></li>
-<li><p><strong>i</strong> (<em>int</em>) – index of first state in barrier</p></li>
-<li><p><strong>j</strong> (<em>int</em>) – index of second state in barrier</p></li>
-<li><p><strong>block_t</strong> (<em>float</em>) – Timescale at which the barrier is considered
-‘blocked’</p></li>
+<li><p><strong>K</strong> (<em>float</em>) – Energy barrier (J/m^3)</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature energy barrier is calculated at</p></li>
+<li><p><strong>t</strong> (<em>float</em>) – Desired timescale to target</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>T</strong> – Blocking temperature</p>
+<dd class="field-even"><p><strong>d</strong> – Grain equivalent sphere volume diameter (nm)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.analysis.uniaxial_relaxation_time">
+<span class="sig-prename descclassname"><span class="pre">sdcc.analysis.</span></span><span class="sig-name descname"><span class="pre">uniaxial_relaxation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.analysis.uniaxial_relaxation_time" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the Neel relaxation time for an
+energy barrier at a particular temperature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>float</em>) – Equivalent spherical volume diameter of
+particle</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature</p></li>
+<li><p><strong>K</strong> (<em>float</em>) – Energy density of energy barrier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>t</strong> – Relaxation time</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-sdcc.barriers">
+<span id="sdcc-barriers-module"></span><h2>sdcc.barriers module<a class="headerlink" href="#module-sdcc.barriers" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.barriers.GEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">GEL</span></span><a class="headerlink" href="#sdcc.barriers.GEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dummy class for backwards compatibility</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.barriers.HEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">HEL</span></span><a class="headerlink" href="#sdcc.barriers.HEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dummy class for backwards compatibility</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.barriers.HELs">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">HELs</span></span><a class="headerlink" href="#sdcc.barriers.HELs" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dummy class for backwards compatibility</p>
 </dd></dl>
 
 <dl class="py function">
@@ -785,96 +735,6 @@ between them.</p>
 </dd>
 </dl>
 </section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.direction_result">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">direction_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.direction_result" title="Link to this definition">#</a></dt>
-<dd><p>Calculates a direction from a temperature and a set of spline
-coefficients.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
-<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
-<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>direction</strong> – Direction at that temperature.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy array or float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.direction_spline">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">direction_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.direction_spline" title="Link to this definition">#</a></dt>
-<dd><p>Creates a piecewise 3D unit vector B-Spline from a set of x,y data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numpy array</em>) – Input x data for cubic spline (usually temperature)</p></li>
-<li><p><strong>y</strong> (<em>numpy array</em><em> of </em><em>3D unit vectors.</em>) – Input y data for cubic spline (usually a direction)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
-<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
-<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.energy_result">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">energy_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.energy_result" title="Link to this definition">#</a></dt>
-<dd><p>Calculates an energy from a temperature and a set of spline
-coefficients.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
-<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
-<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>result</strong> – Energy at that temperature.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy array or float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.energy_spline">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">energy_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.energy_spline" title="Link to this definition">#</a></dt>
-<dd><p>Creates a piecewise scalar B-Spline from a set of x,y data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>numpy array</em>) – Input x data for cubic spline (usually temperature)</p></li>
-<li><p><strong>y</strong> (<em>numpy array</em>) – Input y data for cubic spline (usually energy or magnetization)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
-<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
-<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1269,51 +1129,6 @@ minimize to.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.uniaxial_critical_size">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">uniaxial_critical_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.uniaxial_critical_size" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the critical size of a particle
-assuming only a uniaxial transition time</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>K</strong> (<em>float</em>) – Energy barrier (J/m^3)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – Temperature energy barrier is calculated at</p></li>
-<li><p><strong>t</strong> (<em>float</em>) – Desired timescale to target</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>d</strong> – Grain equivalent sphere volume diameter (nm)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.barriers.uniaxial_relaxation_time">
-<span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">uniaxial_relaxation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.uniaxial_relaxation_time" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the Neel relaxation time for an
-energy barrier at a particular temperature</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>d</strong> (<em>float</em>) – Equivalent spherical volume diameter of
-particle</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – Temperature</p></li>
-<li><p><strong>K</strong> (<em>float</em>) – Energy density of energy barrier</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>t</strong> – Relaxation time</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="sdcc.barriers.wrap_labels">
 <span class="sig-prename descclassname"><span class="pre">sdcc.barriers.</span></span><span class="sig-name descname"><span class="pre">wrap_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.barriers.wrap_labels" title="Link to this definition">#</a></dt>
 <dd><p>Wraps a set of labels assigned to an array so that the labels in
@@ -1640,44 +1455,22 @@ Vector length is lost in conversion.</p>
 <section id="module-sdcc.materials">
 <span id="sdcc-materials-module"></span><h2>sdcc.materials module<a class="headerlink" href="#module-sdcc.materials" title="Link to this heading">#</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="sdcc.materials.Anisotropy">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">Anisotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anisotropyDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solidSolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Anisotropy" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.materials.Anisotropy.make_functions">
-<span class="sig-name descname"><span class="pre">make_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Anisotropy.make_functions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="sdcc.materials.CubicAnisotropy">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">CubicAnisotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.CubicAnisotropy" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#sdcc.materials.Anisotropy" title="sdcc.materials.Anisotropy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Anisotropy</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="sdcc.materials.Material">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">Material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">materialDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anisotropy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Material" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">Material</span></span><a class="headerlink" href="#sdcc.materials.Material" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.materials.Material.Aex">
-<span class="sig-name descname"><span class="pre">Aex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Material.Aex" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<p>Base class for calculating important quantities for MERRILL.
+Material classes can inherit from this class, and must have
+a “Tc” (Curie Temp) attribute and the following methods:</p>
+<p>Ms(T) - a function that calculates saturation magnetization
+as a function of temperature</p>
+<p>Aex(T) - a function that calculates the exchange constant
+as a function of temperature</p>
+<p>anisotropy_constants -  a function that calculates the
+anisotropy constants as a function of temperature and
+outputs them as a dictionary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdcc.materials.Material.Kd">
 <span class="sig-name descname"><span class="pre">Kd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Material.Kd" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.materials.Material.Ms">
-<span class="sig-name descname"><span class="pre">Ms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Material.Ms" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdcc.materials.Material.anisotropy_constants">
-<span class="sig-name descname"><span class="pre">anisotropy_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.Material.anisotropy_constants" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1698,24 +1491,486 @@ Vector length is lost in conversion.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="sdcc.materials.SolidSolution">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">SolidSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solidSolutionDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anisotropy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.SolidSolution" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dt class="sig sig-object py" id="sdcc.materials.TM">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">TM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.materials.Material" title="sdcc.materials.Material"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></a></p>
+<p>Material class for the titanomagnetite solid solution
+series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>)</p></li>
+<li><p><strong>(</strong><strong>%</strong> (<em>Titanomagnetite composition</em>)</p></li>
+<li><p><strong>60</strong><strong>)</strong> (<em>0 -</em>)</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="sdcc.materials.SolidSolution.composition">
-<span class="sig-name descname"><span class="pre">composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.SolidSolution.composition" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="sdcc.materials.TM.Aex">
+<span class="sig-name descname"><span class="pre">Aex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM.Aex" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.materials.TM.Ms">
+<span class="sig-name descname"><span class="pre">Ms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM.Ms" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.materials.TM.anisotropy_constants">
+<span class="sig-name descname"><span class="pre">anisotropy_constants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM.anisotropy_constants" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sdcc.particles">
+<span id="sdcc-particles-module"></span><h2>sdcc.particles module<a class="headerlink" href="#module-sdcc.particles" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.DomainStructure">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">DomainStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MMs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_mins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.DomainStructure" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class describing a particular domain structure for a particle
+Allows for particles with multiple domain structures.</p>
+<p>Given a set of directions for a domain structure, calculates all possible
+LEMs using the symmetry operations possible for that particle’s shape and
+magnetocrystalline anisotropy. It does this by rotating the grain using the
+symmetry operation matrices in the <cite>symmetries</cite> argument and checking them
+against the known directions within a given angle set using the <cite>min_angle</cite>
+argument. Any new LEMs found are assigned to the <cite>alt_dirs</cite> attribute. Any
+LEMs found to be the “same” are averaged together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>)</p></li>
+<li><p><strong>structure</strong> (<em>Index</em><em> of </em><em>the domain</em>)</p></li>
+<li><p><strong>symmetries</strong> (<em>list</em><em> of </em><em>rotation matrices</em>)</p></li>
+<li><p><strong>the</strong> (<em>Rotation matrices that preserve the symmetry of</em>)</p></li>
+<li><p><strong>particle.</strong></p></li>
+<li><p><strong>dirs</strong> (<em>n x m x 3 array</em>)</p></li>
+<li><p><strong>this</strong> (<em>List</em><em> of </em><em>n directions at m temperature</em><em> of </em><em>the LEM states associated with</em>)</p></li>
+<li><p><strong>structure.</strong> (<em>domain</em>)</p></li>
+<li><p><strong>MMs</strong> (<em>length m array</em>)</p></li>
+<li><p><strong>temperature.</strong> (<em>Energy</em><em> of </em><em>the domain structure as a function of</em>)</p></li>
+<li><p><strong>e_mins</strong> (<em>length m array</em>)</p></li>
+<li><p><strong>temperature.</strong></p></li>
+<li><p><strong>min_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>identical</strong> (<em>Minimum angle</em><em> (</em><em>in degrees</em><em>) </em><em>at which LEM states are considered</em>)</p></li>
+<li><p><strong>tunable.</strong></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.DomainStructure.calc_alt_dirs">
+<span class="sig-name descname"><span class="pre">calc_alt_dirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.DomainStructure.calc_alt_dirs" title="Link to this definition">#</a></dt>
+<dd><p>Calculates directions using symmetry of particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>LEM.</strong> (<em>Minimum angle within which directions are considered the &quot;same&quot;</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>alt_dirs_new</strong> (<em>nx3 array of floats</em>)</p></li>
+<li><p><em>List of directions</em></p></li>
+<li><p><strong>symmetries_new</strong> (<em>nx3x3 array of floats</em>)</p></li>
+<li><p><em>List of symmetries associated with those directions</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyLandscape">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">EnergyLandscape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_Ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar_Ms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">switching_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyLandscape" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generic EnergyLandscape class that other classes inherit from.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyLandscape.Ms">
+<span class="sig-name descname"><span class="pre">Ms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyLandscape.Ms" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyLandscape.get_params_B">
+<span class="sig-name descname"><span class="pre">get_params_B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyLandscape.get_params_B" title="Link to this definition">#</a></dt>
+<dd><p>Gets directions and energies associated with LEM states and
+barriers for a grain as a function of field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>B</strong> (<em>int</em><em>, </em><em>float</em><em> or </em><em>numpy array</em>) – External Field (T)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>params</strong> – Dictionary of arrays for directions and energies.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyLandscape.get_params_T">
+<span class="sig-name descname"><span class="pre">get_params_T</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyLandscape.get_params_T" title="Link to this definition">#</a></dt>
+<dd><p>Gets directions and energies associated with LEM states and
+barriers for a grain as a function of temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> (<em>int</em><em>, </em><em>float</em><em> or </em><em>numpy array</em>) – Temperature(s) (degrees C)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>params</strong> – Dictionary of arrays for directions and energies.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyLandscape.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyLandscape.to_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves HELs object to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – Filename</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyTransition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">EnergyTransition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_dir_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_MMs_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyTransition" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class describing an energy transition / barrier / switching for
+a non single-domain particle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_struct</strong> (<em>int</em>)</p></li>
+<li><p><strong>to_struct</strong> (<em>Energy at the top</em><em> of </em><em>the barrier between from_struct and</em>)</p></li>
+<li><p><strong>to.</strong> (<em>DomainStructure index that switching occurs from and</em>)</p></li>
+<li><p><strong>vortex</strong><strong>)</strong><strong>.</strong> (<em>Can be the same structure</em><em> (</em><em>e.g. long vortex -&gt; long</em>)</p></li>
+<li><p><strong>symmetries</strong> (<em>list</em><em> of </em><em>rotation matrices</em>)</p></li>
+<li><p><strong>the</strong> (<em>Rotation matrices that preserve the symmetry of</em>)</p></li>
+<li><p><strong>particle.</strong></p></li>
+<li><p><strong>e_array</strong> (<em>m x n x n array</em>)</p></li>
+<li><p><strong>to_struct</strong></p></li>
+<li><p><strong>temperature.</strong> (<em>of</em>)</p></li>
+<li><p><strong>bdirs</strong> (<em>m x n x n x 3 array</em>)</p></li>
+<li><p><strong>function</strong> (<em>Magnetization direction at the top</em><em> of </em><em>the barrier as a</em>)</p></li>
+<li><p><strong>temperature.</strong></p></li>
+<li><p><strong>bMMs</strong> (<em>m x n x n array</em>)</p></li>
+<li><p><strong>.</strong> (<em>M / Ms at the top</em><em> of </em><em>the barrier as a function</em><em> of </em><em>temperature</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p>dir_array: m x x x 3 array
+List of n directions at m temperature of the LEM states associated with this
+domain structure.</p>
+<p>min_angle: float
+Minimum angle (in degrees) at which LEM states are considered identical, tunable.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyTransition.find_alt_bdirs">
+<span class="sig-name descname"><span class="pre">find_alt_bdirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyTransition.find_alt_bdirs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.EnergyTransition.find_connectivity">
+<span class="sig-name descname"><span class="pre">find_connectivity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.EnergyTransition.find_connectivity" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.GEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">GEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.GEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<p>Class for storing energy barrier results at all temperatures for a
+given grain geometry and composition.</p>
+<p>Todo:
+1. This should inherit from some base class shared with Hysteresis.
+2. The run through of temperatures should be parallelized for much
+quicker object creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>T_spacing</strong> (<em>float</em>) – Spacing of temperature steps (Degrees C)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.GEL.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.GEL.Ms_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.HEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">HEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.HEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<p>Class for storing energy barrier results at all field strengths for a
+given grain geometry, composition and field direction.</p>
+<p>Todo:
+1. This should inherit from some base class shared with GEL.
+2. The run through of temperatures should be parallelized for much
+quicker object creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>rot_mat</strong> (<em>3x3 matrix</em>) – Rotation matrix that rotates field direction from [1,0,0].
+Note that although there are a number of matrices that will
+solve for a particular field direction, a single field vector
+cannot be used to describe the inverse transformation applied
+to particles when rotating all the fields into the same direction.</p></li>
+<li><p><strong>B_max</strong> (<em>float</em>) – Maximum field (Tesla)</p></li>
+<li><p><strong>B_spacing</strong> (<em>float</em>) – Spacing of field steps (Tesla)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.HEL.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.HEL.Ms_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.HELM">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">HELM</span></span><a class="headerlink" href="#sdcc.particles.HELM" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<p>High-field Energy Landscape using Micromagnetics</p>
+<p>Coming Soon!</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.HELs">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">HELs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HEL_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.HELs" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for storing a variety of different HELs objects,
+with different field orientations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition (0 - 100)</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>B_max</strong> (<em>float</em>) – Maximum field (Tesla)</p></li>
+<li><p><strong>B_spacing</strong> (<em>float</em>) – Spacing of field steps (Te</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.HELs.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.HELs.to_file" title="Link to this definition">#</a></dt>
+<dd><p>Saves HELs object to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>string</em>) – Filename</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.OldGEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">OldGEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldGEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.OldGEL.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldGEL.Ms_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.OldHEL">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">OldHEL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldHEL" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.OldHEL.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldHEL.Ms_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.OldSMELT">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">OldSMELT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smelt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">materialName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldSMELT" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<p>LEGACY OBJECT FOR CONVERTING OLD FILES</p>
+<p>Simulated Micromagnetic Energy Landscape (Thermal)</p>
+<p>Class for storing energy barrier results at all temperatures output
+by MERRILL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>smelt</strong> (<em>SMELT object</em>)</p></li>
+<li><p><strong>format</strong> (<em>Legacy object converted into new</em>)</p></li>
+<li><p><strong>material</strong> (<em>str</em>) – Name of particle material</p></li>
+<li><p><strong>shape_class</strong> (<em>str</em>) – Class of particle shape, e.g. “Ellipsoid”, “Cuboid”,
+“Truncated Octahedron” etc.</p></li>
+<li><p><strong>Ms_func</strong> (<em>Function used to calculate saturation magnetization.</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.OldSMELT.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.OldSMELT.Ms_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sdcc.particles.SMELT">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">SMELT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">materialName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.SMELT" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a></p>
+<p>Symmetric Micromagnetic Energy Landscape (Thermal)</p>
+<p>Class for storing energy barrier results at all temperatures output
+by MERRILL.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material</strong> (<em>str</em>) – Name of particle material</p></li>
+<li><p><strong>shape_class</strong> (<em>str</em>) – Class of particle shape, e.g. “Ellipsoid”, “Cuboid”,
+“Truncated Octahedron” etc.</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Alignment of magnetocrystalline and shape axis. Either ‘hard’ or
+‘easy’ magnetocrystalline always aligned with shape easy.</p></li>
+<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness of ellipsoid (major / intermediate axis)</p></li>
+<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness of ellipsoid (intermediae / minor axis)</p></li>
+<li><p><strong>d</strong> (<em>float</em><em> or </em><em>int</em>) – Size of particle (ESVD, nm).</p></li>
+<li><p><strong>structs</strong> (<em>list</em><em> of </em><em>DomainStructure objects</em>) – Domain Structures present in the particle.</p></li>
+<li><p><strong>ets</strong> (<em>list</em><em> of </em><em>EnergyTransition objects</em>) – List of energy transitions between domain structures / states .</p></li>
+<li><p><strong>Ts</strong> (<em>Array</em><em> of </em><em>floats</em>) – Temperatures at which the LEMs and barriers were calculated.</p></li>
+<li><p><strong>Ms_func</strong> (<em>Function used to calculate saturation magnetization.</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sdcc.particles.SMELT.Ms_func">
+<span class="sig-name descname"><span class="pre">Ms_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.SMELT.Ms_func" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="sdcc.materials.TM_k1">
-<span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">TM_k1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM_k1" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="sdcc.particles.direction_result">
+<span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">direction_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.direction_result" title="Link to this definition">#</a></dt>
+<dd><p>Calculates a direction from a temperature and a set of spline
+coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
+<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
+<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>direction</strong> – Direction at that temperature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy array or float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="sdcc.materials.TM_k2">
-<span class="sig-prename descclassname"><span class="pre">sdcc.materials.</span></span><span class="sig-name descname"><span class="pre">TM_k2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Tc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.materials.TM_k2" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="sdcc.particles.direction_spline">
+<span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">direction_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.direction_spline" title="Link to this definition">#</a></dt>
+<dd><p>Creates a piecewise 3D unit vector B-Spline from a set of x,y data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numpy array</em>) – Input x data for cubic spline (usually temperature)</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em><em> of </em><em>3D unit vectors.</em>) – Input y data for cubic spline (usually a direction)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
+<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
+<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.particles.energy_result">
+<span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">energy_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.energy_result" title="Link to this definition">#</a></dt>
+<dd><p>Calculates an energy from a temperature and a set of spline
+coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
+<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
+<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – Temperature (degrees C).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> – Energy at that temperature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy array or float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.particles.energy_spline">
+<span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">energy_spline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.energy_spline" title="Link to this definition">#</a></dt>
+<dd><p>Creates a piecewise scalar B-Spline from a set of x,y data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>numpy array</em>) – Input x data for cubic spline (usually temperature)</p></li>
+<li><p><strong>y</strong> (<em>numpy array</em>) – Input y data for cubic spline (usually energy or magnetization)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>t</strong> (<em>numpy array</em>) – Cubic spline knot positions</p></li>
+<li><p><strong>c</strong> (<em>numpy array</em>) – B-Spline coefficients</p></li>
+<li><p><strong>k</strong> (<em>numpy array</em>) – Polynomial degrees</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sdcc.particles.load_particle">
+<span class="sig-prename descclassname"><span class="pre">sdcc.particles.</span></span><span class="sig-name descname"><span class="pre">load_particle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.particles.load_particle" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -2186,14 +2441,9 @@ numbers (age of Solar System) here.</p>
 <dt class="sig sig-object py" id="sdcc.simulation._update_p_vector_fast">
 <span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">_update_p_vector_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation._update_p_vector_fast" title="Link to this definition">#</a></dt>
 <dd><p>Given an initial state vector, a Q matrix and a time, calculates a
-new state vector. This is very slow due to the high floating point
-precision which is required and could probably benefit from a C++
-implementation. Additionally - this is very susceptible to floating
-point errors even with the high precision when dt gets large. Using
-mpmath’s Pade approximations is slower than Taylor series and
-doesn’t seem to help much. If there’s an algorithm that improves
-this it would be extremely helpful as we’re dealing with some large
-numbers (age of Solar System) here.</p>
+new state vector. This is a faster implementation but can have
+precision errors which rapidly blow up. Improvements to jax expm
+may make this viable one day.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2209,35 +2459,6 @@ numbers (age of Solar System) here.</p>
 <dd class="field-odd"><p>numpy array</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.simulation.calc_relax_time">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">calc_relax_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.calc_relax_time" title="Link to this definition">#</a></dt>
-<dd><p>Function for calculating the relaxation time of a mono-dispersion
-of grains. The relaxation time is calculated as the time it takes
-for the magnetization to decay to 1/e.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start_p</strong> (<em>numpy array</em>) – Starting state vector</p></li>
-<li><p><strong>relax_routine</strong> (<em>list</em><em> of </em><em>treatment.TreatmentStep objects.</em>) – Steps describing a relaxation time treatment (cooling infield,
-followed by hold at room temperature infield).</p></li>
-<li><p><strong>energy_landscape</strong> (<em>barriers.GEL object</em>) – Object describing LEM states and energy barriers as a function of
-temperature.</p></li>
-<li><p><strong>ts</strong> (<em>numpy array</em>) – Array of time steps to check relaxation time at
-N.B. this should be roughly the same as
-relax_routine[1].ts - relax_routine[0].ts[-1]</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.simulation.critical_size">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">critical_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.critical_size" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the critical size (nm) given an energy barrier simply
-using the Neel relaxation time equation and nothing else.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2262,34 +2483,6 @@ energy barriers.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>numpy array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sdcc.simulation.full_crit_size">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">full_crit_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TMx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PRO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">OBL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.full_crit_size" title="Link to this definition">#</a></dt>
-<dd><blockquote>
-<div><p>Calculate critical SD size of a grain, taking some shortcuts by
-using Neel relaxation time in cases when there should be only one
-energy barrier.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>TMx</strong> (<em>float</em>) – Titanomagnetite composition % (0 - 100)</p></li>
-<li><p><strong>PRO</strong> (<em>float</em>) – Prolateness ratio (major axis/intermediate axis)</p></li>
-<li><p><strong>OBL</strong> (<em>float</em>) – Oblateness ratio (intermediate axis/minor axis)</p></li>
-<li><p><strong>alignment</strong> (<em>string</em>) – Either <cite>easy</cite> or <cite>hard</cite>. Specifies the magnetocrystalline direction
-that should be aligned with the x direction, which for our
-ellipsoids is the major (shape easy) axis.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>d</strong> – Critical SD size in nm.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2324,7 +2517,7 @@ grain geometry. Here it’s used to get Ms.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.grain_hyst_vectors">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">grain_hyst_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.HEL" title="sdcc.barriers.HEL"><span class="pre">HEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.grain_hyst_vectors" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">grain_hyst_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.grain_hyst_vectors" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a hysteresis experiment for a single direction in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2364,7 +2557,7 @@ See treatment.TreatmentStep for a full description of this.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.grain_vectors">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">grain_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.grain_vectors" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">grain_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.grain_vectors" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a thermal treatment for a single direction in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2428,7 +2621,7 @@ step, for each mono-dispersion direction.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.hyst_treatment">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">hyst_treatment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.HEL" title="sdcc.barriers.HEL"><span class="pre">HEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.hyst_treatment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">hyst_treatment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.hyst_treatment" title="Link to this definition">#</a></dt>
 <dd><p>Function for calculating the probability of different LEM states in
 a grain during a hysteresis experiment.</p>
 <dl class="field-list simple">
@@ -2456,7 +2649,7 @@ a grain during a hysteresis experiment.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.mono_direction">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[False]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_direction" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rot_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[False]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_direction" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a thermal treatment for a single direction in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2487,7 +2680,7 @@ step.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.mono_dispersion">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_dispersion" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_dispersion" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a thermal treatment for all directions in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2520,7 +2713,7 @@ step, for each mono-dispersion direction.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.mono_hyst_direction">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_hyst_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.HEL" title="sdcc.barriers.HEL"><span class="pre">HEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[False]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_hyst_direction" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">mono_hyst_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[False]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.mono_hyst_direction" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a thermal treatment for a single direction in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2586,7 +2779,7 @@ step, for each mono-dispersion direction.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.parallelized_mono_dispersion">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">parallelized_mono_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.parallelized_mono_dispersion" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">parallelized_mono_dispersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.parallelized_mono_dispersion" title="Link to this definition">#</a></dt>
 <dd><p>Gets the state vectors and average magnetization vectors at each
 time step in a thermal treatment for all directions in a
 mono-dispersion of grains. This calculation is performed for a
@@ -2621,30 +2814,6 @@ step, for each mono-dispersion direction.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="sdcc.simulation.relax_time_crit_size">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">relax_time_crit_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relax_routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[5]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_incr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.relax_time_crit_size" title="Link to this definition">#</a></dt>
-<dd><p>Finds the critical SP size of a grain.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>relax_routine</strong> (<em>list</em><em> of </em><em>treatment.TreatmentStep objects.</em>) – Steps describing a relaxation time treatment (cooling infield,
-followed by hold at room temperature infield).</p></li>
-<li><p><strong>energy_landscape</strong> (<em>barriers.GEL object</em>) – Object describing LEM states and energy barriers as a function of
-temperature.</p></li>
-<li><p><strong>init_size</strong> (<em>list</em><em> of </em><em>ints</em>) – Initial grain sizes to try.</p></li>
-<li><p><strong>size_incr</strong> (<em>int</em>) – Amount to increment size by in certain situations.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>d</strong> – Critical SD size in nm.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.result_to_file">
 <span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">result_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energyLandscape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_ext</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.result_to_file" title="Link to this definition">#</a></dt>
 <dd><p>Saves an SDCC result to file, along with information about the result</p>
@@ -2669,7 +2838,7 @@ time-step.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.simulation.thermal_treatment">
-<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">thermal_treatment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.thermal_treatment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.simulation.</span></span><span class="sig-name descname"><span class="pre">thermal_treatment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.EnergyLandscape" title="sdcc.particles.EnergyLandscape"><span class="pre">EnergyLandscape</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_strs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.simulation.thermal_treatment" title="Link to this definition">#</a></dt>
 <dd><p>Function for calculating the probability of different LEM states in
 a grain during a thermal experiment.</p>
 <dl class="field-list simple">
@@ -2934,7 +3103,7 @@ at room temperature.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="sdcc.treatment.relaxation_time">
-<span class="sig-prename descclassname"><span class="pre">sdcc.treatment.</span></span><span class="sig-name descname"><span class="pre">relaxation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.barriers.GEL" title="sdcc.barriers.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.treatment.relaxation_time" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sdcc.treatment.</span></span><span class="sig-name descname"><span class="pre">relaxation_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_landscape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sdcc.particles.GEL" title="sdcc.particles.GEL"><span class="pre">GEL</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">B_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdcc.treatment.relaxation_time" title="Link to this definition">#</a></dt>
 <dd><p>Creates a set of thermal treatment steps for a relaxation time
 estimate.</p>
 <dl class="field-list simple">
@@ -3173,45 +3342,35 @@ a smoothed surface.</p>
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> Contents
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.analysis">sdcc.analysis module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.analyze_hyst_data"><code class="docutils literal notranslate"><span class="pre">analyze_hyst_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.blocking_temperature"><code class="docutils literal notranslate"><span class="pre">blocking_temperature()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.get_critical_sizes"><code class="docutils literal notranslate"><span class="pre">get_critical_sizes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.load_result"><code class="docutils literal notranslate"><span class="pre">load_result()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.process_thellier_data"><code class="docutils literal notranslate"><span class="pre">process_thellier_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.uniaxial_critical_size"><code class="docutils literal notranslate"><span class="pre">uniaxial_critical_size()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.analysis.uniaxial_relaxation_time"><code class="docutils literal notranslate"><span class="pre">uniaxial_relaxation_time()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.barriers">sdcc.barriers module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL.get_params"><code class="docutils literal notranslate"><span class="pre">GEL.get_params()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL.to_file"><code class="docutils literal notranslate"><span class="pre">GEL.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL.get_params"><code class="docutils literal notranslate"><span class="pre">HEL.get_params()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL.to_file"><code class="docutils literal notranslate"><span class="pre">HEL.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs.to_file"><code class="docutils literal notranslate"><span class="pre">HELs.to_file()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.blocking_temperature"><code class="docutils literal notranslate"><span class="pre">blocking_temperature()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.construct_energy_mat_fast"><code class="docutils literal notranslate"><span class="pre">construct_energy_mat_fast()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.delete_splits"><code class="docutils literal notranslate"><span class="pre">delete_splits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.dijkstras"><code class="docutils literal notranslate"><span class="pre">dijkstras()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.direction_result"><code class="docutils literal notranslate"><span class="pre">direction_result()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.direction_spline"><code class="docutils literal notranslate"><span class="pre">direction_spline()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.energy_result"><code class="docutils literal notranslate"><span class="pre">energy_result()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.energy_spline"><code class="docutils literal notranslate"><span class="pre">energy_spline()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_B_barriers"><code class="docutils literal notranslate"><span class="pre">find_B_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_T_barriers"><code class="docutils literal notranslate"><span class="pre">find_T_barriers()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.find_all_barriers"><code class="docutils literal notranslate"><span class="pre">find_all_barriers()</span></code></a></li>
@@ -3226,8 +3385,6 @@ a smoothed surface.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.prune_energies"><code class="docutils literal notranslate"><span class="pre">prune_energies()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.segment_region"><code class="docutils literal notranslate"><span class="pre">segment_region()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.smart_sort"><code class="docutils literal notranslate"><span class="pre">smart_sort()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.uniaxial_critical_size"><code class="docutils literal notranslate"><span class="pre">uniaxial_critical_size()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.uniaxial_relaxation_time"><code class="docutils literal notranslate"><span class="pre">uniaxial_relaxation_time()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.barriers.wrap_labels"><code class="docutils literal notranslate"><span class="pre">wrap_labels()</span></code></a></li>
 </ul>
 </li>
@@ -3247,27 +3404,72 @@ a smoothed surface.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.materials">sdcc.materials module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Anisotropy"><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Anisotropy.make_functions"><code class="docutils literal notranslate"><span class="pre">Anisotropy.make_functions()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.CubicAnisotropy"><code class="docutils literal notranslate"><span class="pre">CubicAnisotropy</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Aex"><code class="docutils literal notranslate"><span class="pre">Material.Aex()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Kd"><code class="docutils literal notranslate"><span class="pre">Material.Kd()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.Ms"><code class="docutils literal notranslate"><span class="pre">Material.Ms()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.anisotropy_constants"><code class="docutils literal notranslate"><span class="pre">Material.anisotropy_constants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.exch_len"><code class="docutils literal notranslate"><span class="pre">Material.exch_len()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.mesh_sizing"><code class="docutils literal notranslate"><span class="pre">Material.mesh_sizing()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.Material.min_exch_len"><code class="docutils literal notranslate"><span class="pre">Material.min_exch_len()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.SolidSolution"><code class="docutils literal notranslate"><span class="pre">SolidSolution</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.SolidSolution.composition"><code class="docutils literal notranslate"><span class="pre">SolidSolution.composition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM"><code class="docutils literal notranslate"><span class="pre">TM</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.Aex"><code class="docutils literal notranslate"><span class="pre">TM.Aex()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.Ms"><code class="docutils literal notranslate"><span class="pre">TM.Ms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM.anisotropy_constants"><code class="docutils literal notranslate"><span class="pre">TM.anisotropy_constants()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k1"><code class="docutils literal notranslate"><span class="pre">TM_k1()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.materials.TM_k2"><code class="docutils literal notranslate"><span class="pre">TM_k2()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.particles">sdcc.particles module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.DomainStructure"><code class="docutils literal notranslate"><span class="pre">DomainStructure</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.DomainStructure.calc_alt_dirs"><code class="docutils literal notranslate"><span class="pre">DomainStructure.calc_alt_dirs()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.Ms"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.Ms()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.get_params_B"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.get_params_B()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.get_params_T"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.get_params_T()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyLandscape.to_file"><code class="docutils literal notranslate"><span class="pre">EnergyLandscape.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition"><code class="docutils literal notranslate"><span class="pre">EnergyTransition</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition.find_alt_bdirs"><code class="docutils literal notranslate"><span class="pre">EnergyTransition.find_alt_bdirs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.EnergyTransition.find_connectivity"><code class="docutils literal notranslate"><span class="pre">EnergyTransition.find_connectivity()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.GEL"><code class="docutils literal notranslate"><span class="pre">GEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.GEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">GEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HEL"><code class="docutils literal notranslate"><span class="pre">HEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">HEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELM"><code class="docutils literal notranslate"><span class="pre">HELM</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELs"><code class="docutils literal notranslate"><span class="pre">HELs</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.HELs.to_file"><code class="docutils literal notranslate"><span class="pre">HELs.to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldGEL"><code class="docutils literal notranslate"><span class="pre">OldGEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldGEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldGEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldHEL"><code class="docutils literal notranslate"><span class="pre">OldHEL</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldHEL.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldHEL.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldSMELT"><code class="docutils literal notranslate"><span class="pre">OldSMELT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.OldSMELT.Ms_func"><code class="docutils literal notranslate"><span class="pre">OldSMELT.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.SMELT"><code class="docutils literal notranslate"><span class="pre">SMELT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.SMELT.Ms_func"><code class="docutils literal notranslate"><span class="pre">SMELT.Ms_func()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.direction_result"><code class="docutils literal notranslate"><span class="pre">direction_result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.direction_spline"><code class="docutils literal notranslate"><span class="pre">direction_spline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.energy_result"><code class="docutils literal notranslate"><span class="pre">energy_result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.energy_spline"><code class="docutils literal notranslate"><span class="pre">energy_spline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.particles.load_particle"><code class="docutils literal notranslate"><span class="pre">load_particle()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-sdcc.plotting">sdcc.plotting module</a><ul class="nav section-nav flex-column">
@@ -3298,10 +3500,7 @@ a smoothed surface.</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation._update_p_vector"><code class="docutils literal notranslate"><span class="pre">_update_p_vector()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation._update_p_vector_fast"><code class="docutils literal notranslate"><span class="pre">_update_p_vector_fast()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.calc_relax_time"><code class="docutils literal notranslate"><span class="pre">calc_relax_time()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.critical_size"><code class="docutils literal notranslate"><span class="pre">critical_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.eq_ps"><code class="docutils literal notranslate"><span class="pre">eq_ps()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.full_crit_size"><code class="docutils literal notranslate"><span class="pre">full_crit_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.get_avg_vectors"><code class="docutils literal notranslate"><span class="pre">get_avg_vectors()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.grain_hyst_vectors"><code class="docutils literal notranslate"><span class="pre">grain_hyst_vectors()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.grain_vectors"><code class="docutils literal notranslate"><span class="pre">grain_vectors()</span></code></a></li>
@@ -3312,7 +3511,6 @@ a smoothed surface.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.mono_hyst_direction"><code class="docutils literal notranslate"><span class="pre">mono_hyst_direction()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_hyst_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_hyst_mono_dispersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.parallelized_mono_dispersion"><code class="docutils literal notranslate"><span class="pre">parallelized_mono_dispersion()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.relax_time_crit_size"><code class="docutils literal notranslate"><span class="pre">relax_time_crit_size()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.result_to_file"><code class="docutils literal notranslate"><span class="pre">result_to_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdcc.simulation.thermal_treatment"><code class="docutils literal notranslate"><span class="pre">thermal_treatment()</span></code></a></li>
 </ul>
@@ -3392,8 +3590,8 @@ By Brendan Cych
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

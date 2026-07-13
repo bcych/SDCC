@@ -15,35 +15,38 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="_static/contentui.css?v=4cf5b151" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="_static/documentation_options.js?v=b1def801"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script src="_static/contentui.js?v=9ee86694"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
@@ -266,6 +269,25 @@ let darkTheme = isDarkTheme();
 let modal = null;
 let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
 
 const runMermaid = async (rerun) => {
     console.log("Running mermaid diagrams, rerun =", rerun);
@@ -273,7 +295,15 @@ const runMermaid = async (rerun) => {
     let all_mermaids = document.querySelectorAll(".mermaid");
 
     if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
         all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
             if(!el.hasAttribute("data-original-code")) {
                 // store original code
                 // console.log(`Storing original code for first run: `, el.innerHTML);
@@ -290,35 +320,89 @@ const runMermaid = async (rerun) => {
                 el.setAttribute('data-original-code', el.innerHTML);
             }
         });
-        await mermaid.run();
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if ("False" === "True") {
+                                        addZoomToSvgs(d3.selectAll(""));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
     }
 
     all_mermaids = document.querySelectorAll(".mermaid");
-    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
     if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
         if(mermaids_to_add_zoom > 0) {
             var svgs = d3.selectAll("");
-            if(all_mermaids.length !== mermaids_processed.length) {
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
-            } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            } else {
-                svgs.each(function() {
-                    var svg = d3.select(this);
-                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-                    var inner = svg.select("g");
-                    var zoom = d3.zoom().on("zoom", function(event) {
-                        inner.attr("transform", event.transform);
-                    });
-                    svg.call(zoom);
-                });
             }
+            addZoomToSvgs(svgs);
         }
-    } else if(all_mermaids.length !== mermaids_processed.length) {
+    } else if(mermaids_active.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
         setTimeout(() => runMermaid(false), 200);
         return;
@@ -480,12 +564,14 @@ mermaid.initialize(
     }
 );
 
-window.addEventListener("load", load);</script>
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -501,19 +587,8 @@ window.addEventListener("load", load);</script>
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -521,7 +596,6 @@ window.addEventListener("load", load);</script>
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -529,8 +603,8 @@ window.addEventListener("load", load);</script>
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -548,7 +622,8 @@ window.addEventListener("load", load);</script>
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -578,21 +653,17 @@ window.addEventListener("load", load);</script>
     
     
     <img src="_static/logo_transparent.png" class="logo__image only-light" alt="sdcc-latest latest documentation - Home"/>
-    <script>document.write(`<img src="_static/logo_transparent.png" class="logo__image only-dark" alt="sdcc-latest latest documentation - Home"/>`);</script>
+    <img src="_static/logo_transparent.png" class="logo__image only-dark pst-js-only" alt="sdcc-latest latest documentation - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
@@ -619,9 +690,14 @@ window.addEventListener("load", load);</script>
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -656,7 +732,7 @@ window.addEventListener("load", load);</script>
 
 
 <button onclick="toggleFullScreen()"
-  class="btn btn-sm btn-fullscreen-button"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
   title="Fullscreen mode"
   data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
@@ -670,24 +746,16 @@ window.addEventListener("load", load);</script>
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 
 </div></div>
       
@@ -727,6 +795,7 @@ document.write(`
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -757,7 +826,7 @@ document.write(`
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.materials.Material.Aex">Aex() (sdcc.materials.Material method)</a>
+      <li><a href="sdcc.html#sdcc.materials.TM.Aex">Aex() (sdcc.materials.TM method)</a>
 </li>
       <li><a href="sdcc.html#sdcc.analysis.analyze_hyst_data">analyze_hyst_data() (in module sdcc.analysis)</a>
 </li>
@@ -765,9 +834,7 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.energy.angle2xyz">angle2xyz() (in module sdcc.energy)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.materials.Anisotropy">Anisotropy (class in sdcc.materials)</a>
-</li>
-      <li><a href="sdcc.html#sdcc.materials.Material.anisotropy_constants">anisotropy_constants() (sdcc.materials.Material method)</a>
+      <li><a href="sdcc.html#sdcc.materials.TM.anisotropy_constants">anisotropy_constants() (sdcc.materials.TM method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -775,7 +842,7 @@ document.write(`
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.barriers.blocking_temperature">blocking_temperature() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.analysis.blocking_temperature">blocking_temperature() (in module sdcc.analysis)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -783,25 +850,19 @@ document.write(`
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.utils.calc_d_min">calc_d_min() (in module sdcc.utils)</a>
+      <li><a href="sdcc.html#sdcc.particles.DomainStructure.calc_alt_dirs">calc_alt_dirs() (sdcc.particles.DomainStructure method)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.simulation.calc_relax_time">calc_relax_time() (in module sdcc.simulation)</a>
+      <li><a href="sdcc.html#sdcc.utils.calc_d_min">calc_d_min() (in module sdcc.utils)</a>
 </li>
       <li><a href="sdcc.html#sdcc.energy.calculate_anisotropies">calculate_anisotropies() (in module sdcc.energy)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.treatment.coe_experiment">coe_experiment() (in module sdcc.treatment)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.materials.SolidSolution.composition">composition() (sdcc.materials.SolidSolution method)</a>
+      <li><a href="sdcc.html#sdcc.treatment.coe_experiment">coe_experiment() (in module sdcc.treatment)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.construct_energy_mat_fast">construct_energy_mat_fast() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.CoolingStep">CoolingStep (class in sdcc.treatment)</a>
-</li>
-      <li><a href="sdcc.html#sdcc.simulation.critical_size">critical_size() (in module sdcc.simulation)</a>
-</li>
-      <li><a href="sdcc.html#sdcc.materials.CubicAnisotropy">CubicAnisotropy (class in sdcc.materials)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -823,9 +884,11 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.energy.dir_to_rot_mat">dir_to_rot_mat() (in module sdcc.energy)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.direction_result">direction_result() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.particles.direction_result">direction_result() (in module sdcc.particles)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.direction_spline">direction_spline() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.particles.direction_spline">direction_spline() (in module sdcc.particles)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.DomainStructure">DomainStructure (class in sdcc.particles)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -841,15 +904,19 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.plotting.energy_matrix_plot">energy_matrix_plot() (in module sdcc.plotting)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.energy_result">energy_result() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.particles.energy_result">energy_result() (in module sdcc.particles)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.energy_spline">energy_spline() (in module sdcc.particles)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.barriers.energy_spline">energy_spline() (in module sdcc.barriers)</a>
-</li>
       <li><a href="sdcc.html#sdcc.energy.energy_surface">energy_surface() (in module sdcc.energy)</a>
 </li>
       <li><a href="sdcc.html#sdcc.energy.energy_xyz">energy_xyz() (in module sdcc.energy)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.EnergyLandscape">EnergyLandscape (class in sdcc.particles)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.EnergyTransition">EnergyTransition (class in sdcc.particles)</a>
 </li>
       <li><a href="sdcc.html#sdcc.simulation.eq_ps">eq_ps() (in module sdcc.simulation)</a>
 </li>
@@ -871,17 +938,19 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.barriers.find_all_barriers">find_all_barriers() (in module sdcc.barriers)</a>
 </li>
+      <li><a href="sdcc.html#sdcc.particles.EnergyTransition.find_alt_bdirs">find_alt_bdirs() (sdcc.particles.EnergyTransition method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.barriers.find_B_barriers">find_B_barriers() (in module sdcc.barriers)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.EnergyTransition.find_connectivity">find_connectivity() (sdcc.particles.EnergyTransition method)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.find_global_minimum">find_global_minimum() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.find_T_barriers">find_T_barriers() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.fix_minima">fix_minima() (in module sdcc.barriers)</a>
-</li>
-      <li><a href="sdcc.html#sdcc.simulation.full_crit_size">full_crit_size() (in module sdcc.simulation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -890,7 +959,11 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.barriers.GEL">GEL (class in sdcc.barriers)</a>
+
+      <ul>
+        <li><a href="sdcc.html#sdcc.particles.GEL">(class in sdcc.particles)</a>
 </li>
+      </ul></li>
       <li><a href="sdcc.html#sdcc.barriers.get_antipode_order">get_antipode_order() (in module sdcc.barriers)</a>
 </li>
       <li><a href="sdcc.html#sdcc.simulation.get_avg_vectors">get_avg_vectors() (in module sdcc.simulation)</a>
@@ -899,18 +972,16 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.energy.get_material_parms">get_material_parms() (in module sdcc.energy)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.get_min_regions">get_min_regions() (in module sdcc.barriers)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.barriers.get_min_regions">get_min_regions() (in module sdcc.barriers)</a>
+</li>
       <li><a href="sdcc.html#sdcc.barriers.get_minima">get_minima() (in module sdcc.barriers)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.GEL.get_params">get_params() (sdcc.barriers.GEL method)</a>
-
-      <ul>
-        <li><a href="sdcc.html#sdcc.barriers.HEL.get_params">(sdcc.barriers.HEL method)</a>
+      <li><a href="sdcc.html#sdcc.particles.EnergyLandscape.get_params_B">get_params_B() (sdcc.particles.EnergyLandscape method)</a>
 </li>
-      </ul></li>
+      <li><a href="sdcc.html#sdcc.particles.EnergyLandscape.get_params_T">get_params_T() (sdcc.particles.EnergyLandscape method)</a>
+</li>
       <li><a href="sdcc.html#sdcc.plotting.gradient_descent">gradient_descent() (in module sdcc.plotting)</a>
 </li>
       <li><a href="sdcc.html#sdcc.simulation.grain_hyst_vectors">grain_hyst_vectors() (in module sdcc.simulation)</a>
@@ -926,13 +997,23 @@ document.write(`
       <li><a href="sdcc.html#sdcc.treatment.HeatingStep">HeatingStep (class in sdcc.treatment)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.HEL">HEL (class in sdcc.barriers)</a>
+
+      <ul>
+        <li><a href="sdcc.html#sdcc.particles.HEL">(class in sdcc.particles)</a>
+</li>
+      </ul></li>
+      <li><a href="sdcc.html#sdcc.particles.HELM">HELM (class in sdcc.particles)</a>
 </li>
       <li><a href="sdcc.html#sdcc.barriers.HELs">HELs (class in sdcc.barriers)</a>
+
+      <ul>
+        <li><a href="sdcc.html#sdcc.particles.HELs">(class in sdcc.particles)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.treatment.HoldStep">HoldStep (class in sdcc.treatment)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.treatment.HoldStep">HoldStep (class in sdcc.treatment)</a>
+</li>
       <li><a href="sdcc.html#sdcc.treatment.hyst_loop">hyst_loop() (in module sdcc.treatment)</a>
 </li>
       <li><a href="sdcc.html#sdcc.simulation.hyst_mono_dispersion">hyst_mono_dispersion() (in module sdcc.simulation)</a>
@@ -952,12 +1033,22 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.particles.load_particle">load_particle() (in module sdcc.particles)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.analysis.load_result">load_result() (in module sdcc.analysis)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sdcc.html#sdcc.barriers.make_antipode_array">make_antipode_array() (in module sdcc.barriers)</a>
-</li>
-      <li><a href="sdcc.html#sdcc.materials.Anisotropy.make_functions">make_functions() (sdcc.materials.Anisotropy method)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.make_thellier_step">make_thellier_step() (in module sdcc.treatment)</a>
 </li>
@@ -985,6 +1076,8 @@ document.write(`
 </li>
         <li><a href="sdcc.html#module-sdcc.materials">sdcc.materials</a>
 </li>
+        <li><a href="sdcc.html#module-sdcc.particles">sdcc.particles</a>
+</li>
         <li><a href="sdcc.html#module-sdcc.plotting">sdcc.plotting</a>
 </li>
         <li><a href="sdcc.html#module-sdcc.simulation">sdcc.simulation</a>
@@ -1002,14 +1095,40 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.simulation.mono_hyst_direction">mono_hyst_direction() (in module sdcc.simulation)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.materials.Material.Ms">Ms() (sdcc.materials.Material method)</a>
+      <li><a href="sdcc.html#sdcc.materials.TM.Ms">Ms() (sdcc.materials.TM method)</a>
+
+      <ul>
+        <li><a href="sdcc.html#sdcc.particles.EnergyLandscape.Ms">(sdcc.particles.EnergyLandscape method)</a>
 </li>
+      </ul></li>
+      <li><a href="sdcc.html#sdcc.particles.GEL.Ms_func">Ms_func() (sdcc.particles.GEL method)</a>
+
+      <ul>
+        <li><a href="sdcc.html#sdcc.particles.HEL.Ms_func">(sdcc.particles.HEL method)</a>
+</li>
+        <li><a href="sdcc.html#sdcc.particles.OldGEL.Ms_func">(sdcc.particles.OldGEL method)</a>
+</li>
+        <li><a href="sdcc.html#sdcc.particles.OldHEL.Ms_func">(sdcc.particles.OldHEL method)</a>
+</li>
+        <li><a href="sdcc.html#sdcc.particles.OldSMELT.Ms_func">(sdcc.particles.OldSMELT method)</a>
+</li>
+        <li><a href="sdcc.html#sdcc.particles.SMELT.Ms_func">(sdcc.particles.SMELT method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.particles.OldGEL">OldGEL (class in sdcc.particles)</a>
+</li>
+      <li><a href="sdcc.html#sdcc.particles.OldHEL">OldHEL (class in sdcc.particles)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="sdcc.html#sdcc.particles.OldSMELT">OldSMELT (class in sdcc.particles)</a>
+</li>
       <li><a href="sdcc.html#sdcc.treatment.overprint">overprint() (in module sdcc.treatment)</a>
 </li>
   </ul></td>
@@ -1062,12 +1181,10 @@ document.write(`
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.simulation.relax_time_crit_size">relax_time_crit_size() (in module sdcc.simulation)</a>
+      <li><a href="sdcc.html#sdcc.treatment.relaxation_time">relaxation_time() (in module sdcc.treatment)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.treatment.relaxation_time">relaxation_time() (in module sdcc.treatment)</a>
-</li>
       <li><a href="sdcc.html#sdcc.simulation.result_to_file">result_to_file() (in module sdcc.simulation)</a>
 </li>
   </ul></td>
@@ -1112,6 +1229,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    sdcc.particles
+
+      <ul>
+        <li><a href="sdcc.html#module-sdcc.particles">module</a>
+</li>
+      </ul></li>
+      <li>
     sdcc.plotting
 
       <ul>
@@ -1147,9 +1271,9 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.barriers.smart_sort">smart_sort() (in module sdcc.barriers)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.utils.smooth_surface">smooth_surface() (in module sdcc.utils)</a>
+      <li><a href="sdcc.html#sdcc.particles.SMELT">SMELT (class in sdcc.particles)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.materials.SolidSolution">SolidSolution (class in sdcc.materials)</a>
+      <li><a href="sdcc.html#sdcc.utils.smooth_surface">smooth_surface() (in module sdcc.utils)</a>
 </li>
       <li><a href="sdcc.html#sdcc.treatment.SuscStep">SuscStep (class in sdcc.treatment)</a>
 </li>
@@ -1169,18 +1293,14 @@ document.write(`
 </li>
       <li><a href="sdcc.html#sdcc.treatment.time2temp">time2temp() (in module sdcc.treatment)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.materials.TM_k1">TM_k1() (in module sdcc.materials)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.materials.TM_k2">TM_k2() (in module sdcc.materials)</a>
+      <li><a href="sdcc.html#sdcc.materials.TM">TM (class in sdcc.materials)</a>
 </li>
-      <li><a href="sdcc.html#sdcc.barriers.GEL.to_file">to_file() (sdcc.barriers.GEL method)</a>
+      <li><a href="sdcc.html#sdcc.particles.EnergyLandscape.to_file">to_file() (sdcc.particles.EnergyLandscape method)</a>
 
       <ul>
-        <li><a href="sdcc.html#sdcc.barriers.HEL.to_file">(sdcc.barriers.HEL method)</a>
-</li>
-        <li><a href="sdcc.html#sdcc.barriers.HELs.to_file">(sdcc.barriers.HELs method)</a>
+        <li><a href="sdcc.html#sdcc.particles.HELs.to_file">(sdcc.particles.HELs method)</a>
 </li>
         <li><a href="sdcc.html#sdcc.simulation.SDCCResult.to_file">(sdcc.simulation.SDCCResult method)</a>
 </li>
@@ -1193,11 +1313,11 @@ document.write(`
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.barriers.uniaxial_critical_size">uniaxial_critical_size() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.analysis.uniaxial_critical_size">uniaxial_critical_size() (in module sdcc.analysis)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="sdcc.html#sdcc.barriers.uniaxial_relaxation_time">uniaxial_relaxation_time() (in module sdcc.barriers)</a>
+      <li><a href="sdcc.html#sdcc.analysis.uniaxial_relaxation_time">uniaxial_relaxation_time() (in module sdcc.analysis)</a>
 </li>
       <li><a href="sdcc.html#sdcc.plotting.update">update() (in module sdcc.plotting)</a>
 </li>
@@ -1290,8 +1410,8 @@ By Brendan Cych
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

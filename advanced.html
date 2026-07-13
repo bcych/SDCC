@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The Single Domain Comprehensive Calculator - documentation &#8212; sdcc-latest latest documentation</title>
+    <title>Advanced Settings &#8212; sdcc-latest latest documentation</title>
   
   
   
@@ -50,10 +50,9 @@
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script src="_static/contentui.js?v=9ee86694"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -126,7 +125,7 @@
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -226,7 +225,7 @@
       
       
       
-      <li><a href="_sources/index.rst" target="_blank"
+      <li><a href="_sources/advanced.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -302,7 +301,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>The Single Domain Comprehensive Calculator - documentation</h1>
+    <h1>Advanced Settings</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -312,10 +311,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">The Single Domain Comprehensive Calculator - documentation</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallelization">Parallelization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initializing-mono-dispersions">Initializing Mono-Dispersions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-treatment-routines">Custom Treatment Routines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-particles-new-in-v1-0">Custom Particles (New in v1.0)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-from-pre-v1-0-particle-files">Converting From Pre v1.0 Particle Files</a></li>
 </ul>
-
             </nav>
         </div>
     </div>
@@ -326,42 +327,55 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="the-single-domain-comprehensive-calculator-documentation">
-<h1>The Single Domain Comprehensive Calculator - documentation<a class="headerlink" href="#the-single-domain-comprehensive-calculator-documentation" title="Link to this heading">#</a></h1>
-<p>The Single Domain Comprehensive Calculator (SDCC) is a micromagnetics package for simulating paleomagnetic experiments with single domain particles.</p>
-<div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Defining-a-particle">Defining a particle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Plotting-energy-surfaces.">Plotting energy surfaces.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Calculating-energy-barriers">Calculating energy barriers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Saving-energy-barriers">Saving energy barriers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Visualizing-energy-barriers-with-temperature">Visualizing energy barriers with temperature</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Treatment-routines">Treatment routines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Running-simulations-with-the-SDCC">Running simulations with the SDCC</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sdcc_examples.html#Viscous-relaxation-time">Viscous relaxation time</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc_examples.html#Assemblages-of-grains.">Assemblages of grains.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc_examples.html#Paleointensity-Experiments">Paleointensity Experiments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdcc_examples.html#Thermally-activated-hysteresis">Thermally activated hysteresis</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="sdcc_examples.html#Saving-results-to-file">Saving results to file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">sdcc</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sdcc.html">sdcc package</a></li>
-</ul>
-</li>
-</ul>
+  <section id="advanced-settings">
+<h1>Advanced Settings<a class="headerlink" href="#advanced-settings" title="Link to this heading">#</a></h1>
+<p>This module goes over some advanced settings that can help with the sdcc.</p>
+<section id="parallelization">
+<h2>Parallelization<a class="headerlink" href="#parallelization" title="Link to this heading">#</a></h2>
+<p>Parallelization can be called through the <cite>sdcc.simulation.parallelized_mono_dispersion</cite> and <cite>sdcc.simulation.parallelized_hyst_mono_dispersion</cite> functions. Parallelization in python is complicated and often depends on your exact setup. It will often not work inside a jupyter notebook. For surefire parallelization, use the <cite>ctx = “spawn”</cite> argument and contain your function inside an <cite>if __name__ == “__main__”:</cite> block. Here is an example script tgat goes over the relaxation time result in the previous example.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.particles</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_particle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallelized_mono_dispersion</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sdcc.treatment</span><span class="w"> </span><span class="kn">import</span> <span class="n">relaxation_time</span>
+
+<span class="c1"># Read in GEL file for particle</span>
+<span class="n">thermParticle</span> <span class="o">=</span> <span class="n">load_particle</span><span class="p">(</span><span class="s1">&#39;../particles/thermal/TM00_PRO_2.50_OBL_1.00_hard.gel&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set up treatment routine</span>
+<span class="n">B_dir</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#Field direction - along x here</span>
+<span class="n">B_str</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1">#Field strength - 40uT</span>
+<span class="n">relax_routine</span> <span class="o">=</span> <span class="n">relaxation_time</span><span class="p">(</span><span class="n">thermParticle</span><span class="p">,</span> <span class="n">B_dir</span><span class="p">,</span> <span class="n">B_str</span><span class="p">)</span>
+
+<span class="c1"># Set up particle size</span>
+<span class="n">size</span> <span class="o">=</span> <span class="mi">21</span> <span class="c1">#size in nm</span>
+
+<span class="k">with</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">starting_prob</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">moments</span><span class="p">,</span> <span class="n">probabilities</span> <span class="o">=</span> <span class="n">parallelized_mono_dispersion</span><span class="p">(</span><span class="n">starting_prob</span><span class="p">,</span>
+                                                         <span class="n">size</span><span class="p">,</span>
+                                                         <span class="n">relax_routine</span><span class="p">,</span>
+                                                         <span class="n">thermParticle</span><span class="p">,</span>
+                                                         <span class="n">n_dirs</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+                                                         <span class="n">ctx</span> <span class="o">=</span> <span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
+<p>The number of cpus can additionally be set using the <cite>cpu_count</cite> argument. By default, the parallelized functions run using the maximum number of available jobs. Setting <cite>cpu_count</cite> can be useful when, for example, setting up jobs on a slurm HPC queue system. Set the <cite>–cpus-per-task</cite> flag to an integer value in your slurm job, then set <cite>cpu_count = int(os.environ[“SLURM_CPUS_PER_TASK”])</cite>.</p>
 </section>
-<section id="reference">
-<h1>Reference<a class="headerlink" href="#reference" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
+<section id="initializing-mono-dispersions">
+<h2>Initializing Mono-Dispersions<a class="headerlink" href="#initializing-mono-dispersions" title="Link to this heading">#</a></h2>
+<p>Models can be initialized using a vector of probabilities for the starting probabilities of being in each state. This vector must be of length n (the number of states, which can be determined by the length of e.g. <cite>EnergyLandscape.get_params(T)[“min_e”]</cite>). However, a mono_dispersion may contain a set of m particles in different orientations. If you want to use the output of a previous model as the starting input to a new model, then you need to have a separate vector for each particle orientation. To do this, you can simply pass an m x n array to the relevant <cite>mono_dispersion</cite> function, and it will assign the correct vector to each particle in the dispersion.</p>
+</section>
+<section id="custom-treatment-routines">
+<h2>Custom Treatment Routines<a class="headerlink" href="#custom-treatment-routines" title="Link to this heading">#</a></h2>
+<p>All treatment steps in the sdcc inherit from the <cite>sdcc.treatment.TreatmentStep</cite> class. This class needs to be initialized with four arrays: ts (times), Ts (temperatures), field_dirs (Field Directions) and field_str (Field Strengths). There are several examples of custom treatment step classes already implemented into the sdcc (e.g. <cite>sdcc.treatment.CoolingStep</cite> and <cite>sdcc.treatment.HeatingStep</cite>) as well as full experimental protocols (<cite>sdcc.treatment.thellier_experiment</cite>). For more accurate results, ensure sure there are small changes in temperature / field between each time step. Large jumps in time are completely acceptable as these are integrated over to high floating point precision by the kinetic model in the SDCC.</p>
+</section>
+<section id="custom-particles-new-in-v1-0">
+<h2>Custom Particles (New in v1.0)<a class="headerlink" href="#custom-particles-new-in-v1-0" title="Link to this heading">#</a></h2>
+<p>The SDCC has various particle types that inherit from the <cite>sdcc.particles.EnergyLandscape</cite> base class. There are several examples in the <cite>sdcc.particles</cite> moduleshowing how to construct an <cite>EnergyLandscape</cite> type class for your input data. The functions in the <cite>sdcc.simulation</cite> module are now no longer restricted to single domain particles - this is shown in the non single-domain <cite>sdcc.particles.SMELT</cite> class.</p>
+</section>
+<section id="converting-from-pre-v1-0-particle-files">
+<h2>Converting From Pre v1.0 Particle Files<a class="headerlink" href="#converting-from-pre-v1-0-particle-files" title="Link to this heading">#</a></h2>
+<p>Version 1.0.0 contains <cite>particles.OldGEL</cite> and <cite>particles.OldHEL</cite> classes that allow users to convert particles from versions 0.4.3 and earlier to the new sdcc format. Please update any previously generated particles you were using when running the updated version of the code. The SDCC is fully backwards compatible once these are converted.</p>
+</section>
 </section>
 
 
@@ -375,15 +389,6 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="right-next"
-       href="installation.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Installation</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -402,10 +407,12 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">The Single Domain Comprehensive Calculator - documentation</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#reference">Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallelization">Parallelization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initializing-mono-dispersions">Initializing Mono-Dispersions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-treatment-routines">Custom Treatment Routines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-particles-new-in-v1-0">Custom Particles (New in v1.0)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-from-pre-v1-0-particle-files">Converting From Pre v1.0 Particle Files</a></li>
 </ul>
-
   </nav></div>
 
 </div></div>

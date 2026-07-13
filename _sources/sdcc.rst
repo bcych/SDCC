@@ -36,6 +36,14 @@ sdcc.materials module
    :show-inheritance:
    :undoc-members:
 
+sdcc.particles module
+---------------------
+
+.. automodule:: sdcc.particles
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 sdcc.plotting module
 --------------------
 
