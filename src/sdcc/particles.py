@@ -1,5 +1,3 @@
-from ctypes import alignment
-
 import numpy as np
 from sdcc.energy import get_material_parms, angle2xyz
 from sdcc.utils import fib_hypersphere, calc_d_min
